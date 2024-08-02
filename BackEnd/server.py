@@ -6,15 +6,28 @@
 ###
 
 # Import flask
-from flask import Flask
+from flask import Flask, session, make_response,request
+from flask_session import Session
+from cachelib.file import FileSystemCache
 import random as rand
 import datetime
+import os
  
 # Initializing flask app
 app = Flask(__name__)
  
+#Session
+SESSION_TYPE = 'cachelib'
+SESSION_SERIALIZATION_FORMAT = 'json'
+SESSION_CACHELIB = FileSystemCache(threshold=500, cache_dir=f"{os.path.dirname(__file__)}/sessions")
+
+app.config.from_object(__name__)
+
+# Initiate the session
+Session(app)
+
 # Route for seeing a data
-@app.route('/data')
+@app.route('/poo')
 def get_data():
     # Returning data through api
     value = calcualte_test_values()
@@ -25,8 +38,18 @@ def get_data():
         "Value":value
     }
 
+@app.route("/set-session")
+def set_session():
+    session_id = request.args.get('session_id', None)
+    session['id'] = session_id
+    return make_response({"response":"id session key is set"},200)
+
+@app.route("/get-session")
+def get_session():
+    return make_response({"response":f"the id is {session.get('id')}"},200)
+
 def calcualte_test_values():
-    return rand.randint(0,9)
+    return "hello im big"
 
      
 # Running app
