@@ -7,8 +7,12 @@
 
 # Import flask
 from flask import Flask, session, make_response,request
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from flask_session import Session
 from cachelib.file import FileSystemCache
+import base64
 import random as rand
 import datetime
 import os
@@ -22,6 +26,9 @@ SESSION_SERIALIZATION_FORMAT = 'json'
 SESSION_CACHELIB = FileSystemCache(threshold=500, cache_dir=f"{os.path.dirname(__file__)}/sessions")
 
 app.config.from_object(__name__)
+
+#switch this to actually user database
+accounts =	{}
 
 # Initiate the session
 Session(app)
@@ -50,6 +57,53 @@ def get_session():
 
 def calcualte_test_values():
     return "hello im big"
+
+
+@app.route("/account/login", methods = ['GET','POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username in accounts:
+            salt = accounts[username][1]
+            kdf = PBKDF2HMAC(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=salt,
+                iterations=480000,
+            )
+            key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+            if key == accounts[username][2]:
+                session['id'] = accounts[username][0]
+                return make_response({"Login":"True",
+                                    "sessionid":f"{session['id']}"
+                                    })
+        return make_response({"Login":"False"
+                                })
+
+@app.route("/account/create", methods = ['GET','POST'])
+def create():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        salt = os.urandom(16)
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            iterations=480000,
+        )
+        key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+        sessionkey = Fernet(key).encrypt(username.encode())
+        if username not in accounts:
+            session['id'] = key
+            accounts[username] = [sessionkey,salt,key]
+            return make_response({"created":"True",
+                                "username":f"{username}",
+                                "passkey":f"{sessionkey}"
+                                })
+        return make_response({"created":"False"
+                                })
 
      
 # Running app
