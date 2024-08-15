@@ -15,7 +15,7 @@ login_routes = Blueprint("login_routes", __name__)
 accounts =	{}
 
 
-@login_routes.route("/account/login", methods = ['GET','POST'])
+@login_routes.route("/account/login", methods = ['POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
@@ -37,7 +37,7 @@ def login():
         return make_response({"Login":"False"
                                 })
 
-@login_routes.route("/account/create", methods = ['GET','POST'])
+@login_routes.route("/account/create", methods = ['POST'])
 def create():
     if request.method == 'POST':
         username = request.form.get('username')
