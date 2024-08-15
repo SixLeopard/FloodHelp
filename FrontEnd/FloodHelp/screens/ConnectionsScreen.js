@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Button } from 'react-native';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function ConnectionsScreen({ navigation }) {
  return (

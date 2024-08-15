@@ -2,14 +2,18 @@ import React from 'react';
 import { View, Text, Button } from 'react-native';
 import MapView from 'react-native-maps';
 import { StyleSheet } from 'react-native';
+import ScreenHeader from '../components/ScreenHeader';
+
 
 export default function MapScreen({ navigation }) {
  return (
+  <>
    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
      <Text style={{ fontSize: 24 }}>Map Screen</Text>
      <Text style={{ fontSize: 18 }}>This will be the page the app default opens to</Text>
      <MapView style={styles.map} />
    </View>
+   </>
  );
 }
 

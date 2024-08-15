@@ -18,17 +18,17 @@ export default function App() {
     <NavigationContainer>
       <Tab.Navigator
         initialRouteName="Map"
-        tabBarOptions={{
+        screenOptions={{
+          showLabel: false, 
+          tabBarShowLabel: false,
           activeTintColor: "#3498db",
           inactiveTintColor: "gray",
-          labelStyle: {
-            fontSize: 12,
-            marginBottom: 5,
-          },
           style: {
             backgroundColor: "#ecf0f1",
-          },
+          }
         }}
+
+        
       >
         <Tab.Screen
           name="Reporting"
@@ -37,7 +37,7 @@ export default function App() {
             headerShown: false,
             tabBarLabel: "Report",
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="report" color={color} size={size} />
+              <MaterialCommunityIcons name="pencil" color={color} size={size} />
             ),
           }}
         />
@@ -49,7 +49,7 @@ export default function App() {
             tabBarLabel: "Notifications",
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons
-                name="notification"
+                name="bell" // TODO: make this dynamic
                 color={color}
                 size={size}
               />
@@ -61,7 +61,6 @@ export default function App() {
           component={MapScreen}
           options={{
             headerShown: false,
-            tabBarLabel: "Map",
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="map" color={color} size={size} />
             ),
@@ -75,7 +74,7 @@ export default function App() {
             headerShown: false,
             tabBarLabel: "Connections",
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="friend" color={color} size={size} />
+              <MaterialCommunityIcons name="human-greeting" color={color} size={size} />
             ),
           }}
         />
@@ -88,14 +87,17 @@ export default function App() {
             tabBarLabel: "Settings",
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons
-                name="settings"
+                name="cog"
                 color={color}
                 size={size}
               />
             ),
+            
           }}
         />
+        
       </Tab.Navigator>
+      
     </NavigationContainer>
   );
 }

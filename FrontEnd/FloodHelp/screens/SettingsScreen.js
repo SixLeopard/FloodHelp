@@ -1,4 +1,5 @@
 import React from 'react';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { View, Text, Button } from 'react-native';
 
 export default function SettingsScreen({ navigation }) {
