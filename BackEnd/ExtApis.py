@@ -1,48 +1,54 @@
 import requests
 from geopy.geocoders import Nominatim
 import pandas as pd
+import matplotlib.pyplot as plt
+import geopandas as gpd
+from shapely.geometry import Polygon, MultiPolygon
 
 
-#function that takes lon and lat, gives back suburb and street
-def get_location_name(latitude, longitude):
-    geolocator = Nominatim(user_agent="FloodApplicationUQ")
-    location = geolocator.reverse((latitude, longitude), exactly_one=True)
+
+#Takes in multipolygon (4d array of coordinates) and plots it 
+def plot_multipolygon(coordinates):
+    polygons = []
     
-    if location:
-        
-        address = location.raw['address']
-        road = address.get('road', '')      
-        suburb = address.get('suburb', '')  
-        city = address.get('city', '')      
-        return f"{road}, {suburb or city}"
-    else:
-        return "Location not found"
+    for polygon_coords in coordinates:
+        outer_ring = [(lon, lat) for lon, lat in polygon_coords[0]]
+        inner_rings = [
+            [(lon, lat) for lon, lat in ring] for ring in polygon_coords[1:]
+        ]
+        polygons.append(Polygon(outer_ring, inner_rings))
+    multipolygon = MultiPolygon(polygons)
+    gdf = gpd.GeoDataFrame(geometry=[multipolygon])
+    gdf.plot()
+    
+    plt.title("MultiPolygon Visualization")
+    plt.xlabel("Longitude")
+    plt.ylabel("Latitude")
+    plt.show()
     
 
 
 #Getting data
-response = requests.get('https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/flood-awareness-flood-risk-overall/records?limit=20')
+response = requests.get('https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/flood-awareness-flood-risk-overall/records?select=flood_risk%2C%20flood_type%2C%20shape_area%2C%20geo_shape&where=geo_shape%20IS%20NOT%20NULL&order_by=shape_area%20DESC&limit=100')
 data = response.json()
 data_list = []
 
-#Extracting from the data useful information (lon, lat, flood type, flood risk)
+#Extracting from the data useful information (multipolygon, flood type, flood risk)
 for result in data['results']:
     keys = list(result.keys())  
-    risk = result[keys[1]]
-    type = result[keys[2]]
-    if (result[keys[-1]]) is not None:
-        new_keys = list((result[keys[-1]]).keys())
-        lon = (result[keys[-1]])[new_keys[0]]
-        lat = (result[keys[-1]])[new_keys[1]]
-        location_name = get_location_name(lat, lon)
-
+    risk = result[keys[0]]
+    type = result[keys[1]]
+    location = result[keys[3]]
+    location_keys = list(location.keys())
+    geometry = location[location_keys[1]]
+    geometry_keys = list(location[location_keys[1]].keys())
+    if geometry[geometry_keys[1]] == "MultiPolygon":
+        multipolygon= geometry[geometry_keys[0]]
         data_list.append({
-            'location_name': location_name,
-            'type': type,
-            'risk': risk
+        "map_area": multipolygon,
+        'type': type,
+        'risk': risk
         })
-
-
 
 df = pd.DataFrame(data_list)
 print(df)
