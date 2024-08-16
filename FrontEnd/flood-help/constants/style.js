@@ -16,6 +16,7 @@ const useStyles = () => {
         rowContainer: {
             flexDirection: 'row',
             padding: 20,
+            alignItems: 'center'
         },
         headerText: {
             color: colors.text,
@@ -26,6 +27,11 @@ const useStyles = () => {
             color: colors.text,
             fontFamily: 'Urbanist_600SemiBold',
             fontSize: 16
+        },
+        map: {
+
+            width: '100%',
+            height: '100%',
 
 
         }
