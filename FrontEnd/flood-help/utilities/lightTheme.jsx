@@ -17,5 +17,6 @@ export const lightTheme = {
         grey: '#ECECEC',
         green: '#72AA69',
         blue: '#444D7C'
-    },
+    }
+
 };
