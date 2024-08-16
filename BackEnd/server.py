@@ -15,6 +15,7 @@ import os
 #import externals
 import API.Login as APIlogin
 import API.Session as APIsession
+import API.Notifications as APINotifications
 
 # Initializing flask app
 app = Flask(__name__)
@@ -22,6 +23,7 @@ app = Flask(__name__)
 #addin externals
 app.register_blueprint(APIlogin.login_routes)
 app.register_blueprint(APIsession.session_routes)
+app.register_blueprint(APINotifications.notifications_routes)
 
 #Session
 SESSION_TYPE = 'cachelib'
