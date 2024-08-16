@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, Switch } from 'react-native';
 import { useTheme } from '@/constants/ThemeProvider';
 import useStyles from "@/constants/style";
-import {HelloWave} from "@/components/HelloWave";
 
 
 export default function SettingsScreen() {
@@ -15,6 +14,7 @@ export default function SettingsScreen() {
             <View style={styles.rowContainer}>
                 <Text style={styles.bodyText}>Dark Mode</Text>
                 <Switch
+                    value={theme.dark}
                     onValueChange={toggleTheme}
                 />
             </View>
