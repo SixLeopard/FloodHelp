@@ -1,54 +1,79 @@
-import requests
-from geopy.geocoders import Nominatim
+import json
 import pandas as pd
-import matplotlib.pyplot as plt
 import geopandas as gpd
 from shapely.geometry import Polygon, MultiPolygon
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import matplotlib.patches as mpatches
 
 
+#download json file from overall flood data (brisbane city council)
+file_name = ""
+with open(file_name, 'r') as file:
+    data = json.load(file)
 
-#Takes in multipolygon (4d array of coordinates) and plots it 
-def plot_multipolygon(coordinates):
-    polygons = []
+
+extracted_data = []
+
+#Turns coordinates into geometry objects based on type of geometry (polygon/multipolygon)
+def create_geometry(row):
+    try:
+        coords = row[0]
+        geom_type = row[1]
+        if not coords:
+            return None
+        if geom_type == 'Polygon':
+            return Polygon(coords[0])
+        elif geom_type == 'MultiPolygon':
+            return MultiPolygon([Polygon(poly[0]) for poly in coords])
+        else:
+            return None
+    except (ValueError, SyntaxError):
+        print(f"Error processing row: {row}")
+        return None
+
+
+#extracts data
+for item in data:
+    geo_shape = item.get('geo_shape') or {}
+    geometry = geo_shape.get('geometry') or {}
     
-    for polygon_coords in coordinates:
-        outer_ring = [(lon, lat) for lon, lat in polygon_coords[0]]
-        inner_rings = [
-            [(lon, lat) for lon, lat in ring] for ring in polygon_coords[1:]
-        ]
-        polygons.append(Polygon(outer_ring, inner_rings))
-    multipolygon = MultiPolygon(polygons)
-    gdf = gpd.GeoDataFrame(geometry=[multipolygon])
-    gdf.plot()
-    
-    plt.title("MultiPolygon Visualization")
-    plt.xlabel("Longitude")
-    plt.ylabel("Latitude")
+    row = {
+        'flood_risk': item.get('flood_risk', ''),
+        'flood_type': item.get('flood_type', ''),
+        'coordinates': geometry.get('coordinates', ''),
+        'type': geometry.get('type', ''),
+        'geo': create_geometry([geometry.get('coordinates', ''), geometry.get('type', '')])
+    }
+    extracted_data.append(row)
+
+
+df = pd.DataFrame(extracted_data)
+
+
+
+#optional function just to plot the data
+def plot_df(df):
+    gdf = gpd.GeoDataFrame(df, geometry='geo')
+    gdf = gdf.dropna(subset=['geo'])
+
+ 
+    risk_categories = ['Very Low', 'Low', 'Medium', 'High', 'Very High']
+    color_map = plt.colormaps['YlOrRd']  
+    norm = colors.BoundaryNorm(range(len(risk_categories) + 1), color_map.N)
+    fig, ax = plt.subplots(figsize=(15, 16)) 
+    gdf.plot(ax=ax, column='flood_risk', cmap=color_map, norm=norm, legend=False)
+    legend_patches = [mpatches.Patch(color=color_map(norm(i)), label=cat) 
+                      for i, cat in enumerate(risk_categories)]
+    ax.legend(handles=legend_patches, loc='upper center', bbox_to_anchor=(0.5, -0.05),
+              ncol=5, title="Flood Risk")
+
+    plt.axis('off')
+    plt.tight_layout()
+    plt.subplots_adjust(bottom=0.1) 
     plt.show()
-    
 
 
-#Getting data
-response = requests.get('https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/flood-awareness-flood-risk-overall/records?select=flood_risk%2C%20flood_type%2C%20shape_area%2C%20geo_shape&where=geo_shape%20IS%20NOT%20NULL&order_by=shape_area%20DESC&limit=100')
-data = response.json()
-data_list = []
 
-#Extracting from the data useful information (multipolygon, flood type, flood risk)
-for result in data['results']:
-    keys = list(result.keys())  
-    risk = result[keys[0]]
-    type = result[keys[1]]
-    location = result[keys[3]]
-    location_keys = list(location.keys())
-    geometry = location[location_keys[1]]
-    geometry_keys = list(location[location_keys[1]].keys())
-    if geometry[geometry_keys[1]] == "MultiPolygon":
-        multipolygon= geometry[geometry_keys[0]]
-        data_list.append({
-        "map_area": multipolygon,
-        'type': type,
-        'risk': risk
-        })
+plot_df(df)       
 
-df = pd.DataFrame(data_list)
-print(df)
