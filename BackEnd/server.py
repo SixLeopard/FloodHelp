@@ -13,10 +13,10 @@ import datetime
 import os
  
 #import externals
-import API.Login as APIlogin
+import API.Accounts as APIlogin
 import API.Session as APIsession
 import API.Notifications as APINotifications
-import API.UserReport as UserReport
+import API.UserReport as APIUserReport
 
 # Initializing flask app
 app = Flask(__name__)
@@ -24,7 +24,8 @@ app = Flask(__name__)
 #addin externals
 app.register_blueprint(APIlogin.login_routes)
 app.register_blueprint(APIsession.session_routes)
-app.register_blueprint(UserReport.userreport_routes)
+app.register_blueprint(APIUserReport.userreport_routes)
+app.register_blueprint(APINotifications.notifications_routes)
 
 #Session
 SESSION_TYPE = 'cachelib'
@@ -48,6 +49,16 @@ def get_data():
         "Value":value
     }
 
+# root route
+@app.route('/')
+def root_route():
+    # Returning data through api
+    time_stamp = datetime.datetime.now()
+    return make_response({
+        'Intro':"Welcome to FloodHelp API", 
+        "Current Time":time_stamp
+    })
+
 # Running app
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)

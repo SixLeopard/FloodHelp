@@ -26,8 +26,8 @@ def verify_user_account(username, session):
     except:
         return False
 
-@login_routes.route("/account/login", methods = ['POST'])
-def login():
+@login_routes.route("/accounts/login", methods = ['POST'])
+def login_route():
     if request.method == 'POST':
         #get uername and password from api call
         username = request.form.get('username')
@@ -60,8 +60,8 @@ def login():
         #if login fails
         return make_response({"Login":"False"})
 
-@login_routes.route("/account/create", methods = ['POST'])
-def create():
+@login_routes.route("/accounts/create", methods = ['POST'])
+def create_route():
     if request.method == 'POST':
         #get uername and password from api call
         username = request.form.get('username')
@@ -85,8 +85,8 @@ def create():
         #if create failed
         return make_response({"created":"False"})
     
-@login_routes.route('/login/test')
-def get_data():
+@login_routes.route('/accounts/test', methods = ['GET'])
+def test_route():
     # Returning data through api
     value = "calcualte_test_values()"
     time_stamp = "datetime.datetime.now()"
