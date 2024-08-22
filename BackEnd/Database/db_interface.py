@@ -1,6 +1,7 @@
 import psycopg2
 import re
 from psycopg2.extensions import adapt, register_adapter, AsIs
+import datetime
 
 class Point(object):
     def __init__(self, x, y):
@@ -204,3 +205,33 @@ class DBInterface():
         query = 'INSERT INTO hazards (title, image, reporting_user, area, coordinates) VALUES (%s, %s, %s, %s, %s)'
 
         self.query(query, title, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]))
+    
+    """
+    Retrieve hazard with the given ID from the database.
+
+    Returns a dictionary containing:
+        hazard_id (int): The unique ID of the hazard
+        title (str): The name of the hazard
+        datetime (str): The time at which the hazard was created in the format "DD/MM/YY HH:MM:SS"
+        reporting_user_id (int): The UID of the user who reported the hazard
+        area_name (str): The name of the area in which the hazard was reported
+        coordinates (str): The coordinates at which the hazard was reported in the form "(x, y)"
+        image (str): The string encoded representation of the image    
+    """
+    def get_hazard(self, hazard_id: int):
+        results = {}
+        query = 'SELECT * FROM Hazards WHERE hazard_id = (%s)'
+        result = self.query(query, hazard_id)[0]
+
+        hazard = {
+            'hazard_id': result[0],
+            'title': result[1],
+            'datetime': result[2].strftime('%d/%m/%y %H:%M:%S'),
+            'reporting_user_id': result[3],
+            'area_name': result[4],
+            'coordinates': result[5],
+            'img': result[6].tobytes()
+        }
+
+        return hazard
+
