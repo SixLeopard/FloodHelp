@@ -2,8 +2,8 @@ from flask import Flask, Blueprint, request, make_response, session
 
 session_routes = Blueprint("session_routes", __name__)
 
-@session_routes.route("/set-session")
-def set_session():
+@session_routes.route("/session/set",  methods = ['POST'])
+def set_session_route():
     '''
         set the current session id
     '''
@@ -11,8 +11,8 @@ def set_session():
     session['id'] = session_id
     return make_response({"response":"id session key is set"},200)
 
-@session_routes.route("/get-session")
-def get_session():
+@session_routes.route("/session/get", methods = ['GET'])
+def get_session_route():
     '''
         get the current session id
     '''
