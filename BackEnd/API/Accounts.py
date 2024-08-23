@@ -79,12 +79,10 @@ def create_route():
         passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
         #make sure user dosent already exist
-        try:
-            create_account(username, username, passkey, salt)
-            print(database_interface.get_user(username))
-            return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
-        except:
-            return make_response({"created":"False"})
+        create_account(username, username, passkey, salt)
+        print(database_interface.get_user(username))
+        return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
+        return make_response({"created":"False"})
     
 @login_routes.route('/accounts/test', methods = ['GET'])
 def test_route():
