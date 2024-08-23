@@ -114,6 +114,9 @@ class DBInterface():
     def delete_user(self, uid):
         self.query("DELETE FROM Users WHERE uid = %s", uid)
 
+    def get_user(self, email: str):
+        return self.query("SELECT * FROM Users WHERE email = %s", email)[0]
+
     '''
     Create an entry for a new relationship between two users. Users who have an approved relationship
     can see each others location on the Floodhelp app. A user is approved if the 'approved' field in
@@ -235,3 +238,25 @@ class DBInterface():
 
         return hazard
 
+    def insert_historical_data(self, flood_risk: str, flood_type: str, \
+        coordinates: str, datatype: str, geo: str):
+        query = "INSERT INTO historical_flood_risk (flood_risk, flood_type, coordinates, datatype, geo) VALUES (%s, %s, %s, %s, %s)"
+
+        self.query(query, flood_risk, flood_type, coordinates, datatype, geo)
+
+    def get_historical_data(self):
+        query = "SELECT * FROM historical_flood_risk"
+        result = self.query(query)
+
+        results = []
+        for row in result:
+            new_row = []
+            new_row.append(row[0])
+            new_row.append(row[1])
+            new_row.append(row[2])
+            new_row.append(row[3].tobytes())
+            new_row.append(row[4].tobytes())
+            new_row.append(row[5].tobytes())
+            results.append(new_row)
+
+        return results
