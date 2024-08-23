@@ -68,6 +68,7 @@ def login_route():
 def create_route():
     if request.method == 'POST':
         #get uername and password from api call
+        name = request.form.get('name')
         username = request.form.get('username')
         password = request.form.get('password')
 
@@ -79,7 +80,7 @@ def create_route():
         passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
         #make sure user dosent already exist
-        create_account(username, username, passkey, salt)
+        create_account(name, username, passkey, salt)
         print(database_interface.get_user(username))
         return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
         return make_response({"created":"False"})
