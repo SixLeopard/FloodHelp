@@ -21,8 +21,18 @@ def test_create_hazard():
 def test_get_hazard():
     print(db.get_hazard(3))
 
+def test_historical_data():
+    db.insert_historical_data('high', 'river', 'bleh', 'blah', 'bloh')
+    print(db.get_historical_data())
+
+def test_get_user():
+    print(db.get_user('j11@gmail.com'))
+
 # test_create_user()
 # test_relationships()
 # test_select()
 # test_create_hazard()
-test_get_hazard()
+# test_get_hazard()
+# test_historical_data()
+
+test_get_user()
