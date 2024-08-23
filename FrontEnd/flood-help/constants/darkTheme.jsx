@@ -3,7 +3,7 @@ export const darkTheme = {
     colors: {
         primary: '#FFFFFF',
         background: '#262626',
-        card: '#FFFFFF',
+        card: '#e8e8e8',
         text: '#FFFFFF',
         tabIconDefault: '#A5A5A5',
         tint: '#FFFFFF',
