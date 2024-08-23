@@ -1,26 +1,19 @@
 import React from 'react';
-import {Pressable, Text} from "react-native";
+import {Pressable, Text, View} from "react-native";
 
 import useStyles from "@/constants/style";
 import UserAvatar from "@/components/UserAvatar";
 import { router} from "expo-router";
+import UserPressable from "@/components/UserPressable";
 
 const UserCard = ({username, userId}) => {
     const styles = useStyles();
 
     return (
-        <Pressable style ={styles.userCard}
-            onPress={() => router.push({
-                pathname: '/user/[id]',
-                params: {id : userId}
-            })
-            }>
+        <View style={styles.userCard}>
+            <UserPressable userId={userId} username={username}/>
+        </View>
 
-
-            <UserAvatar imageLink={""}></UserAvatar>
-            <Text style={styles.bodyText}>{username}</Text>
-
-        </Pressable>
     );
 };
 

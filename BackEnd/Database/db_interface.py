@@ -28,6 +28,20 @@ def adapt_point(point):
     return AsIs("'(%s, %s)'" % (x, y))
 
 register_adapter(Point, adapt_point)
+from psycopg2.extensions import adapt, register_adapter, AsIs
+import datetime
+
+class Point(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+def adapt_point(point):
+    x = adapt(point.x)
+    y = adapt(point.y)
+    return AsIs("'(%s, %s)'" % (x, y))
+
+register_adapter(Point, adapt_point)
 
 """
 The DBInterface class is an interface between a python program and the database specified in the
@@ -85,8 +99,10 @@ class DBInterface():
 
         self.conn.commit()
         self.conn.commit()
+        self.conn.commit()
 
         try:
+            # Only queries return results
             # Only queries return results
             # Only queries return results
             result = self.cur.fetchall()
@@ -106,7 +122,11 @@ class DBInterface():
     Insert a new user to the Users table.
 
 
+
     A unique UID is generated for each new user by the database and their Verified status
+    is set to false. Additionally, an entry in the 'User_settings' table is made with the
+    same 'uid' by a trigger in the database. The users email must be unique and can be used 
+    to identify them in the database.
     is set to false. Additionally, an entry in the 'User_settings' table is made with the
     same 'uid' by a trigger in the database. The users email must be unique and can be used 
     to identify them in the database.
@@ -118,12 +138,15 @@ class DBInterface():
         if (re.search(r"[^a-zA-z]", name.strip('\n'))):
             raise Exception('User name may only only contain alphabetical characters')
             raise Exception('User name may only only contain alphabetical characters')
+            raise Exception('User name may only only contain alphabetical characters')
         
         if (not re.search(r"[^@]+@[^@]+.[^@]+", email)):
             raise Exception('Invalid email address')
             raise Exception('Invalid email address')
+            raise Exception('Invalid email address')
         
         if (pwd_hash is None or pwd_salt is None):
+            raise Exception('Missing password hash or salt')
             raise Exception('Missing password hash or salt')
             raise Exception('Missing password hash or salt')
         
