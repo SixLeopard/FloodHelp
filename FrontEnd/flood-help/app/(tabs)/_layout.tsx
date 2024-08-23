@@ -1,19 +1,9 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { darkTheme } from '@/utilities/darkTheme';
-import { lightTheme } from '@/utilities/lightTheme';
 import {useTheme} from "@/constants/ThemeProvider";
 
 export default function TabLayout() {
-    // const colorScheme = useColorScheme();
-
-    // // Select the appropriate theme colors based on the color scheme
-    // const theme = colorScheme === 'dark' ? darkTheme : lightTheme;
-    // const { colors } = theme;
-
     const { theme } = useTheme();
     const { colors } = theme;
 
@@ -79,6 +69,13 @@ export default function TabLayout() {
                     ),
                 }}
             />
+            <Tabs.Screen
+                name="user/[id]"
+                options={{
+                    tabBarButton: () => null,
+                }}
+
+                />
         </Tabs>
     );
 }
