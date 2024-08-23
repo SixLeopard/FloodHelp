@@ -28,11 +28,16 @@ def test_historical_data():
 def test_get_user():
     print(db.get_user('j11@gmail.com'))
 
+def test_notifications():
+    db.create_notification(31, 'flood warning', 'some text')
+    print(db.get_notifications(31))
+
 # test_create_user()
 # test_relationships()
 # test_select()
 # test_create_hazard()
 # test_get_hazard()
 # test_historical_data()
+# test_get_user()
+test_notifications()
 
-test_get_user()
