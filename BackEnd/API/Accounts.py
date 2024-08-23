@@ -9,6 +9,7 @@ import uuid
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from API.database import database_interface
 
 login_routes = Blueprint("login_routes", __name__)
 
@@ -25,6 +26,9 @@ def verify_user_account(username, session):
             return False
     except:
         return False
+
+def create_account(name: str, email: str, passkey: str, salt: str):
+    database_interface.create_user(name, email, passkey, salt)
 
 @login_routes.route("/accounts/login", methods = ['POST'])
 def login_route():
@@ -75,15 +79,11 @@ def create_route():
         passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
         #make sure user dosent already exist
-        if username not in accounts:
-            #**** change to save to database ****#
-            accounts[username] = [passkey,salt]
-
-            #reutrn infomration
+        try:
+            create_account(username, username, passkey, salt)
             return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
-        
-        #if create failed
-        return make_response({"created":"False"})
+        except:
+            return make_response({"created":"False"})
     
 @login_routes.route('/accounts/test', methods = ['GET'])
 def test_route():
