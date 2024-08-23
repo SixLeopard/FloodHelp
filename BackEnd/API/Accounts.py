@@ -81,6 +81,7 @@ def create_route():
         #make sure user dosent already exist
         try:
             create_account(username, username, passkey, salt)
+            print(database_interface.get_user(username))
             return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
         except:
             return make_response({"created":"False"})
