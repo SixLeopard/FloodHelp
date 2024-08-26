@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Alert, Image } from "react-native";
+import { View, Alert, Image, TouchableOpacity } from "react-native";
 import useStyles from "@/constants/style";
 import MapView, { Marker, Region } from "react-native-maps";
 import { mapLightTheme } from "@/constants/mapLightTheme";
 import { mapDarkTheme } from "@/constants/mapDarkTheme";
 import { useTheme } from "@/constants/ThemeProvider";
 import * as Location from 'expo-location';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function Index() {
     const styles = useStyles();
@@ -35,6 +36,14 @@ export default function Index() {
         requestLocationPermission();
     }, []);
 
+    const handleAddReport = () => {
+        Alert.alert("Add Report", "This will navigate to the report screen.");
+    };
+
+    const handleSeeHistoricalFlooding = () => {
+        Alert.alert("Historical Flooding", "This will show historical flooding areas.");
+    };
+
     return (
         <View style={styles.page}>
             {region && (
@@ -48,12 +57,21 @@ export default function Index() {
                         title={"Your Location"}
                     >
                         <Image
-                            source={require('@/assets/marker-default.png')}
+                            source={require('@/assets/images/marker-default.png')}
                             style={{ width: markerSize.width, height: markerSize.height }}
                         />
                     </Marker>
                 </MapView>
             )}
+
+            <View style={styles.iconContainer}>
+                <TouchableOpacity onPress={handleAddReport} style={styles.iconButton}>
+                    <Icon name="report" size={40} color={theme.dark ? "white" : "black"} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleSeeHistoricalFlooding} style={styles.iconButton}>
+                    <Icon name="history" size={40} color={theme.dark ? "white" : "black"} />
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }

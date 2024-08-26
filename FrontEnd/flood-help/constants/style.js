@@ -100,6 +100,22 @@ const useStyles = () => {
             color: colors.red,
             margin: 15,
         },
+        iconContainer: { 
+            position: 'absolute',
+            top: 90, 
+            left: 10, 
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            width: 70, 
+        },
+        iconButton: {
+            backgroundColor: 'rgba(255, 255, 255, 0.8)', 
+            padding: 10,
+            borderRadius: 50, 
+            marginLeft: 10, 
+            marginTop: 10,
+            marginBottom: 10,
+        },
 
     });
 };
