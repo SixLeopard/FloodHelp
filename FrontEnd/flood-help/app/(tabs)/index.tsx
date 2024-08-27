@@ -8,6 +8,15 @@ import { useTheme } from "@/constants/ThemeProvider";
 import * as Location from 'expo-location';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
+// Simulated Flood Data
+const simulatedFloodData = [
+    {
+        location_name: 'Flood 1',
+        Coordinates: { latitude: -27.5782, longitude: 153.09387 },
+        Flood_Category: 'Major Flood',
+    },
+];
+
 export default function Index() {
     const styles = useStyles();
     const { theme } = useTheme();
@@ -61,6 +70,21 @@ export default function Index() {
                             style={{ width: markerSize.width, height: markerSize.height }}
                         />
                     </Marker>
+
+                    {/* Render Simulated Flood Data */}
+                    {simulatedFloodData.map((floodData, index) => (
+                        <Marker 
+                            key={index}
+                            coordinate={floodData.Coordinates}
+                            title={floodData.location_name}
+                            description={`Flood Category: ${floodData.Flood_Category}`}
+                        >
+                            <Image
+                                source={require('@/assets/images/marker-flood.png')}
+                                style={{ width: markerSize.width * 2, height: markerSize.height * 2 }}
+                            />
+                        </Marker>
+                    ))}
                 </MapView>
             )}
 
