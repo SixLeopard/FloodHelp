@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.patches as mpatches
 
-def get_historical(file_name):
+def get_historical_data(file_name):
     #Turns coordinates into geometry objects based on type of geometry (polygon/multipolygon)
     def create_geometry(row):
         try:
