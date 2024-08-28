@@ -101,7 +101,7 @@ def get_real_time_data():
         
     #merging metadata and data with river heights
     df['latest value'] = df['sensor_id'].map(updated_stations)
-    df_classification = find_stations(file_path)
+    df_classification = find_stations(file_path) #classifying using text file
     merged_df = pd.merge(df, df_classification, left_on='location_id', right_on='location_id', how='left')
     df = merged_df
 
