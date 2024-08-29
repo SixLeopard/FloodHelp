@@ -71,12 +71,19 @@ class DBInterface():
             err = 1
             self.cur.execute(query_string, args)
         except psycopg2.Error as e:
+            err = 1
             self.conn.rollback()
             raise Exception(e.pgerror)
 
         if not err:
             self.conn.commit()
 
+            try:
+                # Only queries return results
+                result = self.cur.fetchall()
+                return result
+            except:
+                pass
             try:
                 # Only queries return results
                 result = self.cur.fetchall()
