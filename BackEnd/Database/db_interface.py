@@ -83,12 +83,6 @@ class DBInterface():
                 return result
             except:
                 pass
-            try:
-                # Only queries return results
-                result = self.cur.fetchall()
-                return result
-            except:
-                pass
 
         return None
 
