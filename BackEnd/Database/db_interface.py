@@ -68,7 +68,6 @@ class DBInterface():
             raise Exception("Establish connection using connect() before executing queries")
 
         try:
-            err = 1
             self.cur.execute(query_string, args)
         except psycopg2.Error as e:
             err = 1
@@ -84,13 +83,7 @@ class DBInterface():
                 return result
             except:
                 pass
-            try:
-                # Only queries return results
-                result = self.cur.fetchall()
-                return result
-            except:
-                pass
-        
+
         return None
 
     """
