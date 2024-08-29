@@ -30,21 +30,27 @@ const useStyles = () => {
             fontFamily: 'Urbanist_400Regular',
             fontSize: 16,
             flexWrap: 'wrap',
-            width: "90%",
         },
         bodyTextDark: {
             color: colors.darkText,
             fontFamily: 'Urbanist_400Regular',
             fontSize: 16,
             flexWrap: 'wrap',
-            width: "90%",
+
         },
         bodyTextBold: {
             color: colors.darkText,
             fontFamily: 'Urbanist_600SemiBold',
             fontSize: 16,
             flexWrap: 'wrap',
-            width: "90%",
+
+        },
+        nameText: {
+            color: colors.text,
+            fontFamily: 'Urbanist_400Regular',
+            fontSize: 20,
+            flexWrap: 'wrap',
+
         },
         map: {
 
@@ -55,19 +61,15 @@ const useStyles = () => {
             height: 70,
             flexDirection: "row",
             alignItems: 'center'
-        },
-        profileImg: {
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            margin: 15,
+
+
         },
         userCard: {
             height: 70,
             width: '85%',
             backgroundColor: colors.card,
             flexDirection: "row",
-            justifyContent: 'flex-start',
+            justifyContent: "space-between",
             alignItems: 'center',
             alignSelf: 'center',
             borderStyle: "solid",
@@ -75,6 +77,14 @@ const useStyles = () => {
             borderWidth: 2,
             borderRadius: 15,
             margin: 5,
+
+        },
+        userCardIcon: {
+            flexDirection: "row",
+           justifyContent: "space-between",
+            margin: 15,
+            gap: 10,
+            fontSize: 35,
 
         },
         notificationCard: {
@@ -92,6 +102,7 @@ const useStyles = () => {
             borderRadius: 15,
             margin: 5,
 
+
         }, notificationBody: {
             marginVertical: 15,
             width: '80%'
@@ -99,6 +110,34 @@ const useStyles = () => {
             fontSize: 50,
             color: colors.red,
             margin: 15,
+            alignContent: 'center'
+        },
+        formContainer: {
+            flex: 1,
+        },
+        input: {
+            height: 40,
+            borderColor: '#ccc',
+            borderWidth: 1,
+            marginBottom: 12,
+            paddingHorizontal: 8,
+            backgroundColor: '#fff',
+        },
+        iconContainer: { 
+            position: 'absolute',
+            top: 90, 
+            left: 10, 
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            width: 70, 
+        },
+        iconButton: {
+            backgroundColor: 'rgba(255, 255, 255, 0.8)', 
+            padding: 10,
+            borderRadius: 50, 
+            marginLeft: 10, 
+            marginTop: 10,
+            marginBottom: 10,
         },
 
     });
