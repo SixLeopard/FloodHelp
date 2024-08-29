@@ -7,6 +7,9 @@ import matplotlib.colors as colors
 import matplotlib.patches as mpatches
 
 def get_historical_data(file_name):
+    """
+    Takes the json format of the historical data (from Brisbane City Council) as input. Outputs in JSON format: flood_risk, flood_type, coordinates, type (polygon/multipolygon)
+    """
     #Turns coordinates into geometry objects based on type of geometry (polygon/multipolygon)
     def create_geometry(row):
         try:

@@ -2,11 +2,14 @@ import requests
 import pandas as pd
 import numpy as np
 import os
-
+import json
 
 
 def get_real_time_data():
 
+    """
+    Gets latest flood conditions for around 40 locations using river height data. Output is in JSON format with following columns: 'location_name', 'Coordinates', 'Last Updated', 'Flood Category'
+    """
     #getting metadata
     response = requests.get("https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/telemetry-sensors-rainfall-and-stream-heights-metadata/records?where=sensor_type%20%3D%20'Stream%20Height%20AHD'&limit=100")
     data = response.json()
@@ -20,8 +23,10 @@ def get_real_time_data():
     file_path = os.path.join(script_dir, "classification.txt")
 
 
-    #takes in a row from the database and checks whether the level of flooding based on river height
     def flood_category(row):
+        """
+        takes in a row from the database and checks the level of flooding based on river height
+        """
         latest_value = pd.to_numeric(row['latest value'][0], errors='coerce')  
         if latest_value > row['Major Flood Height']:
             return 'Major Flood'
@@ -33,8 +38,11 @@ def get_real_time_data():
             return 'No Flood'
         
 
-    #reads .txt file to find the flood classifications for each location/station    
+       
     def find_stations(file_path):
+        """
+        reads .txt file to find the flood classifications for each location/station 
+        """
         data = []
 
         with open(file_path, 'r') as file:
@@ -120,3 +128,38 @@ def get_real_time_data():
     organized_df = df[['location_name', 'Coordinates', 'Last Updated', 'Flood Category']]
     data_in_json = organized_df.to_json()
     return data_in_json
+
+
+
+def get_alerts():
+    """
+    Gets all flood alerts in Brisbane from the past day. Returns a list of dictionaries in JSON format. Each dictionary has the keys: headline, location, risk, certainty, start, end.
+    """
+
+    api_key = "7fde6684522a487da5092415242508"
+    url = "http://api.weatherapi.com/v1/forecast.json"
+    params = {
+        "key": api_key,
+        "q": "Brisbane",
+        "alerts" : "yes",
+    }
+
+
+    response = requests.get(url, params=params)
+    data = response.json()
+    list_of_alerts = data["alerts"]["alert"]
+    filtered_list_of_alerts = []
+    for alert in list_of_alerts:
+        new_alert = {}
+        if (alert["event"] == "Flood Warning" and alert["msgtype"] == "Alert"):
+
+            new_alert["headline"] = alert["headline"]
+            new_alert["location"] = alert["areas"]
+            new_alert["risk"] = alert["severity"]
+            new_alert["certainty"] = alert["certainty"]
+            new_alert["start"] = alert["effective"]
+            new_alert["end"] = alert["expires"]
+
+            filtered_list_of_alerts.append(json.dumps(new_alert))
+
+    return filtered_list_of_alerts
