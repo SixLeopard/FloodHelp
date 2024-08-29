@@ -30,39 +30,56 @@ def verify_user_account(username, session):
 def create_account(name: str, email: str, passkey: str, salt: str):
     database_interface.create_user(name, email, passkey, salt)
 
+def login(email: str, password):
+    try:
+        # tuple (uid, name, email, verified, password_hash, password_salt)
+        uid, name, username, verified, password, salt = database_interface.get_user(email)
+        #set up encryption allocation and get saved salt for user
+        kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
+
+        #generate the passkey by encoding the password
+        passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+
+        #check to see if username and password match
+        if passkey == password: #is pas
+            #generate session key
+            sessionkey = Fernet(passkey).encrypt(uuid.uuid4().bytes)
+            return (sessionkey, username, uid)
+        else:
+            return (None,None,None)
+    except:
+        return(None,None,None)
+        
+    
+
 @login_routes.route("/accounts/login", methods = ['POST'])
 def login_route():
     if request.method == 'POST':
         #get uername and password from api call
         username = request.form.get('username')
         password = request.form.get('password')
+        if (username != None or password != None):
+            sessionkey,username,uid = login(username, password)
 
-        #if valid username
-        if username in accounts:
-            #set up encryption allocation and get saved salt for user
-            salt = accounts[username][1]
-            kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
-
-            #generate the passkey by encoding the password
-            passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
-
-            #check to see if username and password match
-            if passkey == accounts[username][0]: #**** change this to check database instead ****#
-                #generate session key
-                sessionkey = Fernet(passkey).encrypt(uuid.uuid4().bytes)
+            if (sessionkey != None or username != None or password != None):
 
                 #assign session id and username
                 session['id'] = sessionkey
                 session['username'] = username
+                session["uid"] = uid 
 
                 #setup active username to session key mapping
                 session_username_mappings[session['username']] = session['id']
 
                 #return the session id on succesful login
                 return make_response({"Login":"True", "sessionid":f"{session['id']}"})
-            
-        #if login fails
-        return make_response({"Login":"False"})
+            else:
+                #if login fails
+                return make_response({"Login":"False"})
+        else:
+            return make_response({"Login":"False"})
+    
+    return make_response({"Login":"login mut be completed through POST request"})
 
 @login_routes.route("/accounts/create", methods = ['POST'])
 def create_route():
@@ -80,8 +97,10 @@ def create_route():
         passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
         create_account(name, username, passkey, salt)
-        return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
-        return make_response({"created":"False"})
+        try:
+            return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
+        except:
+            return make_response({"created":"False"})
     
 @login_routes.route('/accounts/test', methods = ['GET'])
 def test_route():
