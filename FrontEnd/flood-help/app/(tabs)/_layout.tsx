@@ -76,6 +76,20 @@ export default function TabLayout() {
                 }}
 
                 />
+            <Tabs.Screen
+                name="reports/[report_id]"
+                options={{
+                    tabBarButton: () => null,
+                }}
+
+            />
+            <Tabs.Screen
+                name="newreport"
+                options={{
+                    tabBarButton: () => null,
+                }}
+
+            />
         </Tabs>
     );
 }
