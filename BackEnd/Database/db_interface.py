@@ -95,14 +95,7 @@ class DBInterface():
     """
     Insert a new user to the Users table.
 
-    A unique UID is generated for each new user by the database and their Verified status
-    is set to false. Additionally, an entry in the 'User_settings' table is made with the
-    same 'uid' by a trigger in the database. The users email must be unique and can be used 
-    to identify them in the database.
-    is set to false. Additionally, an entry in the 'User_settings' table is made with the
-    same 'uid' by a trigger in the database. The users email must be unique and can be used 
-    to identify them in the database.
-    is set to false. Additionally, an entry in the 'User_settings' table is made with the
+    A unique UID is generated for each new user by the database and their Verified status is set to false. Additionally, an entry in the 'User_settings' table is made with the
     same 'uid' by a trigger in the database. The users email must be unique and can be used 
     to identify them in the database.
     """
@@ -277,6 +270,44 @@ class DBInterface():
             results.append(new_row)
 
         return results
+
+    """
+    Insert a new entry into the 'Notifications' table.
+
+    uid (int):
+        The uid of the user to which the notification is to be sent
+    
+    notification_type (int):
+        The type of notification (arbitrary at this point, just a string)
+
+    content (str):
+        The contents of the warning.
+    """
+    def create_notification(self, uid: int, notification_type: str, content: str):
+        query = "INSERT INTO Notifications (uid, type, content) VALUES (%s, %s, %s)"
+        self.query(query, uid, notification_type, content)
+
+    """
+    Retrieve notifications for the specfied user and delete from the database.
+
+    Returns a list of tuples in the form:
+        [(uid, notification_id, 'type', 'content'), ...]
+
+    Ignore the notification ID
+    """
+    def get_notifications(self, uid: int):
+        query = "SELECT * FROM Notifications WHERE uid = %s"
+        result = self.query(query, uid)
+
+        # Remove retrieved notifications from database.
+        # Safer option would be to use transaction, or to remove only
+        # notifications with retrieved notification ID's
+        query = "DELETE FROM Notifications WHERE uid = %s"
+        self.query(query, uid)
+
+        return result
+
+
 
     """
     Insert a new entry into the 'Notifications' table.

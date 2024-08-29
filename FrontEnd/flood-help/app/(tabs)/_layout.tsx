@@ -20,12 +20,12 @@ export default function TabLayout() {
                 headerShown: false,
             }}>
             <Tabs.Screen
-                name="reporting"
+                name="profile"
                 options={{
                     headerShown: false,
-                    tabBarLabel: "Report",
+                    tabBarLabel: "account",
                     tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name="pencil" color={color} size={size} />
+                        <MaterialCommunityIcons name="account" color={color} size={size} />
                     ),
                 }}
             />
@@ -76,6 +76,20 @@ export default function TabLayout() {
                 }}
 
                 />
+            <Tabs.Screen
+                name="reports/[report_id]"
+                options={{
+                    tabBarButton: () => null,
+                }}
+
+            />
+            <Tabs.Screen
+                name="newreport"
+                options={{
+                    tabBarButton: () => null,
+                }}
+
+            />
         </Tabs>
     );
 }
