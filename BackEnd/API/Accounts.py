@@ -16,7 +16,7 @@ login_routes = Blueprint("login_routes", __name__)
 #switch this to actually user database
 accounts =	{}
 
-encoding = 'utf-8'
+encoding = 'ascii'
 
 session_username_mappings = {}
 
