@@ -16,7 +16,7 @@ const UserPressable = ({username, userId}) => {
                    })
                    }>
 
-            <UserAvatar imageLink={""}></UserAvatar>
+            <UserAvatar imageLink={""} userId={userId}></UserAvatar>
             <Text style={styles.bodyTextBold}>{username}</Text>
 
         </Pressable>
