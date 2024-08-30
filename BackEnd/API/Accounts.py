@@ -36,7 +36,7 @@ def login(email: str, password):
     #try:
     # tuple (uid, name, email, verified, password_hash, password_salt)
     uid, name, username, verified, verf_password, salt = database_interface.get_user(email)
-
+    print(salt, type(salt))
     #set up encryption allocation and get saved salt for user
     kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
     #generate the passkey by encoding the password
