@@ -1,38 +1,101 @@
-import { View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Alert, Image, TouchableOpacity } from "react-native";
 import useStyles from "@/constants/style";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Region } from "react-native-maps";
 import { mapLightTheme } from "@/constants/mapLightTheme";
 import { mapDarkTheme } from "@/constants/mapDarkTheme";
 import { useTheme } from "@/constants/ThemeProvider";
-import React from "react";
+import * as Location from 'expo-location';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+// Simulated Flood Data
+const simulatedFloodData = [
+    {
+        location_name: 'Flood 1',
+        Coordinates: { latitude: -27.5782, longitude: 153.09387 },
+        Flood_Category: 'Major Flood',
+    },
+];
 
 export default function Index() {
     const styles = useStyles();
     const { theme } = useTheme();
+    const [region, setRegion] = useState<Region | null>(null);
+    const [markerSize, setMarkerSize] = useState({ width: 30, height: 30 });
+
+    useEffect(() => {
+        const requestLocationPermission = async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert("Permission to access location was denied");
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            const { latitude, longitude } = location.coords;
+
+            setRegion({
+                latitude,
+                longitude,
+                latitudeDelta: 0.0922, 
+                longitudeDelta: 0.0421, 
+            });
+        };
+
+        requestLocationPermission();
+    }, []);
+
+    const handleAddReport = () => {
+        Alert.alert("Add Report", "This will navigate to the report screen.");
+    };
+
+    const handleSeeHistoricalFlooding = () => {
+        Alert.alert("Historical Flooding", "This will show historical flooding areas.");
+    };
 
     return (
         <View style={styles.page}>
-            <MapView
-                style={styles.map}
-                customMapStyle={theme.dark ? mapDarkTheme : mapLightTheme}
-                initialRegion={{
-                    latitude: -27.48940955072014,
-                    latitudeDelta: 0.07086089788321814,
-                    longitude: 153.01367115357283,
-                    longitudeDelta: 0.050797231545828936,
-                }}
-            >
-                <Marker
-                    coordinate={{
-                        latitude: -27.48940955072014,
-                        longitude: 153.01367115357283,
-                    }}
-                    title={"test"}
-                    description={"hazard"}
+            {region && (
+                <MapView
+                    style={styles.map}
+                    customMapStyle={theme.dark ? mapDarkTheme : mapLightTheme}
+                    initialRegion={region}
                 >
+                    <Marker 
+                        coordinate={region}
+                        title={"Your Location"}
+                    >
+                        <Image
+                            source={require('@/assets/images/marker-default.png')}
+                            style={{ width: markerSize.width, height: markerSize.height }}
+                        />
+                    </Marker>
 
-                </Marker>
-            </MapView>
+                    {/* Render Simulated Flood Data */}
+                    {simulatedFloodData.map((floodData, index) => (
+                        <Marker 
+                            key={index}
+                            coordinate={floodData.Coordinates}
+                            title={floodData.location_name}
+                            description={`Flood Category: ${floodData.Flood_Category}`}
+                        >
+                            <Image
+                                source={require('@/assets/images/marker-flood.png')}
+                                style={{ width: markerSize.width * 2, height: markerSize.height * 2 }}
+                            />
+                        </Marker>
+                    ))}
+                </MapView>
+            )}
+
+            <View style={styles.iconContainer}>
+                <TouchableOpacity onPress={handleAddReport} style={styles.iconButton}>
+                    <Icon name="report" size={40} color={theme.dark ? "white" : "black"} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleSeeHistoricalFlooding} style={styles.iconButton}>
+                    <Icon name="history" size={40} color={theme.dark ? "white" : "black"} />
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }

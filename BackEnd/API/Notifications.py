@@ -7,7 +7,6 @@ notifications_routes = Blueprint("notifications_routes", __name__)
 #switch to using database
 pending_notifications = {}
 
-
 def add_notification(receiver : str, notification : str) -> None:
     if receiver in pending_notifications:
         pending_notifications[receiver].append(notification)
