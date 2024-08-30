@@ -88,7 +88,12 @@ export default function TabLayout() {
                 options={{
                     tabBarButton: () => null,
                 }}
-
+            />
+            <Tabs.Screen
+                name="newConnections"
+                options={{
+                    tabBarButton: () => null,
+                }}
             />
         </Tabs>
     );
