@@ -31,26 +31,26 @@ def create_account(name: str, email: str, passkey: str, salt: str):
     database_interface.create_user(name, email, passkey, salt)
 
 def login(email: str, password):
-    try:
-        # tuple (uid, name, email, verified, password_hash, password_salt)
-        uid, name, username, verified, password, salt = database_interface.get_user(email)
-        #set up encryption allocation and get saved salt for user
-        kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
+    #try:
+    # tuple (uid, name, email, verified, password_hash, password_salt)
+    uid, name, username, verified, password, salt = database_interface.get_user(email)
+    #set up encryption allocation and get saved salt for user
+    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
 
-        #generate the passkey by encoding the password
-        passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+    #generate the passkey by encoding the password
+    passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
-        #check to see if username and password match
-        if passkey == password: #is pas
-            #generate session key
-            sessionkey = Fernet(passkey).encrypt(uuid.uuid4().bytes)
-            return (sessionkey, username, uid)
-        else:
-            print("user submitted invalid password")
-            return (None,None,None)
-    except:
-        print("username does not exist in the database")
-        return(None,None,None)
+    #check to see if username and password match
+    if passkey == password: #is pas
+        #generate session key
+        sessionkey = Fernet(passkey).encrypt(uuid.uuid4().bytes)
+        return (sessionkey, username, uid)
+    else:
+        print("user submitted invalid password")
+        return (None,None,None)
+    #except:
+    #    print("username does not exist in the database")
+    #    return(None,None,None)
         
     
 
