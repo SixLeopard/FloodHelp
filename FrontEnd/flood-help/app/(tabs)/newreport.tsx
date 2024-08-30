@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Text, View, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import {Text, View, TextInput, Button, StyleSheet, Alert, Animated} from 'react-native';
 import useStyles from '@/constants/style';
+import FH_Button from "@/components/navigation/FH_Button";
 
 const NewReport = () => {
     const styles = useStyles();
     const [location, setLocation] = useState('');
-    const [details, setDetails] = useState('');
-    const [contact, setContact] = useState('');
+    const [description, setDetails] = useState('');
+    const [photos, setPhotos] = useState([]);
 
     const handleSubmit = () => {
         if (!location || !details || !contact) {
@@ -18,30 +19,29 @@ const NewReport = () => {
         Alert.alert('Success', 'Report submitted successfully!');
     };
 
+
     return (
         <View style={styles.page}>
             <Text style={styles.headerText}>New Report</Text>
             <View style={styles.formContainer}>
                 <TextInput
-                    style={styles.input}
+                    style={styles.inputBox}
                     placeholder="Location"
                     value={location}
                     onChangeText={setLocation}
                 />
                 <TextInput
-                    style={styles.input}
-                    placeholder="Details"
-                    value={details}
+                    style={styles.inputBox}
+                    placeholder="Description"
+                    value={description}
                     onChangeText={setDetails}
                     multiline
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Contact Information"
-                    value={contact}
-                    onChangeText={setContact}
-                />
-                <Button title="Submit Report" onPress={handleSubmit} />
+
+<Text>**TOO: Add Images Feature**</Text>
+
+
+                <FH_Button text="Submit Report" route='/(tabs)/profile' />
             </View>
         </View>
     );
