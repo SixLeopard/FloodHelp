@@ -16,6 +16,8 @@ login_routes = Blueprint("login_routes", __name__)
 #switch this to actually user database
 accounts =	{}
 
+encoding = 'utf-8'
+
 session_username_mappings = {}
 
 def verify_user_account(username, session):
@@ -34,8 +36,8 @@ def login(email: str, password):
     #try:
     # tuple (uid, name, email, verified, password_hash, password_salt)
     uid, name, username, verified, verf_password, salt = database_interface.get_user(email)
-    salt = bytes(salt)
-    verf_password = bytes(verf_password)
+    salt = bytes(salt,encoding)
+    verf_password = bytes(verf_password, encoding)
 
     #set up encryption allocation and get saved salt for user
     kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
@@ -101,7 +103,7 @@ def create_route():
         #generate the passkey by encoding the password
         passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
-        create_account(name, username, str(passkey), str(salt))
+        create_account(name, username, str(passkey, encoding), str(salt, encoding))
         try:
             return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
         except:
