@@ -46,8 +46,10 @@ def login(email: str, password):
             sessionkey = Fernet(passkey).encrypt(uuid.uuid4().bytes)
             return (sessionkey, username, uid)
         else:
+            print("user submitted invalid password")
             return (None,None,None)
     except:
+        print("username does not exist in the database")
         return(None,None,None)
         
     
