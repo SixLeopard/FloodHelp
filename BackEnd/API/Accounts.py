@@ -44,6 +44,7 @@ def login(email: str, password):
 
     #generate the passkey by encoding the password
     passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+    passkey = bytes(passkey,encoding)
 
     #check to see if username and password match
     if passkey == verf_password: #is pas
