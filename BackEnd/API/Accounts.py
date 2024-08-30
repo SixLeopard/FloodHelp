@@ -33,7 +33,10 @@ def create_account(name: str, email: str, passkey: str, salt: str):
 def login(email: str, password):
     #try:
     # tuple (uid, name, email, verified, password_hash, password_salt)
-    uid, name, username, verified, password, salt = database_interface.get_user(email)
+    uid, name, username, verified, verf_password, salt = database_interface.get_user(email)
+    salt = bytes(salt)
+    verf_password = bytes(verf_password)
+
     #set up encryption allocation and get saved salt for user
     kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
 
@@ -41,7 +44,7 @@ def login(email: str, password):
     passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
     #check to see if username and password match
-    if passkey == password: #is pas
+    if passkey == verf_password: #is pas
         #generate session key
         sessionkey = Fernet(passkey).encrypt(uuid.uuid4().bytes)
         return (sessionkey, username, uid)
@@ -98,7 +101,7 @@ def create_route():
         #generate the passkey by encoding the password
         passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
-        create_account(name, username, passkey, salt)
+        create_account(name, username, str(passkey), str(salt))
         try:
             return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
         except:
