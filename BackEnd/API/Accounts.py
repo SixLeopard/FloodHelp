@@ -103,7 +103,7 @@ def create_route():
         #generate the passkey by encoding the password
         passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
-        create_account(name, username, passkey, str(salt, encoding))
+        create_account(name, username, passkey, salt)
         try:
             return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
         except:
