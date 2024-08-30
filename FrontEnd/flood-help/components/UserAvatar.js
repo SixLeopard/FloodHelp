@@ -1,13 +1,25 @@
 import React from 'react';
-import useStyles from "@/constants/style";
-import {Image} from "react-native";
+import { Image, StyleSheet } from 'react-native';
 
-const UserAvatar = ({imageLink}) => {
-    const styles = useStyles();
+const UserAvatar = ({ imageLink, size = 50}) => {
+
+    const imageSource = imageLink ? { uri: imageLink } : require("../assets/images/icon.png");
+
+
+    const styles = StyleSheet.create({
+        profileImg: {
+            height: size,
+            width: size,
+            borderRadius: size / 2,
+            margin: 15,
+        },
+    });
 
     return (
-        <Image style={styles.profileImg} source={require("../assets/images/icon.png")}></Image>
-        // TODO: Fix imageLink passing
+        <Image
+            style={styles.profileImg}
+            source={imageSource}
+        />
     );
 };
 
