@@ -41,10 +41,12 @@ def login(email: str, password):
 
     #set up encryption allocation and get saved salt for user
     kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
-
+    print(verf_password)
     #generate the passkey by encoding the password
     passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+    print(passkey)
     passkey = bytes(str(passkey),encoding)
+    print(passkey)
 
     #check to see if username and password match
     if passkey == verf_password: #is pas
