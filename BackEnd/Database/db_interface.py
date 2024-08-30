@@ -72,7 +72,7 @@ class DBInterface():
         except psycopg2.Error as e:
             err = 1
             self.conn.rollback()
-            raise Exception(e.pgerror)
+            raise e
 
         if not err:
             self.conn.commit()
@@ -99,7 +99,7 @@ class DBInterface():
     same 'uid' by a trigger in the database. The users email must be unique and can be used 
     to identify them in the database.
     """
-    def create_user(self, name: str, email: str, pwd_hash: str, pwd_salt: str):
+    def create_user(self, name: str, email: str, pwd_hash: bytes, pwd_salt: bytes):
         if (re.search(r"[^a-zA-z]", name.strip('\n'))):
             raise Exception('User name may only only contain alphabetical characters')
         
@@ -126,7 +126,13 @@ class DBInterface():
         (uid, name, email, verified, password_hash, password_salt)
     """
     def get_user(self, email: str):
-        return self.query("SELECT * FROM Users WHERE email = %s", email)[0]
+        user = self.query("SELECT * FROM Users WHERE email = %s", email)
+        if not user:
+            return None
+        else:
+            user = user[0]
+            result = (user[0], user[1], user[2], user[3], user[4].tobytes(), user[5].tobytes())
+            return result
 
     '''
     Create an entry for a new relationship between two users. Users who have an approved relationship
@@ -150,17 +156,7 @@ class DBInterface():
         database this is stored as a boolean attribute 'uid1_made_request', which is true if the
         user with uid1 made the request.
     '''
-    def create_relationship(self, uid_1: int, uid_2:int, requester: int):
-        if not (requester == 1 or requester == 2):
-            raise Exception("The 'requester' parameter must have a value of 1 or 2")
-
-        if requester == 1:
-            requester = uid_1
-            requestee = uid_2
-        else:
-            requester = uid_2
-            requestee = uid_1
-        
+    def create_relationship(self, requester: int, requestee:int):        
         query = "INSERT INTO Relationships (requester, requestee) VALUES (%s, %s)"
 
         self.query(query, requester, requestee)
