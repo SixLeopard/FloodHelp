@@ -83,12 +83,6 @@ class DBInterface():
                 return result
             except:
                 pass
-            try:
-                # Only queries return results
-                result = self.cur.fetchall()
-                return result
-            except:
-                pass
 
         return None
 
@@ -171,6 +165,49 @@ class DBInterface():
 
         self.query(query, requester, requestee)
     
+    def get_relationships(self, uid: int):
+        """
+        Get approved relationships for user with provided uid. Relationships
+        are considered approved if the 'approved' field in the database is set
+        to true. Relationships can be approved manually be using the approve_relationship()
+        function.
+
+        uid (int):
+            The uid of the user for who to retrieve relationships
+
+        Returns:
+            A list containing the uid's of the users who the user with the
+            provided uid has approved relationships with.
+        """
+        query = "SELECT requester, requestee FROM Relationships WHERE (requester = %s OR requestee = %s) AND approved = true"
+        relationships = self.query(query, uid, uid)
+
+        result = [x[0] if x[1] == uid else x[1] for x in relationships]
+
+        return result
+    
+    def approve_relationship(self, uid1:int, uid2: int) -> None:
+        """
+        Approve a relationship between the users with uid1 and uid2, by setting
+        the 'approved' field of the entry in the 'Relationship' table to true.
+        If no entry exists, then throws Exception to indicate this. User who have
+        approved relationships have the ability to track each others locations.
+
+        uid1 (int):
+            The uid of one user in the relationship
+
+        uid2 (int):
+            The uid of the other user in the relationship.
+        """
+        query = "SELECT relationship_id FROM Relationships WHERE (requester = %s AND requestee = %s) OR (requestee = %s AND requester = %s)"
+        relationship_id = self.query(query, uid1, uid2, uid1, uid2)
+
+        if relationship_id is not None:
+            query = "UPDATE Relationships SET approved = true WHERE relationship_id = %s"
+            self.query(query, relationship_id)
+        else:
+            raise Exception('Relationship does not exist')
+
     """
     Not yet implemented. Will depend on the settings needed the front end.
     """
@@ -312,8 +349,6 @@ class DBInterface():
         self.query(query, uid)
 
         return result
-
-
 
     """
     Insert a new entry into the 'Notifications' table.
