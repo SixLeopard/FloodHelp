@@ -1,7 +1,9 @@
 import React from 'react';
 import { Image, StyleSheet } from 'react-native';
+import {router} from "expo-router";
+import {Pressable} from "react-native";
 
-const UserAvatar = ({ imageLink, size = 50}) => {
+const UserAvatar = ({ imageLink, size = 50, userId="default"}) => {
 
     const imageSource = imageLink ? { uri: imageLink } : require("../assets/images/icon.png");
 
@@ -16,10 +18,18 @@ const UserAvatar = ({ imageLink, size = 50}) => {
     });
 
     return (
+        <Pressable style ={styles.userPressable}
+                   onPress={() => router.push({
+                       pathname: '/user/[id]',
+                       params: {id : userId}
+                   })
+                   }>
+
         <Image
             style={styles.profileImg}
             source={imageSource}
         />
+        </Pressable>
     );
 };
 

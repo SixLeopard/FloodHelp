@@ -13,6 +13,24 @@ const useStyles = () => {
             alignItems: 'center',
             backgroundColor: colors.background,
         },
+        FH_Button: {
+            backgroundColor: colors.blue,
+
+            height: 40,
+            display: "flex",
+            flexBasis: 'auto',
+            flexDirection: "row",
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center',
+            borderStyle: "solid",
+            borderWidth: 2,
+            borderColor: colors.blue,
+            borderRadius: 15,
+            margin: 15,
+            padding: 5,
+            paddingHorizontal: 20,
+        },
         rowContainer: {
             flexDirection: 'row',
             padding: 20,
@@ -52,6 +70,13 @@ const useStyles = () => {
             flexWrap: 'wrap',
 
         },
+        buttonText: {
+            color: colors.white,
+            fontFamily: 'Urbanist_600SemiBold',
+            fontSize: 16,
+            flexWrap: 'wrap',
+            padding: 2,
+        },
         map: {
 
             width: '100%',
@@ -61,8 +86,6 @@ const useStyles = () => {
             height: 70,
             flexDirection: "row",
             alignItems: 'center'
-
-
         },
         userCard: {
             height: 70,
@@ -81,7 +104,7 @@ const useStyles = () => {
         },
         userCardIcon: {
             flexDirection: "row",
-           justifyContent: "space-between",
+            justifyContent: "space-between",
             margin: 15,
             gap: 10,
             fontSize: 35,
@@ -112,30 +135,52 @@ const useStyles = () => {
             margin: 15,
             alignContent: 'center'
         },
+        reportCard: {
+            flex: 1,
+            backgroundColor: colors.card,
+            flexDirection: "column",
+            justifyContent:'center',
+            alignItems: 'center',
+            borderStyle: "solid",
+            borderColor: colors.border,
+            borderWidth: 2,
+            borderRadius: 15,
+            margin: 5,
+            padding: 15,
+        },
+        reportCardsContainer: {
+            alignItems: "center",
+
+        },
+        reportCardBody: {
+            width: '85%',
+        },
         formContainer: {
             flex: 1,
         },
-        input: {
+        inputBox: {
             height: 40,
-            borderColor: '#ccc',
-            borderWidth: 1,
+            width: 300,
+            borderColor: colors.border,
+            borderWidth: 1.5,
+            borderRadius: 5,
             marginBottom: 12,
             paddingHorizontal: 8,
             backgroundColor: '#fff',
         },
-        iconContainer: { 
+        iconContainer: {
             position: 'absolute',
-            top: 90, 
-            left: 10, 
+            top: 90,
+            left: 10,
             flexDirection: 'column',
             justifyContent: 'space-between',
-            width: 70, 
+            width: 70,
         },
         iconButton: {
-            backgroundColor: 'rgba(255, 255, 255, 0.8)', 
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
             padding: 10,
-            borderRadius: 50, 
-            marginLeft: 10, 
+            borderRadius: 50,
+            marginLeft: 10,
             marginTop: 10,
             marginBottom: 10,
         },
