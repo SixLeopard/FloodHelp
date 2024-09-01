@@ -72,7 +72,7 @@ class DBInterface():
         except psycopg2.Error as e:
             err = 1
             self.conn.rollback()
-            raise Exception(e.pgerror)
+            raise e
 
         if not err:
             self.conn.commit()
@@ -99,7 +99,7 @@ class DBInterface():
     same 'uid' by a trigger in the database. The users email must be unique and can be used 
     to identify them in the database.
     """
-    def create_user(self, name: str, email: str, pwd_hash: str, pwd_salt: str):
+    def create_user(self, name: str, email: str, pwd_hash: bytes, pwd_salt: bytes):
         if (re.search(r"[^a-zA-z]", name.strip('\n'))):
             raise Exception('User name may only only contain alphabetical characters')
         
@@ -126,7 +126,13 @@ class DBInterface():
         (uid, name, email, verified, password_hash, password_salt)
     """
     def get_user(self, email: str):
-        return self.query("SELECT * FROM Users WHERE email = %s", email)[0]
+        user = self.query("SELECT * FROM Users WHERE email = %s", email)
+        if not user:
+            return None
+        else:
+            user = user[0]
+            result = (user[0], user[1], user[2], user[3], user[4].tobytes(), user[5].tobytes())
+            return result
 
     '''
     Create an entry for a new relationship between two users. Users who have an approved relationship
@@ -150,21 +156,54 @@ class DBInterface():
         database this is stored as a boolean attribute 'uid1_made_request', which is true if the
         user with uid1 made the request.
     '''
-    def create_relationship(self, uid_1: int, uid_2:int, requester: int):
-        if not (requester == 1 or requester == 2):
-            raise Exception("The 'requester' parameter must have a value of 1 or 2")
-
-        if requester == 1:
-            requester = uid_1
-            requestee = uid_2
-        else:
-            requester = uid_2
-            requestee = uid_1
-        
+    def create_relationship(self, requester: int, requestee:int):        
         query = "INSERT INTO Relationships (requester, requestee) VALUES (%s, %s)"
 
         self.query(query, requester, requestee)
     
+    def get_relationships(self, uid: int):
+        """
+        Get approved relationships for user with provided uid. Relationships
+        are considered approved if the 'approved' field in the database is set
+        to true. Relationships can be approved manually be using the approve_relationship()
+        function.
+
+        uid (int):
+            The uid of the user for who to retrieve relationships
+
+        Returns:
+            A list containing the uid's of the users who the user with the
+            provided uid has approved relationships with.
+        """
+        query = "SELECT requester, requestee FROM Relationships WHERE (requester = %s OR requestee = %s) AND approved = true"
+        relationships = self.query(query, uid, uid)
+
+        result = [x[0] if x[1] == uid else x[1] for x in relationships]
+
+        return result
+    
+    def approve_relationship(self, uid1:int, uid2: int) -> None:
+        """
+        Approve a relationship between the users with uid1 and uid2, by setting
+        the 'approved' field of the entry in the 'Relationship' table to true.
+        If no entry exists, then throws Exception to indicate this. User who have
+        approved relationships have the ability to track each others locations.
+
+        uid1 (int):
+            The uid of one user in the relationship
+
+        uid2 (int):
+            The uid of the other user in the relationship.
+        """
+        query = "SELECT relationship_id FROM Relationships WHERE (requester = %s AND requestee = %s) OR (requestee = %s AND requester = %s)"
+        relationship_id = self.query(query, uid1, uid2, uid1, uid2)
+
+        if relationship_id is not None:
+            query = "UPDATE Relationships SET approved = true WHERE relationship_id = %s"
+            self.query(query, relationship_id)
+        else:
+            raise Exception('Relationship does not exist')
+
     """
     Not yet implemented. Will depend on the settings needed the front end.
     """
@@ -306,8 +345,6 @@ class DBInterface():
         self.query(query, uid)
 
         return result
-
-
 
     """
     Insert a new entry into the 'Notifications' table.
