@@ -22,7 +22,6 @@ const ReportCard = ({ type, location, reportID, time, description}) => {
                     <Text style={styles.bodyTextBold}>Report #{reportID}</Text>
                     <Text style={styles.bodyTextDark}>{time}</Text>
                     <Text style={styles.bodyTextDark}>{location}</Text>
-                    <Text style={styles.bodyTextDark}>{description}</Text>
                 </View>
             </Pressable>
         </View>
