@@ -142,7 +142,7 @@ def get_alerts():
     url = "http://api.weatherapi.com/v1/forecast.json"
     params = {
         "key": api_key,
-        "q": "New South Wales",
+        "q": "Brisbane",
         "alerts" : "yes",
         "days" : "3"
     }
