@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Alert, TouchableOpacity, Text, ActivityIndicator } from "react-native";
+import { View, Alert, TouchableOpacity, Text, ActivityIndicator, Image } from "react-native";
 import useStyles from "@/constants/style";
 import MapView, { Marker, Region, MapPressEvent } from "react-native-maps";
 import { mapLightTheme } from "@/constants/mapLightTheme";
@@ -8,7 +8,6 @@ import { useTheme } from "@/constants/ThemeProvider";
 import * as Location from 'expo-location';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 
-type MapScreenRouteProp = RouteProp<{ params: { onLocationSelected: (address: string) => void } }, 'params'>;
 
 export default function MapScreen() {
     const styles = useStyles();
@@ -44,7 +43,11 @@ export default function MapScreen() {
         };
 
         requestLocationPermission();
-    }, []);
+
+        if (route.params?.onLocationSelected) {
+            navigation.setParams({ onLocationSelected: route.params.onLocationSelected });
+        }
+    }, [navigation, route.params?.onLocationSelected]);
 
     const handleMapPress = (event: MapPressEvent) => {
         const { latitude, longitude } = event.nativeEvent.coordinate;
@@ -55,8 +58,9 @@ export default function MapScreen() {
         if (selectedLocation) {
             setLoading(true);
             const address = await fetchAddress(selectedLocation.latitude, selectedLocation.longitude);
-            if (route.params?.onLocationSelected) {
-                route.params.onLocationSelected(address);
+            const onLocationSelected = route.params?.onLocationSelected;
+            if (onLocationSelected) {
+                onLocationSelected(address);
             }
             setLoading(false);
             navigation.navigate('newreport', { location: address }); 
@@ -94,8 +98,8 @@ export default function MapScreen() {
                     customMapStyle={theme.dark ? mapDarkTheme : mapLightTheme}
                     initialRegion={region}
                     onPress={handleMapPress}
-                    showsUserLocation
-                    showsMyLocationButton
+                    showsUserLocation={true}
+                    showsMyLocationButton={false}
                 >
                     {selectedLocation && (
                         <Marker

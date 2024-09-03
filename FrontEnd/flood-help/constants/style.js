@@ -323,6 +323,19 @@ const useStyles = () => {
             padding: 2,
         },
 
+        descriptionContainer: {
+            marginVertical: 10,
+        },
+        
+        descriptionInput: {
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 5,
+            padding: 10,
+            minHeight: 80,
+            textAlignVertical: 'top',
+        },
+
     });
 };
 

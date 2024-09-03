@@ -63,16 +63,9 @@ export default function Index() {
                     style={styles.map}
                     customMapStyle={theme.dark ? mapDarkTheme : mapLightTheme}
                     initialRegion={region}
+                    showsUserLocation={true}
+                    showsMyLocationButton={false}
                 >
-                    <Marker 
-                        coordinate={region}
-                        title={"Your Location"}
-                    >
-                        <Image
-                            source={require('@/assets/images/marker-default.png')}
-                            style={{ width: markerSize.width, height: markerSize.height }}
-                        />
-                    </Marker>
 
                     {/* Render Simulated Flood Data */}
                     {simulatedFloodData.map((floodData, index) => (
