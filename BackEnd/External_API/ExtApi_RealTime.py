@@ -99,12 +99,9 @@ def get_real_time_data():
         for i in entry:
             key = i.strip().upper() 
             if key not in updated_stations.keys():
-                if(entry[i] != '0' and entry[i] != '-'):
-                    updated_stations[key] = [entry[i].strip(), measured_time[0:16].replace("T", " / ")]
-                else: 
-                    updated_stations[key] = entry[i].strip()
+                updated_stations[key] = [entry[i].strip(), measured_time[0:16].replace("T", " / ")]
             else:
-                if(entry[i] != '0' and entry[i] != '-' and (updated_stations[key] == '0' or updated_stations[key] == '-')):
+                if(entry[i] != '0' and entry[i] != '-' and (updated_stations[key][0] == '0' or updated_stations[key][0] == '-')):
                     updated_stations[key] = [entry[i].strip(), measured_time[0:16].replace("T", " / ")]
         
     #merging metadata and data with river heights
@@ -126,6 +123,11 @@ def get_real_time_data():
     df['Coordinates'] = list(zip(df['latitude'], df['longitude']))
     df['Last Updated'] = df['latest value'].apply(lambda x: x[1] if isinstance(x, list) and len(x) > 1 else None)
     organized_df = df[['location_name', 'Coordinates', 'Last Updated', 'Flood Category']]
+
+    #removing 32nd row due to problem regarding that specific location (always returning major flood)
+    organized_df = organized_df.drop(32)
+    organized_df = organized_df.reset_index(drop=True)
+
     data_in_json = organized_df.to_json()
     return data_in_json
 
@@ -140,8 +142,9 @@ def get_alerts():
     url = "http://api.weatherapi.com/v1/forecast.json"
     params = {
         "key": api_key,
-        "q": "Brisbane",
+        "q": "New South Wales",
         "alerts" : "yes",
+        "days" : "3"
     }
 
 
@@ -163,3 +166,5 @@ def get_alerts():
             filtered_list_of_alerts.append(json.dumps(new_alert))
 
     return filtered_list_of_alerts
+
+
