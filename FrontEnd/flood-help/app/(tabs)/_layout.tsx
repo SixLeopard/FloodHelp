@@ -98,7 +98,7 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="apiTesting"
                 options={{
-                    tabBarButton: () => null, //comment this line out to view testing screen on tabbar
+                    // tabBarButton: () => null, //comment this line out to view testing screen on tabbar
                 }}
             />
         </Tabs>
