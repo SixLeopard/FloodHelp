@@ -2,7 +2,7 @@
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
 
-from API.Database.db_interface import DBInterface
+from API.database import DBInterface
 
 location_routes = Blueprint("location_routes", __name__)
 db = DBInterface()
