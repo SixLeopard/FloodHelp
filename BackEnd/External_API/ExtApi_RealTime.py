@@ -136,18 +136,14 @@ def get_real_time_data() -> str:
     df['Coordinates'] = list(zip(df['latitude'], df['longitude']))
     df['Last Updated'] = df['latest value'].apply(lambda x: x[1] if isinstance(x, list) and len(x) > 1 else None)
     organized_df = df[['location_name', 'Coordinates', 'Last Updated', 'Flood Category']]
-
-    #removing 32nd row due to problem regarding that specific location (always returning major flood)
-    organized_df = organized_df.drop(32)
-    organized_df = organized_df.reset_index(drop=True)
-
+    organized_df = organized_df[organized_df['location_name'] != 'Oxley Ck at New Beith']
     data_in_json = organized_df.to_json()
     return data_in_json
 
 
 
 def get_alerts() -> list:
-    
+
     """
     Retrieves all flood alerts for Brisbane from the past day using an external weather API.
     
@@ -193,5 +189,3 @@ def get_alerts() -> list:
             filtered_list_of_alerts.append(json.dumps(new_alert))
 
     return filtered_list_of_alerts
-
-
