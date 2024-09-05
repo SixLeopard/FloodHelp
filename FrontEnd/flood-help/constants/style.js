@@ -184,6 +184,42 @@ const useStyles = () => {
             marginTop: 10,
             marginBottom: 10,
         },
+        boxContainer: {
+            width: '90%',
+            padding: 15,
+            marginVertical: 10,
+            borderWidth: 1,
+            borderColor: theme.dark ? Colors.custom.borderDark : Colors.custom.borderLight, // Use custom colors
+            borderRadius: 10,
+            backgroundColor: theme.dark ? Colors.custom.boxBackgroundDark : Colors.custom.boxBackgroundLight, // Use custom colors
+        },
+        subHeaderText: {
+            fontSize: 18,
+            fontWeight: 'bold',
+            marginBottom: 10,
+            color: colors.text, // Adapt to theme text color
+        },
+        rowContainerSetting: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingVertical: 10,
+            borderBottomWidth: 1,
+            borderBottomColor: Colors.custom.borderLight, // Use custom color
+        },
+        logoutButton: {
+            marginTop: 20,
+            backgroundColor: Colors.custom.logoutButtonRed, // Use custom color
+            padding: 15,
+            borderRadius: 10,
+            alignItems: 'center',
+            width: '90%',
+        },
+        logoutButtonText: {
+            color: '#FFF',
+            fontSize: 16,
+            fontWeight: 'bold',
+        },
 
     });
 };
