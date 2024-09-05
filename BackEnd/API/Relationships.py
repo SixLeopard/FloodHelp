@@ -52,8 +52,13 @@ def get_relationship():
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid = session["uid"]
 
-            relationships =  
+            relationship_uids =  db.get_relationships(uid)
+            
+            relationships = {}
+            for ruid in relationship_uids:
+                # Returns: (uid, name, email, verified, password_hash, password_salt)
+                relationships[ruid] = db.get_user(ruid)[1]
 
-            return make_response(1)
+            return make_response(relationships)
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
