@@ -21,7 +21,7 @@ export default function SettingsScreen() {
             {/* Display Section with Box */}
             <View style={styles.boxContainer}>
                 <Text style={styles.subHeaderText}>Display</Text>
-                <View style={styles.rowContainer}>
+                <View style={styles.rowContainerSetting}>
                     <Text style={styles.bodyText}>Light Mode</Text>
                     <Switch
                         value={!theme.dark} // Toggle Light Mode
@@ -35,7 +35,7 @@ export default function SettingsScreen() {
                 <Text style={styles.subHeaderText}>Notification Center</Text>
 
                 {/* Family Status Notification */}
-                <View style={styles.rowContainer}>
+                <View style={styles.rowContainerSetting}>
                     <Text style={styles.bodyText}>Family Status</Text>
                     <Switch
                         value={familyStatus}
@@ -44,7 +44,7 @@ export default function SettingsScreen() {
                 </View>
 
                 {/* Flooding Alert Notification */}
-                <View style={styles.rowContainer}>
+                <View style={styles.rowContainerSetting}>
                     <Text style={styles.bodyText}>Flooding Alert</Text>
                     <Switch
                         value={floodingAlert}
@@ -53,7 +53,7 @@ export default function SettingsScreen() {
                 </View>
 
                 {/* Text Alerts Notification */}
-                <View style={styles.rowContainer}>
+                <View style={styles.rowContainerSetting}>
                     <Text style={styles.bodyText}>Text Alerts</Text>
                     <Switch
                         value={textAlerts}
