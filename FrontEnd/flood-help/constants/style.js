@@ -185,6 +185,43 @@ const useStyles = () => {
             marginBottom: 10,
         },
 
+        // New styles for SettingsScreen
+        boxContainer: {
+            width: '90%',
+            padding: 15,
+            marginVertical: 10,
+            borderWidth: 1,
+            borderColor: theme.dark ? '#666' : '#ccc', // Dark mode: darker border, Light mode: lighter border
+            borderRadius: 10,
+            backgroundColor: theme.dark ? '#444' : '#f8f9fa', // Dark mode: darker background, Light mode: lighter background
+        },
+        subHeaderText: {
+            fontSize: 18,
+            fontWeight: 'bold',
+            marginBottom: 10,
+            color: colors.text, // Adapt to theme text color
+        },
+        rowContainer: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingVertical: 10,
+            borderBottomWidth: 1,
+            borderBottomColor: '#ccc',
+        },
+        logoutButton: {
+            marginTop: 20,
+            backgroundColor: colors.red,
+            padding: 15,
+            borderRadius: 10,
+            alignItems: 'center',
+            width: '90%',
+        },
+        logoutButtonText: {
+            color: '#FFF',
+            fontSize: 16,
+            fontWeight: 'bold',
+        },
     });
 };
 
