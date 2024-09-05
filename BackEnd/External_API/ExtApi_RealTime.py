@@ -5,11 +5,24 @@ import os
 import json
 
 
-def get_real_time_data():
+def get_real_time_data() -> str:
+    """
+    Fetches the latest flood conditions for approximately 40 locations using river height data.
+    
+    This function retrieves sensor metadata and current river height data from an external API, processes the data,
+    and classifies each location's flood status (Major, Moderate, Minor, or No Flood) based on pre-determined height thresholds.
+    
+    The output is returned in JSON format with the following columns:
+        - 'location_name': Name of the monitoring location.
+        - 'Coordinates': Latitude and Longitude of the location.
+        - 'Last Updated': The most recent timestamp of the river height measurement.
+        - 'Flood Category': The flood level category for the location (e.g., Major Flood, Moderate Flood, Minor Flood, No Flood).
 
+    Returns:
+        str: A JSON string containing the processed flood conditions for each location.
+    
     """
-    Gets latest flood conditions for around 40 locations using river height data. Output is in JSON format with following columns: 'location_name', 'Coordinates', 'Last Updated', 'Flood Category'
-    """
+
     #getting metadata
     response = requests.get("https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/telemetry-sensors-rainfall-and-stream-heights-metadata/records?where=sensor_type%20%3D%20'Stream%20Height%20AHD'&limit=100")
     data = response.json()
@@ -99,12 +112,9 @@ def get_real_time_data():
         for i in entry:
             key = i.strip().upper() 
             if key not in updated_stations.keys():
-                if(entry[i] != '0' and entry[i] != '-'):
-                    updated_stations[key] = [entry[i].strip(), measured_time[0:16].replace("T", " / ")]
-                else: 
-                    updated_stations[key] = entry[i].strip()
+                updated_stations[key] = [entry[i].strip(), measured_time[0:16].replace("T", " / ")]
             else:
-                if(entry[i] != '0' and entry[i] != '-' and (updated_stations[key] == '0' or updated_stations[key] == '-')):
+                if(entry[i] != '0' and entry[i] != '-' and (updated_stations[key][0] == '0' or updated_stations[key][0] == '-')):
                     updated_stations[key] = [entry[i].strip(), measured_time[0:16].replace("T", " / ")]
         
     #merging metadata and data with river heights
@@ -126,14 +136,33 @@ def get_real_time_data():
     df['Coordinates'] = list(zip(df['latitude'], df['longitude']))
     df['Last Updated'] = df['latest value'].apply(lambda x: x[1] if isinstance(x, list) and len(x) > 1 else None)
     organized_df = df[['location_name', 'Coordinates', 'Last Updated', 'Flood Category']]
+
+    #removing 32nd row due to problem regarding that specific location (always returning major flood)
+    organized_df = organized_df.drop(32)
+    organized_df = organized_df.reset_index(drop=True)
+
     data_in_json = organized_df.to_json()
     return data_in_json
 
 
 
-def get_alerts():
+def get_alerts() -> list:
+    
     """
-    Gets all flood alerts in Brisbane from the past day. Returns a list of dictionaries in JSON format. Each dictionary has the keys: headline, location, risk, certainty, start, end.
+    Retrieves all flood alerts for Brisbane from the past day using an external weather API.
+    
+    This function fetches weather data including flood alerts from the WeatherAPI and filters the alerts to include
+    only flood warnings with a specific message type ('Alert'). The function returns the filtered list of alerts,
+    each formatted as a dictionary with the following keys:
+        - 'headline': The title or summary of the alert.
+        - 'location': The affected locations for the flood alert.
+        - 'risk': The severity of the flood risk (e.g., Minor, Moderate, Severe).
+        - 'certainty': The level of certainty associated with the alert.
+        - 'start': The start time of the alert.
+        - 'end': The end time of the alert.
+    
+    Returns:
+        list: A list of flood alerts in JSON format, where each alert is represented as a dictionary.
     """
 
     api_key = "7fde6684522a487da5092415242508"
@@ -142,6 +171,7 @@ def get_alerts():
         "key": api_key,
         "q": "Brisbane",
         "alerts" : "yes",
+        "days" : "3"
     }
 
 
@@ -163,3 +193,5 @@ def get_alerts():
             filtered_list_of_alerts.append(json.dumps(new_alert))
 
     return filtered_list_of_alerts
+
+
