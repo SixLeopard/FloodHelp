@@ -3,6 +3,18 @@ import Tools.Proximity as proximity
 acceptable_proximity = 0.02
 
 def validate_user_reports(sample_reports : dict, base_report : dict) -> tuple[int, list]:
+    '''
+        gives the similarity score (validitity score)
+        sample_reports:
+            dict of reports
+            the reports to check base report against fo rsimilirty
+        base_report:
+            dict of single report
+            the reort you want to none the similiarity score of
+
+        returns:
+            the score and a list of all the reports it was similar too
+    '''
     similarity_score = 0
     similar_reports = []
     for i in sample_reports:

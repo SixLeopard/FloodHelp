@@ -3,7 +3,7 @@ import numpy as np
 LAT = 0 #index of latitude
 LONG = 1 # index of longatude
 
-def is_close(base_location : tuple[int,int], test_location : tuple[int,int], bound : int):
+def is_close(base_location : tuple[int,int], test_location : tuple[int,int], bound : int) -> bool:
     '''
     return wether the distance between base location adn test location is less than the
     bound distance
@@ -15,6 +15,10 @@ def is_close(base_location : tuple[int,int], test_location : tuple[int,int], bou
         bas_location:
             tuple of the form (lat,long)
             the location to tset how far the test distance is fromm
+
+        returns:
+            true if is close
+            false if no close
     '''
     # sqrt((Alat-Blat)^2+(Along-Blong)^2)
     if \
