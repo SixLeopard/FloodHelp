@@ -6,10 +6,28 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.patches as mpatches
 
-def get_historical_data(file_name):
+def get_historical_data(file_name: str) -> str:
+    
     """
-    Takes the json format of the historical data (from Brisbane City Council) as input. Outputs in JSON format: flood_risk, flood_type, coordinates, type (polygon/multipolygon)
+    Processes historical flood data from a JSON file and outputs it in a structured JSON format.
+    
+    This function reads historical flood data (from the Brisbane City Council) in JSON format from the specified file,
+    and extracts relevant information for each flood event, including:
+        - 'flood_risk': The flood risk level (e.g., High, Medium, Low).
+        - 'flood_type': The type of flood (e.g., river, flash).
+        - 'coordinates': Geographical coordinates defining the flood region.
+        - 'type': The type of geometry representing the flood area (Polygon or MultiPolygon).
+
+    The function does not generate actual geometry objects but extracts and formats the coordinates and geometry type for further use.
+
+    Args:
+        file_name (str): The path to the JSON file containing historical flood data.
+
+    Returns:
+        str: A JSON string containing the processed flood data, structured as a list of dictionaries where each entry
+        contains the flood risk, type, and coordinates of the flood area.
     """
+
     #Turns coordinates into geometry objects based on type of geometry (polygon/multipolygon)
     def create_geometry(row):
         try:
