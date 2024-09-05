@@ -191,9 +191,9 @@ const useStyles = () => {
             padding: 15,
             marginVertical: 10,
             borderWidth: 1,
-            borderColor: theme.dark ? '#666' : '#ccc', // Dark mode: darker border, Light mode: lighter border
+            borderColor: theme.dark ? colors.border : colors.border, // Use named colors
             borderRadius: 10,
-            backgroundColor: theme.dark ? '#444' : '#f8f9fa', // Dark mode: darker background, Light mode: lighter background
+            backgroundColor: theme.dark ? colors.boxBackground : colors.boxBackground, // Use named colors
         },
         subHeaderText: {
             fontSize: 18,
@@ -201,17 +201,17 @@ const useStyles = () => {
             marginBottom: 10,
             color: colors.text, // Adapt to theme text color
         },
-        rowContainer: {
+        rowContainerSetting: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
             paddingVertical: 10,
             borderBottomWidth: 1,
-            borderBottomColor: '#ccc',
+            borderBottomColor: colors.border, // Use named color
         },
         logoutButton: {
             marginTop: 20,
-            backgroundColor: colors.red,
+            backgroundColor: colors.red, // Use named color
             padding: 15,
             borderRadius: 10,
             alignItems: 'center',
