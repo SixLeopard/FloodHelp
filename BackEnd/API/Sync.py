@@ -4,10 +4,10 @@ import API.Locations as locations
 import API.Notifications as notifications
 
 
-notifications_routes = Blueprint("sync_routes", __name__)
+sync_routes = Blueprint("sync_routes", __name__)
 
 
-@notifications_routes.route("/sync", methods = ['GET'])
+@sync_routes.route("/sync", methods = ['GET'])
 def sync_route():
     '''
         get updates notfications locations etc...
