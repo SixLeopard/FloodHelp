@@ -29,33 +29,45 @@ def verify_user_account(username, session):
     except:
         return False
 
-def create_account(name: str, email: str, passkey: str, salt: str):
-    database_interface.create_user(name, email, passkey, salt)
+def create_account(name: str, email: str, password: str, salt: str):
+    try:
+        #set up encryption allocation and generate salt for user
+        salt = os.urandom(16)
+        kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
+
+        #generate the passkey by encoding the password
+        passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+
+        database_interface.create_user(name, email, passkey, salt)
+
+        return name, email, passkey, salt
+    except:
+        print("datebase error")
+        return(None,None,None,None)
 
 def login(email: str, password):
-    #try:
-    # tuple (uid, name, email, verified, password_hash, password_salt)
-    uid, name, username, verified, verf_password, salt = database_interface.get_user(email)
-    verf_password = verf_password.tobytes()
-    salt = salt.tobytes()
-    #set up encryption allocation and get saved salt for user
-    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
-    #generate the passkey by encoding the password
-    passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+    try:
+        # tuple (uid, name, email, verified, password_hash, password_salt)
+        uid, name, username, verified, verf_password, salt = database_interface.get_user(email)
+        verf_password = verf_password.tobytes()
+        salt = salt.tobytes()
+        #set up encryption allocation and get saved salt for user
+        kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
+        #generate the passkey by encoding the password
+        passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
-    #check to see if username and password match
-    if passkey == verf_password: #is pas
-        #generate session key
-        sessionkey = Fernet(passkey).encrypt(uuid.uuid4().bytes)
-        return (sessionkey, username, uid)
-    else:
-        print("user submitted invalid password")
-        return (None,None,None)
-    #except:
-    #    print("username does not exist in the database")
-    #    return(None,None,None)
+        #check to see if username and password match
+        if passkey == verf_password: #is pas
+            #generate session key
+            sessionkey = Fernet(passkey).encrypt(uuid.uuid4().bytes)
+            return (sessionkey, username, uid)
+        else:
+            print("user submitted invalid password")
+            return (None,None,None)
+    except:
+        print("datebase error")
+        return(None,None,None)
         
-    
 
 @login_routes.route("/accounts/login", methods = ['POST'])
 def login_route():
@@ -94,17 +106,10 @@ def create_route():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        #set up encryption allocation and generate salt for user
-        salt = os.urandom(16)
-        kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
-
-        #generate the passkey by encoding the password
-        passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
-
-        create_account(name, username, passkey, salt)
-        try:
+        name, email, passkey, salt = create_account(name, username, password)
+        if name != None or email != None or passkey != None or salt != None:
             return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
-        except:
+        else:
             return make_response({"created":"False"})
     
 @login_routes.route('/accounts/test', methods = ['GET'])
