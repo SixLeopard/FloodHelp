@@ -18,7 +18,7 @@ def sync_route():
 
     users_pending_notifications = notifications.get_notification(session["username"])
     notifications.clear_notification(session["username"])
-    sync_data[notifications] = users_pending_notifications
+    sync_data["notifications"] = users_pending_notifications
 
     #get locations thing here
     #=====================
