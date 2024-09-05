@@ -7,6 +7,8 @@ import { mapDarkTheme } from "@/constants/mapDarkTheme";
 import { useTheme } from "@/constants/ThemeProvider";
 import * as Location from 'expo-location';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from '@react-navigation/native';
+import { FontAwesome } from '@expo/vector-icons';
 
 // Simulated Flood Data
 const simulatedFloodData = [
@@ -22,6 +24,7 @@ export default function Index() {
     const { theme } = useTheme();
     const [region, setRegion] = useState<Region | null>(null);
     const [markerSize, setMarkerSize] = useState({ width: 30, height: 30 });
+    const navigation = useNavigation();
 
     useEffect(() => {
         const requestLocationPermission = async () => {
@@ -46,7 +49,7 @@ export default function Index() {
     }, []);
 
     const handleAddReport = () => {
-        Alert.alert("Add Report", "This will navigate to the report screen.");
+        navigation.navigate('newreport');
     };
 
     const handleSeeHistoricalFlooding = () => {
@@ -79,10 +82,7 @@ export default function Index() {
                             title={floodData.location_name}
                             description={`Flood Category: ${floodData.Flood_Category}`}
                         >
-                            <Image
-                                source={require('@/assets/images/marker-flood.png')}
-                                style={{ width: markerSize.width * 2, height: markerSize.height * 2 }}
-                            />
+                            <FontAwesome name="exclamation-triangle" size={40} color="maroon" />
                         </Marker>
                     ))}
                 </MapView>
@@ -90,12 +90,14 @@ export default function Index() {
 
             <View style={styles.iconContainer}>
                 <TouchableOpacity onPress={handleAddReport} style={styles.iconButton}>
-                    <Icon name="report" size={40} color={theme.dark ? "white" : "black"} />
+                    <Icon name="report" size={40} color={theme.dark ? "maroon" : "maroon"} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleSeeHistoricalFlooding} style={styles.iconButton}>
-                    <Icon name="history" size={40} color={theme.dark ? "white" : "black"} />
+                    <Icon name="history" size={40} color={theme.dark ? "midnightblue" : "midnightblue"} />
                 </TouchableOpacity>
             </View>
         </View>
     );
 }
+
+
