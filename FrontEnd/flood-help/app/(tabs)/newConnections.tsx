@@ -15,8 +15,10 @@ const NewConnections = () => {
 
             <Text>TODO: Add search bar</Text>
 
-            <UserCard username="Send a Request" userId="new1" sendRequest={true} />
-            <UserCard username="Send a Request" userId="new2" sendRequest={true} />
+            <UserCard username="Send a Request" userId="new1" sendRequest={true} status={undefined}
+                      showConnectionRequest={false} pendingRequest={false} />
+            <UserCard username="Send a Request" userId="new2" sendRequest={true} status={undefined}
+                      showConnectionRequest={false} pendingRequest={false} />
 
             <Text style={styles.bodyText}>Connections can send you check in requests and see your location during an emergenc</Text>
 
