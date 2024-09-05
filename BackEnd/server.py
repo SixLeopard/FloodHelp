@@ -18,6 +18,7 @@ import API.Session as APIsession
 import API.Notifications as APINotifications
 import API.UserReport as APIUserReport
 import API.Sync as APISync
+import API.Relationships as APIRelationships
 
 # Initializing flask app
 app = Flask(__name__)
@@ -28,6 +29,7 @@ app.register_blueprint(APIsession.session_routes)
 app.register_blueprint(APIUserReport.userreport_routes)
 app.register_blueprint(APINotifications.notifications_routes)
 app.register_blueprint(APISync.sync_routes)
+app.register_blueprint(APIRelationships.relationships_routes)
 
 #Session
 SESSION_TYPE = 'cachelib'
