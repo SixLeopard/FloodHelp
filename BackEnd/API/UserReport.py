@@ -51,7 +51,8 @@ def get_user_report_route():
         report_id = request.form.get('report_id')
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
-                get_user_report(report_id)["location"] = tuple(map(float, get_user_report(report_id)["location"].split(',')))
+                if not isinstance(get_user_report(report_id)["location"], tuple):
+                    get_user_report(report_id)["location"] = tuple(map(float, get_user_report(report_id)["location"].split(',')))
                 return make_response(get_user_report(report_id))
             except:
                 return make_response({"invalid_report_id":1})
@@ -68,7 +69,8 @@ def get_all_user_report_route():
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
             for i in get_user_report():
-                get_user_report(i)["location"] = tuple(map(float, get_user_report(i)["location"].split(',')))
+                if not isinstance(get_user_report(i)["location"], tuple):
+                    get_user_report(i)["location"] = tuple(map(float, get_user_report(i)["location"].split(',')))
             return make_response(get_user_report())
         
         return make_response({"invalid_account":1})
