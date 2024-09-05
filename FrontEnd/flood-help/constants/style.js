@@ -78,9 +78,9 @@ const useStyles = () => {
             padding: 2,
         },
         map: {
-
             width: '100%',
             height: '100%',
+            flex: 1,
         },
         userPressable: {
             height: 70,
@@ -177,7 +177,7 @@ const useStyles = () => {
             width: 70,
         },
         iconButton: {
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            backgroundColor: 'rgba(203, 209, 204, 0.8)',
             padding: 10,
             borderRadius: 50,
             marginLeft: 10,
@@ -185,43 +185,6 @@ const useStyles = () => {
             marginBottom: 10,
         },
 
-        // New styles for SettingsScreen
-        boxContainer: {
-            width: '90%',
-            padding: 15,
-            marginVertical: 10,
-            borderWidth: 1,
-            borderColor: theme.dark ? colors.border : colors.border, 
-            borderRadius: 10,
-            backgroundColor: theme.dark ? colors.boxBackground : colors.boxBackground, 
-        },
-        subHeaderText: {
-            fontSize: 18,
-            fontWeight: 'bold',
-            marginBottom: 10,
-            color: colors.text, 
-        },
-        rowContainerSetting: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingVertical: 10,
-            borderBottomWidth: 1,
-            borderBottomColor: colors.border, 
-        },
-        logoutButton: {
-            marginTop: 20,
-            backgroundColor: colors.red, 
-            padding: 15,
-            borderRadius: 10,
-            alignItems: 'center',
-            width: '90%',
-        },
-        logoutButtonText: {
-            color: '#FFF',
-            fontSize: 16,
-            fontWeight: 'bold',
-        },
     });
 };
 
