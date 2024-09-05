@@ -21,3 +21,8 @@ def sync_route():
     sync_data[notifications] = users_pending_notifications
 
     #get locations thing here
+    #=====================
+
+    #=======================
+
+    return make_response(sync_data)
