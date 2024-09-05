@@ -29,7 +29,7 @@ def verify_user_account(username, session):
     except:
         return False
 
-def create_account(name: str, email: str, password: str, salt: str):
+def create_account(name: str, email: str, password: str):
     try:
         #set up encryption allocation and generate salt for user
         salt = os.urandom(16)
