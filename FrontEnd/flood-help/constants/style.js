@@ -191,15 +191,15 @@ const useStyles = () => {
             padding: 15,
             marginVertical: 10,
             borderWidth: 1,
-            borderColor: theme.dark ? colors.border : colors.border, // Use named colors
+            borderColor: theme.dark ? colors.border : colors.border, 
             borderRadius: 10,
-            backgroundColor: theme.dark ? colors.boxBackground : colors.boxBackground, // Use named colors
+            backgroundColor: theme.dark ? colors.boxBackground : colors.boxBackground, 
         },
         subHeaderText: {
             fontSize: 18,
             fontWeight: 'bold',
             marginBottom: 10,
-            color: colors.text, // Adapt to theme text color
+            color: colors.text, 
         },
         rowContainerSetting: {
             flexDirection: 'row',
@@ -207,11 +207,11 @@ const useStyles = () => {
             alignItems: 'center',
             paddingVertical: 10,
             borderBottomWidth: 1,
-            borderBottomColor: colors.border, // Use named color
+            borderBottomColor: colors.border, 
         },
         logoutButton: {
             marginTop: 20,
-            backgroundColor: colors.red, // Use named color
+            backgroundColor: colors.red, 
             padding: 15,
             borderRadius: 10,
             alignItems: 'center',
