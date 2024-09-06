@@ -14,6 +14,7 @@ export const Colors = {
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+
   },
   dark: {
     text: '#ECEDEE',
@@ -23,4 +24,12 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
   },
+
+  custom: {
+    borderLight: '#ccc',  // Lighter border color
+    borderDark: '#666',   // Darker border color
+    boxBackgroundLight: '#f8f9fa',  // Light box background
+    boxBackgroundDark: '#444',      // Dark box background
+    logoutButtonRed: '#B22222',     // Red color for log out button
+  }
 };
