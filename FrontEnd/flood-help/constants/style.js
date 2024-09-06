@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import {useTheme} from "@/constants/ThemeProvider";
+import { Colors } from '@/constants/Colors';
 
 const useStyles = () => {
     const { theme } = useTheme();
@@ -321,6 +322,42 @@ const useStyles = () => {
             fontSize: 16,
             flexWrap: 'wrap',
             padding: 2,
+        },
+        boxContainer: {
+            width: '90%',
+            padding: 15,
+            marginVertical: 10,
+            borderWidth: 1,
+            borderColor: theme.dark ? Colors.custom.borderDark : Colors.custom.borderLight, 
+            borderRadius: 10,
+            backgroundColor: theme.dark ? Colors.custom.boxBackgroundDark : Colors.custom.boxBackgroundLight, 
+        },
+        subHeaderText: {
+            fontSize: 18,
+            fontWeight: 'bold',
+            marginBottom: 10,
+            color: colors.text, 
+        },
+        rowContainerSetting: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingVertical: 10,
+            borderBottomWidth: 1,
+            borderBottomColor: Colors.custom.borderLight, 
+        },
+        logoutButton: {
+            marginTop: 20,
+            backgroundColor: Colors.custom.logoutButtonRed, 
+            padding: 15,
+            borderRadius: 10,
+            alignItems: 'center',
+            width: '90%',
+        },
+        logoutButtonText: {
+            color: '#FFF',
+            fontSize: 16,
+            fontWeight: 'bold',
         },
 
         descriptionContainer: {
