@@ -2,8 +2,6 @@ import React from 'react';
 import {Text, View} from "react-native";
 
 import useStyles from "@/constants/style";
-import NotificationCardUser from "@/components/NotificationCardUser";
-import NotificationCardWarning from "@/components/NotificationCardWarning";
 import NotificationCard from "@/components/NotificationCard";
 
 const Notifications = () => {
