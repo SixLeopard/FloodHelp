@@ -8,7 +8,12 @@ import { useTheme } from "@/constants/ThemeProvider";
 import * as Location from 'expo-location';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { FontAwesome } from '@expo/vector-icons';
+
+type RootStackParamList = {
+    newreport: undefined; 
+};
 
 // Simulated Flood Data
 const simulatedFloodData = [
@@ -24,7 +29,7 @@ export default function Index() {
     const { theme } = useTheme();
     const [region, setRegion] = useState<Region | null>(null);
     const [markerSize, setMarkerSize] = useState({ width: 30, height: 30 });
-    const navigation = useNavigation();
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
     useEffect(() => {
         const requestLocationPermission = async () => {
