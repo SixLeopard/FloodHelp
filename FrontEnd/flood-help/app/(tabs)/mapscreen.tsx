@@ -7,18 +7,25 @@ import { mapDarkTheme } from "@/constants/mapDarkTheme";
 import { useTheme } from "@/constants/ThemeProvider";
 import * as Location from 'expo-location';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { MapScreenRouteProp } from "@/components/navigation/types";
 
+type RootStackParamList = {
+    mapscreen: { onLocationSelected: (address: string) => void };
+    newreport: { location: string };
+};
 
 export default function MapScreen() {
     const styles = useStyles();
     const { theme } = useTheme();
-    const navigation = useNavigation();
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const route = useRoute<MapScreenRouteProp>();
     const [region, setRegion] = useState<Region | null>(null);
     const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
+        
         const requestLocationPermission = async () => {
             try {
                 let { status } = await Location.requestForegroundPermissionsAsync();
@@ -43,11 +50,7 @@ export default function MapScreen() {
         };
 
         requestLocationPermission();
-
-        if (route.params?.onLocationSelected) {
-            navigation.setParams({ onLocationSelected: route.params.onLocationSelected });
-        }
-    }, [navigation, route.params?.onLocationSelected]);
+    }, []);
 
     const handleMapPress = (event: MapPressEvent) => {
         const { latitude, longitude } = event.nativeEvent.coordinate;
@@ -77,15 +80,15 @@ export default function MapScreen() {
             } else {
                 return 'Unable to determine address';
             }
-        } catch (error) {
-            console.error("Error fetching address:", error);
-    
-            if (error.message.includes('TimeoutException')) {
-                Alert.alert('Error', 'Location lookup timed out. Please try again or enter the address manually.');
-            } else {
-                Alert.alert('Error', 'Failed to fetch address. Please try again.');
+        } catch (error: unknown) {
+            // Fix for 'error is of type unknown'
+            if (error instanceof Error) {
+                if (error.message.includes('TimeoutException')) {
+                    Alert.alert('Error', 'Location lookup timed out. Please try again or enter the address manually.');
+                } else {
+                    Alert.alert('Error', 'Failed to fetch address. Please try again.');
+                }
             }
-    
             return 'Error determining address';
         }
     };

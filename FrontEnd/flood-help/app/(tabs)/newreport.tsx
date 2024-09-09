@@ -6,10 +6,14 @@ import useStyles from '@/constants/style';
 import FH_Button from "@/components/navigation/FH_Button";
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '@/components/navigation/types';
+
+type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
 
 const NewReport = () => {
     const styles = useStyles();
-    const navigation = useNavigation();
+    const navigation = useNavigation<NewReportScreenNavigationProp>();
     const [location, setLocation] = useState('Fetching current location...');
     const [floodType, setFloodType] = useState('');
     const [description, setDescription] = useState('');
@@ -58,9 +62,9 @@ const NewReport = () => {
             aspect: [4, 3],
             quality: 1,
         });
-
+    
         if (!result.canceled && result.assets) {
-            const fileName = result.assets[0].uri.split('/').pop();
+            const fileName = result.assets[0].uri.split('/').pop() ?? '';
             setPhotos([...photos, fileName]);
         }
     };
@@ -71,14 +75,14 @@ const NewReport = () => {
             aspect: [4, 3],
             quality: 1,
         });
-
+    
         if (!result.canceled && result.assets) {
-            const fileName = result.assets[0].uri.split('/').pop();
+            const fileName = result.assets[0].uri.split('/').pop() ?? '';
             setPhotos([...photos, fileName]);
         }
     };
 
-    const removeImage = (index) => {
+    const removeImage = (index: number) => {
         const newPhotos = [...photos];
         newPhotos.splice(index, 1);
         setPhotos(newPhotos);
@@ -101,7 +105,7 @@ const NewReport = () => {
             };
 
             // Prepare form data
-            const formData = new FormData();
+            const formData = new URLSearchParams();
             formData.append('location', location);
             formData.append('type', floodType);
             formData.append('description', description || '');
@@ -114,22 +118,16 @@ const NewReport = () => {
                     'Session-Username': mockSession.username, //username
                     'Session-ID': mockSession.id, //sessionID
                 },
-                body: new URLSearchParams(formData).toString()
+                body: formData.toString()
             });
 
             const result = await response.json();
-
-            // Debugging: Log the result
-            console.log(result);
 
             if (result.invalid_account) {
                 Alert.alert('Error', 'Invalid account.');
             } else if (result.invalid_request) {
                 Alert.alert('Error', 'Invalid request.');
             } else {
-                // Debugging: Log success message
-                console.log('Report submitted successfully!');
-
                 Alert.alert('Success', 'Report submitted successfully!');
                 
                 // Clear form
