@@ -14,11 +14,7 @@ export const Colors = {
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
-    
-    // Newly added colors for light mode
-    border: '#ccc',  // Light border color
-    boxBackground: '#f8f9fa',  // Light mode box background
-    red: '#B22222',  // Logout button color
+
   },
   dark: {
     text: '#ECEDEE',
@@ -27,10 +23,13 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
-
-    // Newly added colors for dark mode
-    border: '#666',  // Dark mode border color
-    boxBackground: '#444',  // Dark mode box background
-    red: '#B22222',  // Logout button color (same as light)
   },
+
+  custom: {
+    borderLight: '#ccc',  // Lighter border color
+    borderDark: '#666',   // Darker border color
+    boxBackgroundLight: '#f8f9fa',  // Light box background
+    boxBackgroundDark: '#444',      // Dark box background
+    logoutButtonRed: '#B22222',     // Red color for log out button
+  }
 };
