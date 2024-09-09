@@ -3,6 +3,7 @@ import { Text, View, TouchableOpacity, Alert, Image, StyleSheet, Button, TextInp
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import useStyles from '@/constants/style';
+import { useTheme } from "@/constants/ThemeProvider";
 import FH_Button from "@/components/navigation/FH_Button";
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
@@ -13,6 +14,7 @@ type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ne
 
 const NewReport = () => {
     const styles = useStyles();
+    const { theme } = useTheme();
     const navigation = useNavigation<NewReportScreenNavigationProp>();
     const [location, setLocation] = useState('Fetching current location...');
     const [floodType, setFloodType] = useState('');
@@ -145,20 +147,20 @@ const NewReport = () => {
 
 
     return (
-        <View style={styles.page}>
-            <Text style={styles.headerText}>New Report</Text>
+        <View style={[styles.page]}>
+            <Text style={[styles.headerText, { color: theme.colors.text }]}>New Report</Text>
             <View style={styles.formContainer}>
                 <TouchableOpacity onPress={handleLocationPress} style={styles.locationContainer}>
-                    <Text style={styles.bodyTextBold}>Location</Text>
-                    <Text style={styles.locationText}>{location}</Text>
+                    <Text style={[styles.bodyTextBold]}>Location</Text>
+                    <Text style={[styles.bodyTextBold]}>{location}</Text>
                 </TouchableOpacity>
 
                 <View style={styles.pickerContainer}>
-                    <Text style={styles.bodyTextBold}>Flood Type</Text>
+                    <Text style={[styles.bodyTextBold]}>Flood Type</Text>
                     <Picker
                         selectedValue={floodType}
                         onValueChange={(itemValue) => setFloodType(itemValue)}
-                        style={styles.picker}
+                        style={[styles.picker]} 
                     >
                         <Picker.Item label="Please select a flood type" value="" />
                         <Picker.Item label="Major Flood" value="Major Flood" />
@@ -168,16 +170,17 @@ const NewReport = () => {
                     </Picker>
                 </View>
 
-                {/* Temp Description Input, subject to change */}
                 <View style={styles.descriptionContainer}>
-                    <Text style={styles.bodyTextBold}>Description</Text>
+                <Text style={[styles.bodyTextBold]}>Description</Text>
+                <View style={[styles.descriptionInput]}>
                     <TextInput
-                        style={styles.descriptionInput}
+                        style={[styles.bodyTextBold]}  
                         placeholder="Enter a description"
                         multiline
                         value={description}
                         onChangeText={setDescription}
                     />
+                </View>
                 </View>
 
                 <View style={styles.imageContainer}>
@@ -190,13 +193,13 @@ const NewReport = () => {
                         </View>
                     ))}
                 </View>
-
+                
                 <View style={styles.imageButtonContainer}>
                     <TouchableOpacity onPress={takePhoto} style={styles.imageButton}>
-                        <Text style={styles.imageButtonText}>Take Photo</Text>
+                        <Text style={[styles.imageButtonText]}>Take Photo</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={pickImage} style={styles.imageButton}>
-                        <Text style={styles.imageButtonText}>Upload Image</Text>
+                        <Text style={[styles.imageButtonText]}>Upload Image</Text>
                     </TouchableOpacity>
                 </View>
 
