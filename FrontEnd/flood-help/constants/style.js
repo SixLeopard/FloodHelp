@@ -228,7 +228,7 @@ const useStyles = () => {
             borderWidth: 1,
             borderColor: colors.border,
             borderRadius: 5,
-            backgroundColor: colors.background,
+            backgroundColor: colors.card,
         },
         locationText: {
             fontSize: 16,
@@ -240,11 +240,10 @@ const useStyles = () => {
             borderWidth: 1,
             borderColor: colors.border,
             borderRadius: 5,
-            backgroundColor: colors.background,
+            backgroundColor: colors.card,
         },
         picker: {
             height: 40,
-            color: colors.text,
         },
         imageContainer: {
             flexDirection: 'row',
@@ -361,15 +360,20 @@ const useStyles = () => {
         },
 
         descriptionContainer: {
-            marginVertical: 10,
+            marginBottom: 20,
+            padding: 10,
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: 5,
+            backgroundColor: colors.card,
         },
         
         descriptionInput: {
             borderWidth: 1,
             borderColor: '#ccc',
             borderRadius: 5,
-            padding: 10,
-            minHeight: 80,
+            padding: 8,
+            minHeight: 100,
             textAlignVertical: 'top',
         },
 
