@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Alert, TouchableOpacity, Text, ActivityIndicator } from "react-native";
+import { View, Alert, TouchableOpacity, Text, ActivityIndicator, Image } from "react-native";
 import useStyles from "@/constants/style";
 import MapView, { Marker, Region, MapPressEvent } from "react-native-maps";
 import { mapLightTheme } from "@/constants/mapLightTheme";
@@ -7,19 +7,25 @@ import { mapDarkTheme } from "@/constants/mapDarkTheme";
 import { useTheme } from "@/constants/ThemeProvider";
 import * as Location from 'expo-location';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { MapScreenRouteProp } from "@/components/navigation/types";
 
-type MapScreenRouteProp = RouteProp<{ params: { onLocationSelected: (address: string) => void } }, 'params'>;
+type RootStackParamList = {
+    mapscreen: { onLocationSelected: (address: string) => void };
+    newreport: { location: string };
+};
 
 export default function MapScreen() {
     const styles = useStyles();
     const { theme } = useTheme();
-    const navigation = useNavigation();
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const route = useRoute<MapScreenRouteProp>();
     const [region, setRegion] = useState<Region | null>(null);
     const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
+        
         const requestLocationPermission = async () => {
             try {
                 let { status } = await Location.requestForegroundPermissionsAsync();
@@ -55,8 +61,9 @@ export default function MapScreen() {
         if (selectedLocation) {
             setLoading(true);
             const address = await fetchAddress(selectedLocation.latitude, selectedLocation.longitude);
-            if (route.params?.onLocationSelected) {
-                route.params.onLocationSelected(address);
+            const onLocationSelected = route.params?.onLocationSelected;
+            if (onLocationSelected) {
+                onLocationSelected(address);
             }
             setLoading(false);
             navigation.navigate('newreport', { location: address }); 
@@ -73,15 +80,15 @@ export default function MapScreen() {
             } else {
                 return 'Unable to determine address';
             }
-        } catch (error) {
-            console.error("Error fetching address:", error);
-    
-            if (error.message.includes('TimeoutException')) {
-                Alert.alert('Error', 'Location lookup timed out. Please try again or enter the address manually.');
-            } else {
-                Alert.alert('Error', 'Failed to fetch address. Please try again.');
+        } catch (error: unknown) {
+            // Fix for 'error is of type unknown'
+            if (error instanceof Error) {
+                if (error.message.includes('TimeoutException')) {
+                    Alert.alert('Error', 'Location lookup timed out. Please try again or enter the address manually.');
+                } else {
+                    Alert.alert('Error', 'Failed to fetch address. Please try again.');
+                }
             }
-    
             return 'Error determining address';
         }
     };
@@ -94,8 +101,8 @@ export default function MapScreen() {
                     customMapStyle={theme.dark ? mapDarkTheme : mapLightTheme}
                     initialRegion={region}
                     onPress={handleMapPress}
-                    showsUserLocation
-                    showsMyLocationButton
+                    showsUserLocation={true}
+                    showsMyLocationButton={false}
                 >
                     {selectedLocation && (
                         <Marker
