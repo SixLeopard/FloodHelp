@@ -185,41 +185,143 @@ const useStyles = () => {
             marginTop: 10,
             marginBottom: 10,
         },
-        boxContainer: {
-            width: '90%',
-            padding: 15,
-            marginVertical: 10,
+
+        container: {
+            flex: 1,
+        },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        confirmButtonContainer: {
+            marginVertical: 0,  
+            marginHorizontal: 0, 
+            padding: 0, 
+            backgroundColor: 'transparent',
+        },
+        confirmButton: {
+            backgroundColor: colors.blue,
+            height: 40,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderStyle: "solid",
+            borderWidth: 2,
+            borderColor: colors.blue,
+            padding: 5, 
+            paddingHorizontal: 20,
+        },
+        confirmButtonText: {
+            color: colors.white,
+            fontFamily: 'Urbanist_600SemiBold',
+            fontSize: 16,
+            flexWrap: 'wrap',
+            padding: 2,
+        },
+
+        locationContainer: {
+            marginTop: 40,
+            marginBottom: 20,
+            padding: 10,
             borderWidth: 1,
-            borderColor: theme.dark ? Colors.custom.borderDark : Colors.custom.borderLight, // Use custom colors
-            borderRadius: 10,
-            backgroundColor: theme.dark ? Colors.custom.boxBackgroundDark : Colors.custom.boxBackgroundLight, // Use custom colors
+            borderColor: colors.border,
+            borderRadius: 5,
+            backgroundColor: colors.background,
         },
-        subHeaderText: {
-            fontSize: 18,
-            fontWeight: 'bold',
+        locationText: {
+            fontSize: 16,
+            color: colors.text,
+        },
+        pickerContainer: {
+            marginBottom: 20,
+            padding: 10,
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: 5,
+            backgroundColor: colors.background,
+        },
+        picker: {
+            height: 40,
+            color: colors.text,
+        },
+        imageContainer: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            marginVertical: 10,
+        },
+        imagePreviewContainer: {
+            position: 'relative',
+            marginRight: 10,
             marginBottom: 10,
-            color: colors.text, // Adapt to theme text color
         },
-        rowContainerSetting: {
+        imageButtonContainer: {
             flexDirection: 'row',
             justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingVertical: 10,
-            borderBottomWidth: 1,
-            borderBottomColor: Colors.custom.borderLight, // Use custom color
         },
-        logoutButton: {
-            marginTop: 20,
-            backgroundColor: Colors.custom.logoutButtonRed, // Use custom color
-            padding: 15,
-            borderRadius: 10,
-            alignItems: 'center',
-            width: '90%',
+        imagePreview: {
+            width: 100,
+            height: 100,
         },
-        logoutButtonText: {
-            color: '#FFF',
+        imageText: {
             fontSize: 16,
-            fontWeight: 'bold',
+            color: '#898f8a', 
+            marginBottom: 5,
+        },
+        removeImageButton: {
+            backgroundColor: colors.red,
+
+            height: 40,
+            display: "flex",
+            flexBasis: 'auto',
+            flexDirection: "row",
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center',
+            borderStyle: "solid",
+            borderWidth: 2,
+            borderColor: colors.red,
+            borderRadius: 15,
+            margin: 15,
+            padding: 5,
+            paddingHorizontal: 20,
+        },
+        removeImageText: {
+            color: colors.white,
+            fontFamily: 'Urbanist_600SemiBold',
+            fontSize: 16,
+            flexWrap: 'wrap',
+            padding: 2,
+        },
+        imageButtonContainer: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+        },
+        imageButton: {
+            backgroundColor: colors.green,
+
+            height: 40,
+            display: "flex",
+            flexBasis: 'auto',
+            flexDirection: "row",
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center',
+            borderStyle: "solid",
+            borderWidth: 2,
+            borderColor: colors.green,
+            borderRadius: 15,
+            margin: 15,
+            padding: 5,
+            paddingHorizontal: 20,
+        },
+        imageButtonText: {
+            color: colors.white,
+            fontFamily: 'Urbanist_600SemiBold',
+            fontSize: 16,
+            flexWrap: 'wrap',
+            padding: 2,
         },
         boxContainer: {
             width: '90%',
