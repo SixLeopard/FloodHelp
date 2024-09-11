@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import {router} from "expo-router";
 
 export default function LoginScreen() {
     const { signIn } = useAuth();
@@ -9,7 +10,9 @@ export default function LoginScreen() {
     const [error, setError] = useState('');
 
     const handleLogin = async () => {
+        console.log("login button presed")
         try {
+            console.log("try block")
             await signIn({ email, password });
         } catch (err) {
             setError('Invalid credentials');
@@ -23,8 +26,8 @@ export default function LoginScreen() {
             <Text></Text>
             <Text></Text>
             <Text></Text>
+
             <Text>Login</Text>
-            {error && <Text>{error}</Text>}
             <TextInput
                 placeholder="Email"
                 value={email}
@@ -37,7 +40,14 @@ export default function LoginScreen() {
                 onChangeText={setPassword}
                 secureTextEntry
             />
+            {error && <Text>{error}</Text>}
             <Button title="Login" onPress={handleLogin} />
+
+            <Text></Text>
+            <Text></Text>
+
+            <Button title="Register New Account" onPress={() => router.push('/(auth)/CreateAccountScreen')} />
+
         </View>
     );
 }

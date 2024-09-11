@@ -1,32 +1,52 @@
+// contexts/AuthContext.js
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { getAuthToken, login, logout } from '@/services/AuthService';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Check authentication status
     useEffect(() => {
         const checkAuth = async () => {
-            const token = await getAuthToken();
-            if (token) {
-                setUser({ token }); // Add any user data received
+            try {
+                const token = await getAuthToken();
+                if (token) {
+                    setUser({ token });
+                }
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
         checkAuth();
     }, []);
 
     const signIn = async (credentials) => {
-        const token = await login(credentials);
-        setUser({ token });
+        try {
+            const token = await login(credentials);
+            if (token) {
+                setUser({ token });
+            } else {
+                throw new Error('Invalid login response');
+            }
+        } catch (error) {
+            console.error('Sign-in failed:', error);
+            throw new Error('Sign-in failed: ' + error.message);
+        }
     };
 
-    const signOut = () => {
-        logout();
-        setUser(null);
+    const signOut = async () => {
+        try {
+            console.log("button pressed")
+            await logout();
+            setUser(null);
+        } catch (error) {
+            console.error('Sign-out failed:', error);
+        }
     };
 
     return (
@@ -36,4 +56,10 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (context === null) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+};
