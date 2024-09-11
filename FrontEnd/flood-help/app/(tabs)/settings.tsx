@@ -2,11 +2,13 @@ import React, { useState } from 'react'; // Added useState import
 import { View, Text, Switch , TouchableOpacity} from 'react-native'; // Added TouchableOpacity import
 import { useTheme } from '@/constants/ThemeProvider';
 import useStyles from "@/constants/style";
+import {useAuth} from "@/contexts/AuthContext";
 
 
 export default function SettingsScreen() {
     const { theme, toggleTheme } = useTheme();
     const styles = useStyles();
+    const { signOut } = useAuth();
 
     // State for notification switches
     const [familyStatus, setFamilyStatus] = useState(true);
@@ -63,7 +65,7 @@ export default function SettingsScreen() {
             </View>
 
             {/* Log Out Button */}
-            <TouchableOpacity style={styles.logoutButton}>
+            <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
                 <Text style={styles.logoutButtonText}>Log out</Text>
             </TouchableOpacity>
         </View>
