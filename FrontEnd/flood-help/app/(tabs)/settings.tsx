@@ -1,8 +1,8 @@
-import React, { useState } from 'react'; // Added useState import
-import { View, Text, Switch , TouchableOpacity} from 'react-native'; // Added TouchableOpacity import
+import React, { useState } from 'react';
+import { View, Text, Switch, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/constants/ThemeProvider';
 import useStyles from "@/constants/style";
-
+import { router } from 'expo-router'; // Import router from expo-router
 
 export default function SettingsScreen() {
     const { theme, toggleTheme } = useTheme();
@@ -63,7 +63,13 @@ export default function SettingsScreen() {
             </View>
 
             {/* Log Out Button */}
-            <TouchableOpacity style={styles.logoutButton}>
+            <TouchableOpacity
+                style={styles.logoutButton}
+                onPress={() => {
+                    // Navigate to the SignIn screen using expo-router
+                    router.replace('/sign-in'); // Replace this with your path if it's different
+                }}
+            >
                 <Text style={styles.logoutButtonText}>Log out</Text>
             </TouchableOpacity>
         </View>

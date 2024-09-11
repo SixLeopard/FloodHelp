@@ -49,6 +49,7 @@ const useStyles = () => {
             fontFamily: 'Urbanist_400Regular',
             fontSize: 16,
             flexWrap: 'wrap',
+            color: colors.darkText, 
         },
         bodyTextDark: {
             color: colors.darkText,
@@ -329,13 +330,13 @@ const useStyles = () => {
             borderWidth: 1,
             borderColor: theme.dark ? Colors.custom.borderDark : Colors.custom.borderLight, 
             borderRadius: 10,
-            backgroundColor: theme.dark ? Colors.custom.boxBackgroundDark : Colors.custom.boxBackgroundLight, 
+            backgroundColor: colors.card,
         },
         subHeaderText: {
             fontSize: 18,
             fontWeight: 'bold',
             marginBottom: 10,
-            color: colors.text, 
+            color: colors.darkText, 
         },
         rowContainerSetting: {
             flexDirection: 'row',
@@ -376,6 +377,189 @@ const useStyles = () => {
             minHeight: 100,
             textAlignVertical: 'top',
         },
+
+        logoImage: {
+            width: 250,  // Adjust the width
+            height: 250, // Adjust the height
+            marginTop: 100,
+            marginBottom:50 ,
+        },
+
+        label: {
+            fontSize: 16,
+            fontWeight: 'bold',
+            alignSelf: 'flex-start', // Aligns label to the left
+            marginBottom: 5,
+            color: colors.text,
+        },
+
+        signInButton: {
+            backgroundColor: colors.green,  // Assuming colors.green exists, otherwise use a green hex color
+            paddingVertical: 12,
+            paddingHorizontal: 80,
+            borderRadius: 8,
+            marginTop: 20,
+            
+
+        },
+        signInButtonText: {
+            color: colors.white,
+            fontSize: 16,
+            fontWeight: 'bold',
+            
+
+        },
+
+        linkContainer: {
+            marginTop: 15,
+            flexDirection: 'column', // Stack the links vertically
+            width: '100%',
+            left: 10,
+
+        },
+
+        linkText: {
+            fontSize: 14,
+            fontWeight: 'bold',
+            textDecorationLine: 'underline',
+            marginVertical: 5, // Adds vertical space between links
+            color: colors.text,
+        },
+        
+        containerSignIn: {
+            flex: 1, // Ensures the container takes up the full height of the screen
+            justifyContent: 'center', // Centers content vertically
+            alignItems: 'center', // Centers content horizontally
+            backgroundColor: '#fff',
+            paddingHorizontal: 30, // Adds padding to the sides // Keeps your background color consistent
+        },
+        
+        inputBoxSignInPage: {
+            height: 40,
+            width: '100%',
+            borderColor: '#ccc', // Light gray border
+            borderWidth: 1.5,
+            borderRadius: 8, // Rounded corners
+            marginBottom: 12,
+            paddingHorizontal: 8,
+            backgroundColor: '#fff',
+        },
+
+        // Style for the gray box behind the logo
+        logoContainer: {
+            width: 350, // Adjust width to match logo size
+            height: 250, // Adjust height to match logo size
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: 20, // Rounded corners
+            marginBottom: 30, // Space below the logo
+        },
+
+        formContainerSignInPage: {
+            width: '85%', // Make the form take up 80% of the screen width
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 20, // Padding inside the container
+            borderRadius: 10, // Rounded corners for the form container
+            marginBottom: 40, // Space below the container
+            borderColor: '#ccc', // Gray border color
+            borderWidth: 1, // Set the border width to make it visibl
+            flexGrow: 0.5, // Allows the container to expand vertically
+
+            
+        },
+
+        /* Styles specific to the Register page */
+        registerFormContainer: {
+            width: '90%',
+            padding: 20,
+            borderRadius: 10,
+            borderColor: '#ccc',
+            borderWidth: 1,
+            marginTop: 30,
+            marginBottom: 10,
+        },
+
+        registerInputBox: {
+            height: 40,
+            width: '100%',
+            borderColor: '#ccc',
+            borderWidth: 1.5,
+            borderRadius: 8,
+            marginBottom: 12,
+            paddingHorizontal: 8,
+            backgroundColor: '#fff',
+        },
+
+        registerLabel: {
+            fontSize: 16,
+            fontWeight: 'bold',
+            alignSelf: 'flex-start',
+            marginBottom: 8,
+            color: colors.text,
+        },
+
+        termsContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 10,
+        },
+
+        checkbox: {
+            marginRight: 10,
+        },
+
+        termsText: {
+            fontSize: 13,
+            color: colors.text,
+        },
+
+        registerButton: {
+            backgroundColor: colors.green,
+            paddingVertical: 12,
+            paddingHorizontal: 80,
+            borderRadius: 8,
+            marginTop: 20,
+            alignItems: 'center',
+        },
+
+        registerButtonText: {
+            color: colors.white,
+            fontSize: 16,
+            fontWeight: 'bold',
+        },
+
+        linkContainerRegister: {
+            marginTop: 15,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            width: '100%',
+        },
+
+        linkTextRegister: {
+            color: colors.text,
+            fontSize: 14,
+        },
+
+        linkTextBoldRegister: {
+            fontSize: 14,
+            fontWeight: 'bold',
+            textDecorationLine: 'underline',
+            marginVertical: 5, // Adds vertical space between links
+            color: colors.text,
+            textAlign: 'center',
+        },
+
+        termsLinkTextRegister: {
+            color: colors.text,
+            fontSize: 12,
+            textDecorationLine: 'underline',
+            marginTop: 10,
+            textAlign: 'center',
+        },
+        
+
+
 
     });
 };
