@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import {useTheme} from "@/constants/ThemeProvider";
-import { Colors } from '@/constants/Colors';
+import {Colors} from "@/constants/Colors";
+
 
 const useStyles = () => {
     const { theme } = useTheme();
@@ -292,10 +293,6 @@ const useStyles = () => {
             fontSize: 16,
             flexWrap: 'wrap',
             padding: 2,
-        },
-        imageButtonContainer: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
         },
         imageButton: {
             backgroundColor: colors.green,
