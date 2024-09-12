@@ -37,7 +37,7 @@ def create_relationship():
             except Exception as e:
                 return make_response({"Database error": e.pgerror})
 
-            return make_response("success": 1)
+            return make_response({"success": 1})
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
