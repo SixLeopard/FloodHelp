@@ -569,7 +569,7 @@ const useStyles = () => {
             shadowOffset: { width: 0, height: 2 },
             elevation: 5,
         },
-
+        
         buttonContainer: {
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -585,6 +585,7 @@ const useStyles = () => {
             alignItems: 'center',
             marginRight: 10,
         },
+
         resetButton: {
             flex: 1,
             backgroundColor: 'green',
@@ -594,7 +595,7 @@ const useStyles = () => {
             alignItems: 'center',
             marginLeft: 10,
         },
-
+        
         errorText: {
             color: 'red',          
             fontSize: 14,          
