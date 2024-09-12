@@ -3,10 +3,10 @@ import { Text, View, TouchableOpacity, Alert, Image, StyleSheet, Button, TextInp
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import useStyles from '@/constants/style';
-import { useTheme } from "@/constants/ThemeProvider";
+import { useTheme } from "@/contexts/ThemeContext";
 import FH_Button from "@/components/navigation/FH_Button";
 import { useNavigation } from '@react-navigation/native';
-// import { Picker } from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
 

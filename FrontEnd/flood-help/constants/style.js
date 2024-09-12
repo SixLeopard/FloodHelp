@@ -1,7 +1,6 @@
 import { StyleSheet } from 'react-native';
-import {useTheme} from "@/constants/ThemeProvider";
+import {useTheme} from "@/contexts/ThemeContext";
 import {Colors} from "@/constants/Colors";
-
 
 const useStyles = () => {
     const { theme } = useTheme();
@@ -50,7 +49,6 @@ const useStyles = () => {
             fontFamily: 'Urbanist_400Regular',
             fontSize: 16,
             flexWrap: 'wrap',
-            color: colors.darkText, 
         },
         bodyTextDark: {
             color: colors.darkText,
@@ -554,10 +552,6 @@ const useStyles = () => {
             marginTop: 10,
             textAlign: 'center',
         },
-        
-
-
-
     });
 };
 
