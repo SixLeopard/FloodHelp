@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text } from 'react-native';
 import {router} from "expo-router";
+import {useAuth} from "@/contexts/AuthContext";
 
-const baseUrl = 'https://your-api-url.com'; // Replace with your actual base URL
+const baseUrl = 'http://54.206.190.121:5000';
 
 const CreateAccountScreen = ( ) => {
+    const { signIn } = useAuth();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('')
@@ -27,13 +29,20 @@ const CreateAccountScreen = ( ) => {
         };
 
         try {
-            const response = await fetch(`${baseUrl}/account/create`, requestOptions);
+            const response = await fetch(`${baseUrl}/accounts/create`, requestOptions);
+            console.log(response);
             const result = await response.json(); // Parse the JSON response
-
             if (response.ok) {
                 // Handle successful account creation
                 setSuccess('Account created successfully');
-                router.push('/(auth)/LoginScreen')
+                // try {
+                //     console.log("si")
+                //     await signIn({ username, password });
+                //     router.push('/(auth)/LoginScreen')
+                // } catch (err) {
+                //     setError('Invalid credentials');
+                // }
+
             } else {
                 throw new Error(result.message || 'Failed to create account');
             }
