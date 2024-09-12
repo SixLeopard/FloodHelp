@@ -20,11 +20,9 @@ def create_user_report(uid : int, location : str, type : str, description: str, 
     lat, long = map(float, re.findall(r"[-+]?\d*\.\d+|\d+", location))
 
     try:
-        report_id = db.create_hazard(type, img_str, session['uid'], (lat, long), description)
+        return db.create_hazard(type, img_str, session['uid'], (lat, long), description)
     except Exception as e:
         return make_response({'internal_error': str(e)})
-
-    return report_id
 
 @userreport_routes.route("/reporting/user/add_report", methods = ['POST'])
 def add_user_report_route():
