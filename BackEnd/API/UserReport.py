@@ -1,28 +1,30 @@
 #flask
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
-import uuid
 from Tools import UserReportVerfication
+import re
+
+from API.database import database_interface as db
 
 userreport_routes = Blueprint("userreport_routes", __name__)
 
-user_reports = {}
-
-def get_user_report(id = None):
-    if id != None:
-        return user_reports[id]
-    else:
-        return user_reports
+def get_user_report(id):
+    return db.get_hazard(id)
     
-def create_user_report(user : str, location : str, type : str, description: str):
+def create_user_report(uid : int, location : str, type : str, description: str, img_str: str = None):
     '''
         create user report
         location is a string in the form "{LAT},{LONG}"
     '''
-    report_id = str(uuid.uuid4())
-    user_reports[report_id] = {"User": user, "report_id":report_id, "location":location, "type":type, "description":description}
-    return report_id
+    # Extract coordinates from location
+    lat, long = map(float, re.findall(r"[-+]?\d*\.\d+|\d+", location))
 
+    try:
+        report_id = db.create_hazard(type, img_str, session['uid'], (lat, long), description)
+    except Exception as e:
+        return make_response({'internal_error': str(e)})
+
+    return report_id
 
 @userreport_routes.route("/reporting/user/add_report", methods = ['POST'])
 def add_user_report_route():
@@ -33,48 +35,62 @@ def add_user_report_route():
         location = request.form.get('location')
         hazard_type = request.form.get('type')
         description = request.form.get('description')
+        img = request.form.get('image')
         if Accounts.verify_user_account(session["username"], session["id"]):
-            report_id = create_user_report(session["username"],location,hazard_type,description)
-
-            return make_response(get_user_report(report_id))
-        
+            try:
+                report_id = create_user_report(session["uid"],location,hazard_type,description, img)
+                return make_response(get_user_report(report_id))
+            except Exception as e:
+                return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
-    
     return make_response({"invalid_request":1})
 
 @userreport_routes.route("/reporting/user/get_report", methods = ['GET'])
 def get_user_report_route():
     '''
-        get specific user report
+    Retrieve the report with the ID specified in the report_id field of the request body
     '''
     if request.method == 'GET':
         report_id = request.form.get('report_id')
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
-                if not isinstance(get_user_report(report_id)["location"], tuple):
-                    get_user_report(report_id)["location"] = tuple(map(float, get_user_report(report_id)["location"].split(',')))
-                return make_response(get_user_report(report_id))
-            except:
-                return make_response({"invalid_report_id":1})
-        
+                report = get_user_report(report_id)
+            except Exception as e:
+                return make_response({'internal_error': str(e)})
+            if report is None:
+                return make_response({"report_not_found": 1})
+            return make_response(report)
         return make_response({"invalid_account":1})
-    
     return make_response({"invalid_request":1})
 
-@userreport_routes.route("/reporting/user/get_all_report", methods = ['GET'])
+@userreport_routes.route("/reporting/user/get_all_report_details", methods = ['GET'])
 def get_all_user_report_route():
     '''
-        get specific user report
+    Retrieve all reports made by all users including all details
     '''
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
-            for i in get_user_report():
-                if not isinstance(get_user_report(i)["location"], tuple):
-                    get_user_report(i)["location"] = tuple(map(float, get_user_report(i)["location"].split(',')))
-            return make_response(get_user_report())
-        
+            try:
+                return make_response(db.get_all_hazard_details())
+            except Exception as e:
+                return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
-    
+    return make_response({"invalid_request":1})
+
+@userreport_routes.route("/reporting/user/get_all_report_coordinates", methods = ['GET'])
+def get_all_user_report_route():
+    '''
+    Retrieve all reports made by all users but only include the report ID and the
+    coordinates. Useful for mapping reports. Details for a specific report can be
+    retrieved by using get_report with the report ID
+    '''
+    if request.method == 'GET':
+        if Accounts.verify_user_account(session["username"], session["id"]):
+            try:
+                return make_response(db.get_all_hazard_coordinates())
+            except Exception as e:
+                return make_response({'internal_error': str(e)})
+        return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
 @userreport_routes.route("/reporting/user/get_report_validation_score", methods = ['GET'])
@@ -89,5 +105,4 @@ def get_report_validation_score_route():
             return make_response({report_id:score})
         
         return make_response({"invalid_account":1})
-    
     return make_response({"invalid_request":1})
