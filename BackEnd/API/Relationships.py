@@ -2,11 +2,9 @@
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
 
-from API.Database.db_interface import DBInterface
+from API.database import database_interface as db
 
 relationships_routes = Blueprint("relationships_routes", __name__)
-
-db = DBInterface()
 
 @relationships_routes.route("/relationships/create", methods = ['POST'])
 def create_relationship():
