@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, Switch, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react'; // Added useState import
+import { View, Text, Switch , TouchableOpacity} from 'react-native'; // Added TouchableOpacity import
 import { useTheme } from '@/constants/ThemeProvider';
 import useStyles from "@/constants/style";
-import { router } from 'expo-router'; // Import router from expo-router
+import {useAuth} from "@/contexts/AuthContext";
+
 
 export default function SettingsScreen() {
     const { theme, toggleTheme } = useTheme();
     const styles = useStyles();
+    const { signOut } = useAuth();
 
     // State for notification switches
     const [familyStatus, setFamilyStatus] = useState(true);
@@ -63,13 +65,7 @@ export default function SettingsScreen() {
             </View>
 
             {/* Log Out Button */}
-            <TouchableOpacity
-                style={styles.logoutButton}
-                onPress={() => {
-                    // Navigate to the SignIn screen using expo-router
-                    router.replace('/sign-in'); // Replace this with your path if it's different
-                }}
-            >
+            <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
                 <Text style={styles.logoutButtonText}>Log out</Text>
             </TouchableOpacity>
         </View>
