@@ -9,8 +9,11 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
+import { mockLogin } from './mockLogin';
+import { mockSignUp } from './mockSignUp';
 
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
+
 
 const NewReport = () => {
     const styles = useStyles();
@@ -20,9 +23,25 @@ const NewReport = () => {
     const [floodType, setFloodType] = useState('');
     const [description, setDescription] = useState('');
     const [photos, setPhotos] = useState<string[]>([]);
+    const [sessionId, setSessionId] = useState<string | null>(null);
+    const [username, setUsername] = useState<string | null>(null);
+
 
     useEffect(() => {
-        fetchCurrentLocation();
+        const handleSignUpAndLogin = async () => {
+            // Sign up the user and then log in
+            const signUpData = await mockSignUp();
+            if (signUpData) {
+                const loginData = await mockLogin(signUpData.username, signUpData.password);
+                if (loginData) {
+                    setSessionId(loginData.sessionId);
+                    setUsername(loginData.username);
+                }
+            }
+        };
+
+        handleSignUpAndLogin(); // Sign up and login when the component loads
+        fetchCurrentLocation(); // Fetch location when the component loads
     }, []);
 
     const fetchCurrentLocation = async () => {
@@ -96,31 +115,25 @@ const NewReport = () => {
             return;
         }
 
+        if (!sessionId || !username) {
+            Alert.alert('Error', 'You must be logged in to submit a report.');
+            return;
+        }
+
+        const body = new FormData();
+        body.append("location", location);
+        body.append("type", floodType);
+        body.append("description", description || '');
+
         try {
-            //const sessionID = await AsyncStorage.getItem('session_id');
-            //const username = await AsyncStorage.getItem('username');
-
-            // Mocked session data
-            const mockSession = {
-                username: 'john',
-                id: '3'
-            };
-
-            // Prepare form data
-            const formData = new URLSearchParams();
-            formData.append('location', location);
-            formData.append('type', floodType);
-            formData.append('description', description || '');
-
-            // Send the report to the Flask backend
             const response = await fetch('http://54.206.190.121:5000/reporting/user/add_report', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Session-Username': mockSession.username, //username
-                    'Session-ID': mockSession.id, //sessionID
+                    'Content-Type': 'multipart/form-data',
+                    'Session-Username': username, // Use logged-in username
+                    'Session-Id': sessionId        // Use session ID
                 },
-                body: formData.toString()
+                body
             });
 
             const result = await response.json();
@@ -131,20 +144,20 @@ const NewReport = () => {
                 Alert.alert('Error', 'Invalid request.');
             } else {
                 Alert.alert('Success', 'Report submitted successfully!');
-                
-                // Clear form
-                setLocation('Fetching current location...');
-                setFloodType('');
-                setDescription('');
-                setPhotos([]);
+                resetForm();
             }
         } catch (error) {
-            console.error('Error submitting report:', error);
-            Alert.alert('Error', 'Failed to submit report.');
+            console.error("Error submitting report:", error);
+            Alert.alert('Error', 'Failed to submit report. Please try again.');
         }
     };
 
-
+    const resetForm = () => {
+        setLocation('Fetching current location...');
+        setFloodType('');
+        setDescription('');
+        setPhotos([]);
+    };
 
     return (
         <View style={[styles.page]}>
