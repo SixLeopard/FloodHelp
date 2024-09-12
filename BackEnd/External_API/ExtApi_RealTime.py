@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 import os
 import json
+import random
+from datetime import datetime, timedelta
+from geopy.geocoders import Nominatim
 
 
 def get_real_time_data() -> str:
@@ -167,7 +170,7 @@ def get_alerts() -> list:
         "key": api_key,
         "q": "Brisbane",
         "alerts" : "yes",
-        "days" : "3"
+        "days" : "1"
     }
 
 
@@ -189,3 +192,94 @@ def get_alerts() -> list:
             filtered_list_of_alerts.append(json.dumps(new_alert))
 
     return filtered_list_of_alerts
+
+
+
+def get_coordinates(location: str) -> tuple:
+    geolocator = Nominatim(user_agent="FloodAppUQ")
+    location = geolocator.geocode(location)
+    
+    if location:
+        return (location.latitude, location.longitude)
+    else:
+        return (None, None)
+
+def get_fake_alerts() -> list:
+    """
+    Generates a list of dummy flood alerts for various locations in Brisbane. The number of alerts is randomly chosen
+    between 1 and 3. Each alert is guaranteed to have a unique location. 
+    
+    Returns:
+        list: A list of JSON-formatted strings, where each string represents a flood alert as a dictionary with the keys:
+            - 'headline': A string describing the alert.
+            - 'location': A string indicating the location of the alert.
+            - 'coordinates': A tuple with 'latitude' and 'longitude'.
+            - 'risk': A string indicating the severity of the flood risk (Minor, Moderate, Severe, Extreme)
+            - 'certainty': A string indicating the certainty level of the alert (Possible, Likely, Observed, Unlikely)
+            - 'start': A string with the start time of the alert, in ISO 8601 format. The start time is always going to be the time when this method is called. 
+            - 'end': A string with the end time of the alert, in ISO 8601 format. This is the start time + random 1 to 6 hours
+    """
+
+    locations = [
+        "Brisbane, Brisbane City", "Brisbane, Fortitude Valley", "Brisbane, Kangaroo Point", "Brisbane, South Bank", "Brisbane, New Farm", 
+        "Brisbane, Teneriffe", "Brisbane, Woolloongabba", "Brisbane, Red Hill", "Brisbane, West End", "Brisbane, Toowong", "Brisbane, Paddington"
+    ]
+    
+   
+    random.shuffle(locations)
+    
+    severities = ["Minor", "Moderate", "Severe", "Extreme"]
+    
+    certainties = ["Possible", "Likely", "Observed", "Unlikely"]
+
+    
+    def round_to_nearest_minute(dt: datetime) -> datetime:
+
+        return dt.replace(second=0, microsecond=0) + timedelta(minutes=round(dt.second / 60))
+
+    def get_random_times() -> tuple:
+
+        start_time = datetime.now()
+        start_time_rounded = round_to_nearest_minute(start_time)
+        end_time = start_time_rounded + timedelta(hours=random.randint(1, 6))
+        end_time_rounded = round_to_nearest_minute(end_time)
+        return start_time_rounded.isoformat(), end_time_rounded.isoformat()
+
+   
+    num_alerts = random.randint(1, 3)
+    used_locations = set()
+    random_alerts = []
+    for i in range(num_alerts):
+        
+        location_name = None
+        for loc in locations:
+            if loc not in used_locations:
+                location_name = loc
+                used_locations.add(loc)
+                break
+        
+        if location_name is None:
+            continue
+        
+        lat, lon = get_coordinates(f"Brisbane, {location_name}")
+        start, end = get_random_times()
+        severity = random.choice(severities)
+        certainty = random.choice(certainties)
+        
+        
+        headline = (f"Flood Warning for {location_name}: "
+                    f"Risk Level - {severity}, Certainty - {certainty}. "
+                    f"Effective from {start} to {end}.")
+        
+        alert = {
+            "headline": headline,
+            "location": location_name,
+            "coordinates": (lat, lon),
+            "risk": severity,
+            "certainty": certainty,
+            "start": start,
+            "end": end
+        }
+        random_alerts.append(json.dumps(alert))
+    
+    return random_alerts
