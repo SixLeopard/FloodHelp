@@ -2,7 +2,7 @@
 
 /**
  * This script is used to reset the project to a blank state.
- * It moves the /app directory to /app-example and creates a new /app directory with an index.tsx and _layout.tsx file.
+ * It moves the /app directory to /z.app-example and creates a new /app directory with an index.tsx and _layout.tsx file.
  * You can remove the `reset-project` script from package.json and safely delete this file after running it.
  */
 
@@ -11,7 +11,7 @@ const path = require('path');
 
 const root = process.cwd();
 const oldDirPath = path.join(root, 'app');
-const newDirPath = path.join(root, 'app-example');
+const newDirPath = path.join(root, 'z.app-example');
 const newAppDirPath = path.join(root, 'app');
 
 const indexContent = `import { Text, View } from "react-native";
@@ -46,7 +46,7 @@ fs.rename(oldDirPath, newDirPath, (error) => {
   if (error) {
     return console.error(`Error renaming directory: ${error}`);
   }
-  console.log('/app moved to /app-example.');
+  console.log('/app moved to /z.app-example.');
 
   fs.mkdir(newAppDirPath, { recursive: true }, (error) => {
     if (error) {

@@ -6,7 +6,7 @@ import useStyles from '@/constants/style';
 import { useTheme } from "@/constants/ThemeProvider";
 import FH_Button from "@/components/navigation/FH_Button";
 import { useNavigation } from '@react-navigation/native';
-import { Picker } from '@react-native-picker/picker';
+// import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
 
