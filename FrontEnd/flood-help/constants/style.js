@@ -450,7 +450,7 @@ const useStyles = () => {
             alignItems: 'center',
             borderRadius: 10, // Rounded corners
             marginBottom: 25, // Space below the logo
-            marginTop: 25, // Space below the logo
+            marginTop: '20%', // Space below the logo
             backgroundColor: '#e9ecef',
         },
 
@@ -595,6 +595,12 @@ const useStyles = () => {
             marginLeft: 10,
         },
 
+        errorText: {
+            color: 'red',          
+            fontSize: 14,          
+            marginTop: 10,        
+            textAlign: 'center',  
+        },
 
 
     });
