@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import { View, Alert, TouchableOpacity, Text, ActivityIndicator, Image } from "react-native";
 import useStyles from "@/constants/style";
 import MapView, { Marker, Region, MapPressEvent } from "react-native-maps";
-import { mapLightTheme } from "@/constants/mapLightTheme";
-import { mapDarkTheme } from "@/constants/mapDarkTheme";
-import { useTheme } from "@/constants/ThemeProvider";
+import {mapLightTheme, mapDarkTheme} from "@/constants/Themes"
+import { useTheme } from "@/contexts/ThemeContext";
 import * as Location from 'expo-location';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';

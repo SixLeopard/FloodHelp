@@ -1,20 +1,20 @@
 import * as SecureStore from 'expo-secure-store';
 import {router} from "expo-router";
 
-const baseUrl = 'http://54.206.190.121:5000'; // Make sure this URL is correct
+const baseUrl = 'http://54.206.190.121:5000';
 
 // Function to login by making a POST request to the backend
 export const login = async ({ email, password }) => {
     try {
         const formData = new FormData();
-        formData.append('username', email); // Ensure this matches the backend expected field
+        formData.append('email', email); // Ensure this matches the backend expected field
         formData.append('password', password);
 
         const requestOptions = {
             method: 'POST',
             body: formData,
             headers: {
-                'Content-Type': 'multipart/form-data', // Include this header for FormData
+                'Content-Type': 'multipart/form-data',
             },
         };
 
