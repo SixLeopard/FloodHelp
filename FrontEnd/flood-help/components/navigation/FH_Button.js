@@ -2,7 +2,7 @@ import {Pressable, Text} from "react-native";
 import {router} from "expo-router";
 import React from "react";
 import useStyles from "../../constants/style";
-import {useTheme} from "../../constants/ThemeProvider";
+import {useTheme} from "../../contexts/ThemeContext";
 
 const FH_Button = ({route, text, onPress}) => {
     const styles = useStyles();

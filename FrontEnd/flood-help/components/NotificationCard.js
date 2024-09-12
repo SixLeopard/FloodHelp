@@ -1,14 +1,11 @@
 import React from 'react';
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 import useStyles from "@/constants/style";
 import UserAvatar from "@/components/UserAvatar";
-import { useTheme } from "@/constants/ThemeProvider";
 
 const NotificationCard = ({ type, title, body, timeOfNotification }) => {
     const styles = useStyles();
-    const { theme } = useTheme();
-    const colors = theme.colors;
 
     return (
         <View style={styles.notificationCard}>
