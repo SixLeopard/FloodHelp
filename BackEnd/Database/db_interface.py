@@ -252,12 +252,19 @@ class DBInterface():
         The name of the area in which the report is made. This is an optional paramter
         and can be left out if no area is to be specified. If specified, then must be
         'name' of an entry in the 'Area' table.
+
+    Returns
+        int: The hazard_id of the newly created hazard
     """
     def create_hazard(self, title: str, img_b64: str, reporting_user: int, \
-            coordinates: tuple[float], area_name: str = None):
-        query = 'INSERT INTO hazards (title, image, reporting_user, area, coordinates) VALUES (%s, %s, %s, %s, %s)'
+            coordinates: tuple[float], description:str = None, area_name: str = None) -> int:
+        query = 'INSERT INTO hazards (title, image, reporting_user, area, coordinates, description) VALUES (%s, %s, %s, %s, %s, %s)'
 
-        self.query(query, title, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]))
+        self.query(query, title, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]), description)
+
+        # Get id of newly created hazard. Auto incremented by database
+        query = 'SELECT MAX(hazard_id) FROM Hazards'
+        return self.query(query)
     
     """
     Retrieve hazard with the given ID from the database.
@@ -272,24 +279,90 @@ class DBInterface():
         image (str): The string encoded representation of the image    
     """
     def get_hazard(self, hazard_id: int):
-        results = {}
         query = 'SELECT * FROM Hazards WHERE hazard_id = (%s)'
-        result = self.query(query, hazard_id)[0]
+        result = self.query(query, hazard_id)
 
-        hazard = {
-            'hazard_id': result[0],
-            'title': result[1],
-            'datetime': result[2].strftime('%d/%m/%y %H:%M:%S'),
-            'reporting_user_id': result[3],
-            'area_name': result[4],
-            'coordinates': result[5],
-            'img': result[6].tobytes()
-        }
+        if result:
+            result = result[0]
+            hazard = {
+                'hazard_id': result[0],
+                'title': result[1],
+                'datetime': result[2].strftime('%d/%m/%y %H:%M:%S'),
+                'reporting_user_id': result[3],
+                'area_name': result[4],
+                'coordinates': result[5],
+                'img': result[6].tobytes()
+            }
+            return hazard
+        
+        return None
+    
+    """
+    Retrieve the coordinates of all hazards and the corresponding hazard_id
+    from database. Useful for mapping hazards without retrieving details of
+    all hazards. When a user selects a hazard to see more detail, can call
+    get_hazard() function to retrieve details.
 
-        return hazard
+    Returns:
+        A list in the form:
+
+            [{hazard_id; int, coordinates: (lattitude, longitude)}, ...]
+
+        Where hazard_id is an integer and lattitude and longitude are floats.
+        The list may contain any number of elements including 0.
+    """
+    def get_all_hazard_coordinates(self):
+        query = "SELECT hazard_id, coordinates FROM Hazards"
+        results = self.query(query)
+        final = []
+        
+        for result in results:
+            hazard = {
+                'hazard_id': result[0],
+                'coordinates': result[1]
+            }
+            final.append(hazard)
+
+        return final
+
+    """
+    Retrieve all hazards with all corresponding details to that hazard. Returns
+    a list of dictionaries in the form:
+
+        [{hazard_id, title, datetime, reporting_user, area, coordinates, image, description}, ...]
+
+    Where:
+        hazard_id (int): The numerical unique ID of the hazard
+        title (str): the name or type of hazard
+        datetime (str): The date and time when the hazard was reported in the form "DD/MM/YYY HH:MM:SS"
+        reporting_user (int): The uid of the user who reported the hazard
+        area (str): The area in which the report was made. Usually None since we chose not to use
+        coordinates (string): The coordinates where the report was made (latt, long)
+        img (str): The string encoded representation of the image
+    """
+    def get_all_hazard_details(self):
+        query = "SELECT * FROM Hazards"
+        results = self.query(query)
+        final = []
+
+        for result in results:
+            hazard = {
+                'hazard_id': result[0],
+                'title': result[1],
+                'datetime': result[2].strftime('%d/%m/%y %H:%M:%S'),
+                'reporting_user_id': result[3],
+                'area_name': result[4],
+                'coordinates': result[5],
+                'img': result[6].tobytes(),
+                'description': result[7]
+            }
+            final.append(hazard)
+        
+        return final
 
     def insert_historical_data(self, flood_risk: str, flood_type: str, \
         coordinates: str, datatype: str, geo: str):
+
         query = "INSERT INTO historical_flood_risk (flood_risk, flood_type, coordinates, datatype, geo) VALUES (%s, %s, %s, %s, %s)"
         self.query(query, flood_risk, flood_type, coordinates, datatype, geo)
 
