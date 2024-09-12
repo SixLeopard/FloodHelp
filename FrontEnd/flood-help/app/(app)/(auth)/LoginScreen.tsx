@@ -10,9 +10,7 @@ export default function LoginScreen() {
     const [error, setError] = useState('');
 
     const handleLogin = async () => {
-        console.log("login button presed")
         try {
-            console.log("try block")
             await signIn({ email, password });
         } catch (err) {
             setError('Invalid credentials');

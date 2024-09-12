@@ -1,4 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
+import {router} from "expo-router";
 
 const baseUrl = 'http://54.206.190.121:5000'; // Make sure this URL is correct
 
@@ -18,7 +19,7 @@ export const login = async ({ email, password }) => {
         };
 
         const response = await fetch(`${baseUrl}/accounts/login`, requestOptions);
-
+        console.log(response);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -29,6 +30,7 @@ export const login = async ({ email, password }) => {
         if (data.Login === 'True' && data.sessionid) {
             // Save the session ID securely
             await SecureStore.setItemAsync('sessionid', data.sessionid);
+            router.push('/(tabs)');
             return data.sessionid;
         } else {
             throw new Error('Invalid login response');
@@ -45,6 +47,7 @@ export const logout = async () => {
     try {
         console.log('logout block reached')
         await SecureStore.deleteItemAsync('sessionid');
+        router.push('/(auth)/LoginScreen');
     } catch (error) {
         console.error('Logout failed:', error);
     }
