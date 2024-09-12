@@ -9,8 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
-import { mockLogin } from './mockLogin';
-import { mockSignUp } from './mockSignUp';
+
 
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
 
