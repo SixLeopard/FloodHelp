@@ -64,7 +64,7 @@ def get_user_report_route():
     return make_response({"invalid_request":1})
 
 @userreport_routes.route("/reporting/user/get_all_report_details", methods = ['GET'])
-def get_all_user_report_route():
+def get_all_report_details_route():
     '''
     Retrieve all reports made by all users including all details
     '''
@@ -78,7 +78,7 @@ def get_all_user_report_route():
     return make_response({"invalid_request":1})
 
 @userreport_routes.route("/reporting/user/get_all_report_coordinates", methods = ['GET'])
-def get_all_user_report_route():
+def get_all_report_coordinates_route():
     '''
     Retrieve all reports made by all users but only include the report ID and the
     coordinates. Useful for mapping reports. Details for a specific report can be

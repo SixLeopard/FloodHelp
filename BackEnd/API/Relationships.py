@@ -2,11 +2,9 @@
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
 
-from API.Database.db_interface import DBInterface
+from API.database import database_interface as db
 
 relationships_routes = Blueprint("relationships_routes", __name__)
-
-db = DBInterface()
 
 @relationships_routes.route("/relationships/create", methods = ['POST'])
 def create_relationship():
@@ -39,7 +37,7 @@ def create_relationship():
             except Exception as e:
                 return make_response({"Database error": e.pgerror})
 
-            return make_response("success": 1)
+            return make_response({"success": 1})
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
