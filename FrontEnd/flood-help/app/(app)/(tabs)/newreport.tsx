@@ -1,45 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, TouchableOpacity, Alert, Image, StyleSheet, Button, TextInput } from 'react-native';
+import { Text, View, TouchableOpacity, Alert, TextInput } from 'react-native';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import useStyles from '@/constants/style';
 import { useTheme } from "@/constants/ThemeProvider";
 import FH_Button from "@/components/navigation/FH_Button";
 import { useNavigation } from '@react-navigation/native';
-// import { Picker } from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
+import { useAuth } from '@/contexts/AuthContext'; // Import the useAuth hook
 
 
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
-
 
 const NewReport = () => {
     const styles = useStyles();
     const { theme } = useTheme();
     const navigation = useNavigation<NewReportScreenNavigationProp>();
+    const { user } = useAuth(); // Get the authenticated user's information
+
     const [location, setLocation] = useState('Fetching current location...');
     const [floodType, setFloodType] = useState('');
     const [description, setDescription] = useState('');
     const [photos, setPhotos] = useState<string[]>([]);
-    const [sessionId, setSessionId] = useState<string | null>(null);
-    const [username, setUsername] = useState<string | null>(null);
-
 
     useEffect(() => {
-        const handleSignUpAndLogin = async () => {
-            // Sign up the user and then log in
-            const signUpData = await mockSignUp();
-            if (signUpData) {
-                const loginData = await mockLogin(signUpData.username, signUpData.password);
-                if (loginData) {
-                    setSessionId(loginData.sessionId);
-                    setUsername(loginData.username);
-                }
-            }
-        };
-
-        handleSignUpAndLogin(); // Sign up and login when the component loads
         fetchCurrentLocation(); // Fetch location when the component loads
     }, []);
 
@@ -82,7 +68,7 @@ const NewReport = () => {
             aspect: [4, 3],
             quality: 1,
         });
-    
+
         if (!result.canceled && result.assets) {
             const fileName = result.assets[0].uri.split('/').pop() ?? '';
             setPhotos([...photos, fileName]);
@@ -95,7 +81,7 @@ const NewReport = () => {
             aspect: [4, 3],
             quality: 1,
         });
-    
+
         if (!result.canceled && result.assets) {
             const fileName = result.assets[0].uri.split('/').pop() ?? '';
             setPhotos([...photos, fileName]);
@@ -114,7 +100,7 @@ const NewReport = () => {
             return;
         }
 
-        if (!sessionId || !username) {
+        if (!user?.token) {
             Alert.alert('Error', 'You must be logged in to submit a report.');
             return;
         }
@@ -129,8 +115,8 @@ const NewReport = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Session-Username': username, // Use logged-in username
-                    'Session-Id': sessionId        // Use session ID
+                    'Session-Id': user.token,        
+                    'Session-Username': user.username,   
                 },
                 body
             });
@@ -172,7 +158,7 @@ const NewReport = () => {
                     <Picker
                         selectedValue={floodType}
                         onValueChange={(itemValue) => setFloodType(itemValue)}
-                        style={[styles.picker]} 
+                        style={[styles.picker]}
                     >
                         <Picker.Item label="Please select a flood type" value="" />
                         <Picker.Item label="Major Flood" value="Major Flood" />
@@ -183,16 +169,16 @@ const NewReport = () => {
                 </View>
 
                 <View style={styles.descriptionContainer}>
-                <Text style={[styles.bodyTextBold]}>Description</Text>
-                <View style={[styles.descriptionInput]}>
-                    <TextInput
-                        style={[styles.bodyTextBold]}  
-                        placeholder="Enter a description"
-                        multiline
-                        value={description}
-                        onChangeText={setDescription}
-                    />
-                </View>
+                    <Text style={[styles.bodyTextBold]}>Description</Text>
+                    <View style={[styles.descriptionInput]}>
+                        <TextInput
+                            style={[styles.bodyTextBold]}
+                            placeholder="Enter a description"
+                            multiline
+                            value={description}
+                            onChangeText={setDescription}
+                        />
+                    </View>
                 </View>
 
                 <View style={styles.imageContainer}>
@@ -205,7 +191,7 @@ const NewReport = () => {
                         </View>
                     ))}
                 </View>
-                
+
                 <View style={styles.imageButtonContainer}>
                     <TouchableOpacity onPress={takePhoto} style={styles.imageButton}>
                         <Text style={[styles.imageButtonText]}>Take Photo</Text>
@@ -215,11 +201,10 @@ const NewReport = () => {
                     </TouchableOpacity>
                 </View>
 
-                <FH_Button text="Submit Report" onPress={handleSubmit} route='/(tabs)/index'/>
+                <FH_Button text="Submit Report" onPress={handleSubmit} route='/(tabs)/index' />
             </View>
         </View>
     );
 };
-
 
 export default NewReport;
