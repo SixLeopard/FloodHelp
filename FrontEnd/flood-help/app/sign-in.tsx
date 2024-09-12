@@ -16,7 +16,7 @@ const SignInScreen = () => {
             {/* Logo Section */}
             <View style={styles.logoContainer}>
                 <Image
-                    source={require('@/assets/images/Logo.png')}  // Ensure logo path is correct
+                    source={require('@/assets/images/Logo2.png')}  // Ensure logo path is correct
                     style={styles.logoImage} // Logo styling from useStyles
                     
                 />
@@ -61,7 +61,7 @@ const SignInScreen = () => {
                     <TouchableOpacity onPress={() => router.push('/register')}>
                         <Text style={styles.linkText}>Register</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => console.log('Forgot Password pressed')}>
+                    <TouchableOpacity onPress={() => router.push('/forgot-password')}>
                         <Text style={styles.linkText}>Forgot Password?</Text>
                     </TouchableOpacity>
                 </View>
