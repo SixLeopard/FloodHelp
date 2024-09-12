@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, TouchableOpacity, Alert, Image, StyleSheet, Button } from 'react-native';
+import { Text, View, TouchableOpacity, Alert, Image, StyleSheet, Button, TextInput } from 'react-native';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import useStyles from '@/constants/style';
+import { useTheme } from "@/constants/ThemeProvider";
 import FH_Button from "@/components/navigation/FH_Button";
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '@/components/navigation/types';
+
+type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
 
 const NewReport = () => {
     const styles = useStyles();
-    const navigation = useNavigation();
+    const { theme } = useTheme();
+    const navigation = useNavigation<NewReportScreenNavigationProp>();
     const [location, setLocation] = useState('Fetching current location...');
     const [floodType, setFloodType] = useState('');
+    const [description, setDescription] = useState('');
     const [photos, setPhotos] = useState<string[]>([]);
 
     useEffect(() => {
@@ -57,9 +64,9 @@ const NewReport = () => {
             aspect: [4, 3],
             quality: 1,
         });
-
+    
         if (!result.canceled && result.assets) {
-            const fileName = result.assets[0].uri.split('/').pop();
+            const fileName = result.assets[0].uri.split('/').pop() ?? '';
             setPhotos([...photos, fileName]);
         }
     };
@@ -70,45 +77,90 @@ const NewReport = () => {
             aspect: [4, 3],
             quality: 1,
         });
-
+    
         if (!result.canceled && result.assets) {
-            const fileName = result.assets[0].uri.split('/').pop();
+            const fileName = result.assets[0].uri.split('/').pop() ?? '';
             setPhotos([...photos, fileName]);
         }
     };
 
-    const removeImage = (index) => {
+    const removeImage = (index: number) => {
         const newPhotos = [...photos];
         newPhotos.splice(index, 1);
         setPhotos(newPhotos);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!location || location === 'Fetching current location...') {
             Alert.alert('Error', 'Location is required.');
             return;
         }
 
-        // Handle form submission logic here
-        Alert.alert('Success', 'Report submitted successfully!');
+        try {
+            //const sessionID = await AsyncStorage.getItem('session_id');
+            //const username = await AsyncStorage.getItem('username');
+
+            // Mocked session data
+            const mockSession = {
+                username: 'john',
+                id: '3'
+            };
+
+            // Prepare form data
+            const formData = new URLSearchParams();
+            formData.append('location', location);
+            formData.append('type', floodType);
+            formData.append('description', description || '');
+
+            // Send the report to the Flask backend
+            const response = await fetch('http://54.206.190.121:5000/reporting/user/add_report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Session-Username': mockSession.username, //username
+                    'Session-ID': mockSession.id, //sessionID
+                },
+                body: formData.toString()
+            });
+
+            const result = await response.json();
+
+            if (result.invalid_account) {
+                Alert.alert('Error', 'Invalid account.');
+            } else if (result.invalid_request) {
+                Alert.alert('Error', 'Invalid request.');
+            } else {
+                Alert.alert('Success', 'Report submitted successfully!');
+                
+                // Clear form
+                setLocation('Fetching current location...');
+                setFloodType('');
+                setDescription('');
+                setPhotos([]);
+            }
+        } catch (error) {
+            console.error('Error submitting report:', error);
+            Alert.alert('Error', 'Failed to submit report.');
+        }
     };
 
 
+
     return (
-        <View style={styles.page}>
-            <Text style={styles.headerText}>New Report</Text>
+        <View style={[styles.page]}>
+            <Text style={[styles.headerText, { color: theme.colors.text }]}>New Report</Text>
             <View style={styles.formContainer}>
                 <TouchableOpacity onPress={handleLocationPress} style={styles.locationContainer}>
-                    <Text style={styles.bodyTextBold}>Location</Text>
-                    <Text style={styles.locationText}>{location}</Text>
+                    <Text style={[styles.bodyTextBold]}>Location</Text>
+                    <Text style={[styles.bodyTextBold]}>{location}</Text>
                 </TouchableOpacity>
 
                 <View style={styles.pickerContainer}>
-                    <Text style={styles.bodyTextBold}>Flood Type</Text>
+                    <Text style={[styles.bodyTextBold]}>Flood Type</Text>
                     <Picker
                         selectedValue={floodType}
                         onValueChange={(itemValue) => setFloodType(itemValue)}
-                        style={styles.picker}
+                        style={[styles.picker]} 
                     >
                         <Picker.Item label="Please select a flood type" value="" />
                         <Picker.Item label="Major Flood" value="Major Flood" />
@@ -116,6 +168,19 @@ const NewReport = () => {
                         <Picker.Item label="Minor Flood" value="Minor Flood" />
                         <Picker.Item label="No Flood" value="No Flood" />
                     </Picker>
+                </View>
+
+                <View style={styles.descriptionContainer}>
+                <Text style={[styles.bodyTextBold]}>Description</Text>
+                <View style={[styles.descriptionInput]}>
+                    <TextInput
+                        style={[styles.bodyTextBold]}  
+                        placeholder="Enter a description"
+                        multiline
+                        value={description}
+                        onChangeText={setDescription}
+                    />
+                </View>
                 </View>
 
                 <View style={styles.imageContainer}>
@@ -128,17 +193,17 @@ const NewReport = () => {
                         </View>
                     ))}
                 </View>
-
+                
                 <View style={styles.imageButtonContainer}>
                     <TouchableOpacity onPress={takePhoto} style={styles.imageButton}>
-                        <Text style={styles.imageButtonText}>Take Photo</Text>
+                        <Text style={[styles.imageButtonText]}>Take Photo</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={pickImage} style={styles.imageButton}>
-                        <Text style={styles.imageButtonText}>Upload Image</Text>
+                        <Text style={[styles.imageButtonText]}>Upload Image</Text>
                     </TouchableOpacity>
                 </View>
 
-                <FH_Button text="Submit Report" onPress={handleSubmit} />
+                <FH_Button text="Submit Report" onPress={handleSubmit} route='/(tabs)/index'/>
             </View>
         </View>
     );
