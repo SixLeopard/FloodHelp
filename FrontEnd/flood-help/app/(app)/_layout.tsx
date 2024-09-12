@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router/stack';
-import { ThemeProvider } from '@/constants/ThemeProvider';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import FontContext from '@/contexts/FontContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 
