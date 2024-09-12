@@ -23,19 +23,19 @@ def create_relationship():
             requester_uid = session["uid"]
 
             # Check if requestee with given email exists
-            requestee_uid = db.get_user(requestee_email)
+            requestee_uid = db.get_user(requestee_email)[0]
             if requestee_uid is None:
                 return make_response({"Error": "Requested user does not exist"})
 
             # Check if relationship exists
-            existing_relationships = db.get_relationships()
+            existing_relationships = db.get_relationships(requester_uid)
             if (requester_uid, requestee_uid) not in existing_relationships \
                 and (requestee_uid, requester_uid) not in existing_relationships:
                 return make_response({"Error": "Relationship exists"})
 
             # Create relationship
             try:
-                db.create_relationship(requester, requestee)
+                db.create_relationship(requester_uid, requestee_uid)
             except Exception as e:
                 return make_response({"Database error": e.pgerror})
 
