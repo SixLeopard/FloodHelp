@@ -99,10 +99,7 @@ class DBInterface():
     same 'uid' by a trigger in the database. The users email must be unique and can be used 
     to identify them in the database.
     """
-    def create_user(self, name: str, email: str, pwd_hash: bytes, pwd_salt: bytes):
-        if (re.search(r"[^a-zA-z]", name.strip('\n'))):
-            raise Exception('User name may only only contain alphabetical characters')
-        
+    def create_user(self, name: str, email: str, pwd_hash: bytes, pwd_salt: bytes):        
         if (not re.search(r"[^@]+@[^@]+.[^@]+", email)):
             raise Exception('Invalid email address')
         
