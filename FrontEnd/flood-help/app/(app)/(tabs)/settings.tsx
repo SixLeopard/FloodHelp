@@ -1,6 +1,6 @@
 import React, { useState } from 'react'; // Added useState import
 import { View, Text, Switch , TouchableOpacity} from 'react-native'; // Added TouchableOpacity import
-import { useTheme } from '@/constants/ThemeProvider';
+import { useTheme } from '@/contexts/ThemeContext';
 import useStyles from "@/constants/style";
 import {useAuth} from "@/contexts/AuthContext";
 

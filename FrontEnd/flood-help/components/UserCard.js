@@ -1,10 +1,9 @@
 import React from 'react';
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import useStyles from "@/constants/style";
-import UserAvatar from "@/components/UserAvatar";
 import UserPressable from "@/components/UserPressable";
-import { useTheme } from "@/constants/ThemeProvider";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const UserCard = ({ username, userId, status, showConnectionRequest, sendRequest, pendingRequest }) => {
     const styles = useStyles();
