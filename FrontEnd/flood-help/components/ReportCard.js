@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, Pressable} from "react-native";
 import useStyles from "@/constants/style";
-import { useTheme } from "@/constants/ThemeProvider";
+import { useTheme } from "@/contexts/ThemeContext";
 import {router} from "expo-router";
 import UserAvatar from "@/components/UserAvatar";
 import {MaterialIcons} from "@expo/vector-icons";

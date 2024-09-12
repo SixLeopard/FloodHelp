@@ -71,7 +71,7 @@ def login(email: str, password):
 def login_route():
     if request.method == 'POST':
         #get uername and password from api call
-        username = request.form.get('username')
+        username = request.form.get('email')
         password = request.form.get('password')
         if (username != None or password != None):
             sessionkey,username,uid = login(username, password)
@@ -101,7 +101,7 @@ def create_route():
     if request.method == 'POST':
         #get uername and password from api call
         name = request.form.get('name')
-        username = request.form.get('username')
+        username = request.form.get('email')
         password = request.form.get('password')
 
         name, email, passkey, salt = create_account(name, username, password)
