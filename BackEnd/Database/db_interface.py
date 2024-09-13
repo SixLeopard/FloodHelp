@@ -311,14 +311,16 @@ class DBInterface():
         The list may contain any number of elements including 0.
     """
     def get_all_hazard_coordinates(self):
-        query = "SELECT hazard_id, coordinates FROM Hazards"
+        query = "SELECT hazard_id, coordinates, datetime, title FROM Hazards"
         results = self.query(query)
         final = []
         
         for result in results:
             hazard = {
                 'hazard_id': result[0],
-                'coordinates': result[1]
+                'coordinates': result[1],
+                'datetime': result[2],
+                'title': result[3]
             }
             final.append(hazard)
 
