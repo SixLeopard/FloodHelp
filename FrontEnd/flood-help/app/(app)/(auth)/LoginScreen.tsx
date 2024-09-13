@@ -26,8 +26,8 @@ const LoginScreen = () => {
             {/* Logo Section */}
             <View style={styles.logoContainer}>
                 <Image
-                    source={require('@/assets/images/Logo2.png')}  // Ensure logo path is correct
-                    style={styles.logoImage} // Logo styling from useStyles
+                    source={require('@/assets/images/Logo2.png')}  
+                    style={styles.logoImage} 
                 />
             </View>
 
@@ -44,6 +44,7 @@ const LoginScreen = () => {
                     keyboardType="email-address"
                     autoCapitalize="none"
                 />
+
 
                 {/* Password Input */}
                 <Text style={styles.label}>Password</Text>
@@ -82,3 +83,4 @@ const LoginScreen = () => {
 };
 
 export default LoginScreen;
+

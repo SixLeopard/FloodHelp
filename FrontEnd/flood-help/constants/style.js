@@ -471,7 +471,7 @@ const useStyles = () => {
             borderRadius: 10,
             borderColor: '#ccc',
             borderWidth: 1,
-            marginTop: 30,
+            marginTop: '1%',
             marginBottom: 10,
         },
 
