@@ -75,12 +75,15 @@ def get_all_report_details_route():
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@userreport_routes.route("/reporting/user/get_all_report_coordinates", methods = ['GET'])
+@userreport_routes.route("/reporting/user/get_all_report_basic", methods = ['GET'])
 def get_all_report_coordinates_route():
     '''
-    Retrieve all reports made by all users but only include the report ID and the
-    coordinates. Useful for mapping reports. Details for a specific report can be
-    retrieved by using get_report with the report ID
+    Retrieve all reports made by all users but only include some details.
+    Details included are:
+        - hazard_id
+        - datetime
+        - title
+        - coordinates
     '''
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
