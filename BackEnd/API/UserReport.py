@@ -20,11 +20,9 @@ def create_user_report(uid : int, location : str, type : str, description: str, 
     lat, long = map(float, re.findall(r"[-+]?\d*\.\d+|\d+", location))
 
     try:
-        report_id = db.create_hazard(type, img_str, session['uid'], (lat, long), description)
+        return db.create_hazard(type, img_str, session['uid'], (lat, long), description)
     except Exception as e:
         return make_response({'internal_error': str(e)})
-
-    return report_id
 
 @userreport_routes.route("/reporting/user/add_report", methods = ['POST'])
 def add_user_report_route():
@@ -71,23 +69,26 @@ def get_all_report_details_route():
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
-                return make_response(db.get_all_hazard_details())
+                return make_response({'reports': str(db.get_all_hazard_details()).strip('[]')})
             except Exception as e:
                 return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@userreport_routes.route("/reporting/user/get_all_report_coordinates", methods = ['GET'])
+@userreport_routes.route("/reporting/user/get_all_report_basic", methods = ['GET'])
 def get_all_report_coordinates_route():
     '''
-    Retrieve all reports made by all users but only include the report ID and the
-    coordinates. Useful for mapping reports. Details for a specific report can be
-    retrieved by using get_report with the report ID
+    Retrieve all reports made by all users but only include some details.
+    Details included are:
+        - hazard_id
+        - datetime
+        - title
+        - coordinates
     '''
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
-                return make_response(db.get_all_hazard_coordinates())
+                return make_response({'reports': str(db.get_all_hazard_coordinates()).strip('[]')})
             except Exception as e:
                 return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
