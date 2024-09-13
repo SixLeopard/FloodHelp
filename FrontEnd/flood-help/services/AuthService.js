@@ -7,7 +7,7 @@ const baseUrl = 'http://54.206.190.121:5000';
 export const login = async ({ email, password }) => {
     try {
         const formData = new FormData();
-        formData.append('username', email); // Ensure this matches the backend expected field
+        formData.append('email', email); // Ensure this matches the backend expected field
         formData.append('password', password);
 
         const requestOptions = {
