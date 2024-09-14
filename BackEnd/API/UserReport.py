@@ -103,7 +103,7 @@ def get_report_validation_score_route():
     if request.method == 'GET':
         report_id = request.form.get('report_id')
         if Accounts.verify_user_account(session["username"], session["id"]):
-            score = UserReportVerfication.validate_user_reports(db.get_all_hazard_coordinates_dict(), get_user_report(report_id))
+            score = UserReportVerfication.validate_user_reports(db.get_all_hazard_ranking_dict(), get_user_report(report_id))
             return make_response({report_id:score})
         
         return make_response({"invalid_account":1})
