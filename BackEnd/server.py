@@ -68,7 +68,7 @@ def root_route():
 # This route generates HTML of documentation 
 @app.route('/documentation') 
 def documentation(): 
-    return auto.html(app) 
+    return auto.html() 
 
 # Running app
 if __name__ == '__main__':

@@ -130,7 +130,7 @@ class Autodoc(object):
             return f
         return decorator
 
-    def generate(self, app, groups='all', sort=None):
+    def generate(self, groups='all', sort=None):
         """Return a list of dict describing the routes specified by the
         doc() method
 
@@ -154,12 +154,12 @@ class Autodoc(object):
             groups_to_generate.append(groups)
 
         links = []
-        for rule in app.url_map.iter_rules():
+        for rule in current_app.url_map.iter_rules():
 
             if rule.endpoint == 'static':
                 continue
 
-            func = app.view_functions[rule.endpoint]
+            func = current_app.view_functions[rule.endpoint]
             arguments = rule.arguments if rule.arguments else ['None']
             func_groups = self.func_groups[func]
             func_props = self.func_props[func] if func in self.func_props \
@@ -185,7 +185,7 @@ class Autodoc(object):
         else:
             return sorted(links, key=itemgetter('rule'))
 
-    def html(self, app, groups='all', template=None, **context):
+    def html(self, groups='all', template=None, **context):
         """Return an html string of the routes specified by the doc() method
 
         A template can be specified. A list of routes is available under the
@@ -197,7 +197,7 @@ class Autodoc(object):
         those groups will be returned.
         """
         context['autodoc'] = context['autodoc'] if 'autodoc' in context \
-            else self.generate(app, groups=groups)
+            else self.generate(groups=groups)
         context['defaults'] = context['defaults'] if 'defaults' in context \
             else self.default_props
         print(context)
@@ -210,5 +210,5 @@ class Autodoc(object):
             )
             with open(filename) as file:
                 content = file.read()
-                with app.app_context():
+                with current_app.app_context():
                     return render_template_string(content, **context)
