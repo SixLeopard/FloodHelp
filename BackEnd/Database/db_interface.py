@@ -313,6 +313,8 @@ class DBInterface():
                 'area_name': result[4],
                 'coordinates': result[5],
                 'img': img,
+                'description': result[7],
+                'img': img,
                 'description': result[7]
                 'img': img,
                 'description': result[7]
