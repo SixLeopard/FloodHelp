@@ -158,7 +158,7 @@ class DBInterface():
 
         self.query(query, requester, requestee)
     
-    def get_relationships(self, uid: int):
+    def get_approved_relationships(self, uid: int):
         """
         Get approved relationships for user with provided uid. Relationships
         are considered approved if the 'approved' field in the database is set
@@ -173,6 +173,27 @@ class DBInterface():
             provided uid has approved relationships with.
         """
         query = "SELECT requester, requestee FROM Relationships WHERE (requester = %s OR requestee = %s) AND approved = true"
+        relationships = self.query(query, uid, uid)
+
+        result = [x[0] if x[1] == uid else x[1] for x in relationships]
+
+        return result
+    
+    """
+    Get NOT approved relationships for user with provided uid. These are
+    entries in the Relationships table where the 'approved' field is set
+    to false. Relationships can be approved manually be using the 
+    approve_relationship() function.
+
+    uid (int):
+        The uid of the user for who to retrieve relationships
+
+    Returns:
+        A list containing the uid's of the users who the user with the
+        provided uid has NOT approved relationships with.
+    """
+    def get_not_approved_relationships(self, uid: int):
+        query = "SELECT requester, requestee FROM Relationships WHERE (requester = %s OR requestee = %s) AND approved = false"
         relationships = self.query(query, uid, uid)
 
         result = [x[0] if x[1] == uid else x[1] for x in relationships]
@@ -197,7 +218,7 @@ class DBInterface():
 
         if relationship_id is not None:
             query = "UPDATE Relationships SET approved = true WHERE relationship_id = %s"
-            self.query(query, relationship_id)
+            self.query(query, relationship_id[0])
         else:
             raise Exception('Relationship does not exist')
 
@@ -261,7 +282,7 @@ class DBInterface():
 
         # Get id of newly created hazard. Auto incremented by database
         query = 'SELECT MAX(hazard_id) FROM Hazards'
-        return self.query(query)
+        return self.query(query)[0][0]
     
     """
     Retrieve hazard with the given ID from the database.
@@ -281,6 +302,8 @@ class DBInterface():
 
         if result:
             result = result[0]
+            img = None if result[6] is None else result[6].tobytes()
+            img = None if result[6] is None else result[6].tobytes()
             hazard = {
                 'hazard_id': result[0],
                 'title': result[1],
@@ -288,7 +311,10 @@ class DBInterface():
                 'reporting_user_id': result[3],
                 'area_name': result[4],
                 'coordinates': result[5],
-                'img': result[6].tobytes()
+                'img': img,
+                'description': result[7],
+                'img': img,
+                'description': result[7]
             }
             return hazard
         
@@ -309,14 +335,17 @@ class DBInterface():
         The list may contain any number of elements including 0.
     """
     def get_all_hazard_coordinates(self):
-        query = "SELECT hazard_id, coordinates FROM Hazards"
+        query = "SELECT hazard_id, coordinates, datetime, title FROM Hazards"
+        query = "SELECT hazard_id, coordinates, datetime, title FROM Hazards"
         results = self.query(query)
         final = []
         
         for result in results:
             hazard = {
                 'hazard_id': result[0],
-                'coordinates': result[1]
+                'coordinates': result[1],
+                'datetime': result[2],
+                'title': result[3]
             }
             final.append(hazard)
 
@@ -350,7 +379,7 @@ class DBInterface():
                 'reporting_user_id': result[3],
                 'area_name': result[4],
                 'coordinates': result[5],
-                'img': result[6].tobytes(),
+                'img': None if result[6] is None else result[6].tobytes(),
                 'description': result[7]
             }
             final.append(hazard)
