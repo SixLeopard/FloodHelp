@@ -10,6 +10,7 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from API.database import database_interface
+from globals import auto
 
 login_routes = Blueprint("login_routes", __name__)
 
@@ -68,6 +69,7 @@ def login(email: str, password):
         
 
 @login_routes.route("/accounts/login", methods = ['POST'])
+@auto.doc()
 def login_route():
     if request.method == 'POST':
         #get uername and password from api call
@@ -97,6 +99,7 @@ def login_route():
     return make_response({"Login":"login mut be completed through POST request"})
 
 @login_routes.route("/accounts/create", methods = ['POST'])
+@auto.doc()
 def create_route():
     if request.method == 'POST':
         #get uername and password from api call
