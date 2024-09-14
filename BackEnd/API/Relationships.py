@@ -26,7 +26,8 @@ def create_relationship():
                 return make_response({"Error": "Requested user does not exist"})
 
             # Check if relationship exists
-            existing_relationships = db.get_relationships(requester_uid)
+            existing_relationships = db.get_approved_relationships(requester_uid) \
+                + db.get_not_approved_relationships(requester_uid)
             if (requester_uid, requestee_uid) not in existing_relationships \
                 and (requestee_uid, requester_uid) not in existing_relationships:
                 return make_response({"Error": "Relationship exists"})
