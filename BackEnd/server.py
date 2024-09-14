@@ -21,9 +21,11 @@ import API.UserReport as APIUserReport
 import API.Sync as APISync
 import API.Relationships as APIRelationships
 
+#app definintion
+from globals import *
+
 # Initializing flask app
-app = Flask(__name__)
-auto = Autodoc(app)
+init()
 
 #addin externals
 app.register_blueprint(APIlogin.login_routes)
