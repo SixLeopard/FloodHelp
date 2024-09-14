@@ -156,8 +156,8 @@ class Autodoc(object):
         links = []
         for rule in current_app.url_map.iter_rules():
 
-            #if rule.endpoint == 'static':
-            #    continue
+            if rule.endpoint == 'static':
+                continue
 
             func = current_app.view_functions[rule.endpoint]
             arguments = rule.arguments if rule.arguments else ['None']
@@ -196,6 +196,7 @@ class Autodoc(object):
         By specifying the group or groups arguments, only routes belonging to
         those groups will be returned.
         """
+        print(context)
         context['autodoc'] = context['autodoc'] if 'autodoc' in context \
             else self.generate(groups=groups)
         context['defaults'] = context['defaults'] if 'defaults' in context \
