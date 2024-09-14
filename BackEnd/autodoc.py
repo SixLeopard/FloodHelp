@@ -165,22 +165,21 @@ class Autodoc(object):
                 else {}
             location = self.func_locations.get(func, None)
             print(groups_to_generate, func_groups)
-            if func_groups.intersection(groups_to_generate):
-                props = dict(
-                    methods=rule.methods,
-                    rule="%s" % rule,
-                    endpoint=rule.endpoint,
-                    docstring=func.__doc__,
-                    args=arguments,
-                    defaults=rule.defaults,
-                    location=location,
-                )
-                for p in func_props:
-                    print(p)
-                    if p not in self.immutable_props:
-                        props[p] = func_props[p]
-                        print("added")
-                links.append(props)
+            props = dict(
+                methods=rule.methods,
+                rule="%s" % rule,
+                endpoint=rule.endpoint,
+                docstring=func.__doc__,
+                args=arguments,
+                defaults=rule.defaults,
+                location=location,
+            )
+            for p in func_props:
+                print(p)
+                if p not in self.immutable_props:
+                    props[p] = func_props[p]
+                    print("added")
+            links.append(props)
         if sort:
             return sort(links)
         else:
