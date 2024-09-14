@@ -442,12 +442,14 @@ const useStyles = () => {
 
         // Style for the gray box behind the logo
         logoContainer: {
-            width: 350, // Adjust width to match logo size
-            height: 250, // Adjust height to match logo size
+            width: 320, // Adjust width to match logo size
+            height: 225, // Adjust height to match logo size
             justifyContent: 'center',
             alignItems: 'center',
-            borderRadius: 20, // Rounded corners
-            marginBottom: 30, // Space below the logo
+            borderRadius: 10, // Rounded corners
+            marginBottom: 25, // Space below the logo
+            marginTop: '20%', // Space below the logo
+            backgroundColor: '#e9ecef',
         },
 
         formContainerSignInPage: {
@@ -457,11 +459,9 @@ const useStyles = () => {
             padding: 20, // Padding inside the container
             borderRadius: 10, // Rounded corners for the form container
             marginBottom: 40, // Space below the container
-            borderColor: '#ccc', // Gray border color
-            borderWidth: 1, // Set the border width to make it visibl
+            borderColor: '#e9ecef',// Gray border color
+            borderWidth: 1.5, // Set the border width to make it visibl
             flexGrow: 0.5, // Allows the container to expand vertically
-
-            
         },
 
         /* Styles specific to the Register page */
@@ -471,7 +471,7 @@ const useStyles = () => {
             borderRadius: 10,
             borderColor: '#ccc',
             borderWidth: 1,
-            marginTop: 30,
+            marginTop: '1%',
             marginBottom: 10,
         },
 
@@ -552,6 +552,56 @@ const useStyles = () => {
             marginTop: 10,
             textAlign: 'center',
         },
+        
+        // Forgot password page style
+        formContainerForgotPassword: {
+            width: '90%',
+            backgroundColor: colors.card, 
+            padding: 20,
+            borderRadius: 10,
+            borderColor: '#555', 
+            borderWidth: 1,
+            alignItems: 'center',
+            shadowColor: '#000',
+            shadowOpacity: 0.1,
+            shadowOffset: { width: 0, height: 2 },
+            elevation: 5,
+        },
+        
+        buttonContainer: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            width: '100%',
+        },
+        
+        cancelButton: {
+            flex: 1,
+            backgroundColor: 'red',
+            paddingVertical: 12,
+            borderRadius: 5,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginRight: 10,
+        },
+
+        resetButton: {
+            flex: 1,
+            backgroundColor: 'green',
+            paddingVertical: 12,
+            borderRadius: 5,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginLeft: 10,
+        },
+        
+        errorText: {
+            color: 'red',          
+            fontSize: 14,          
+            marginTop: 10,        
+            textAlign: 'center',  
+        },
+
+
     });
 };
 
