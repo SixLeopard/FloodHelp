@@ -283,7 +283,6 @@ class DBInterface():
         # Get id of newly created hazard. Auto incremented by database
         query = 'SELECT MAX(hazard_id) FROM Hazards'
         return self.query(query)[0][0]
-        return self.query(query)[0][0]
     
     """
     Retrieve hazard with the given ID from the database.
@@ -316,8 +315,6 @@ class DBInterface():
                 'description': result[7],
                 'img': img,
                 'description': result[7]
-                'img': img,
-                'description': result[7]
             }
             return hazard
         
@@ -347,7 +344,7 @@ class DBInterface():
             hazard = {
                 'hazard_id': result[0],
                 'coordinates': result[1],
-                # 'datetime': result[2],
+                'datetime': result[2],
                 'title': result[3]
             }
             final.append(hazard)
