@@ -13,19 +13,16 @@ from autodoc import Autodoc
 import datetime
 import os
  
-#import externals
+#app definintion
+from cfg import *
+
+#import API Feaatures
 import API.Accounts as APIlogin
 import API.Session as APIsession
 import API.Notifications as APINotifications
 import API.UserReport as APIUserReport
 import API.Sync as APISync
 import API.Relationships as APIRelationships
-
-#app definintion
-from globals import *
-
-# Initializing flask app
-init()
 
 #addin externals
 app.register_blueprint(APIlogin.login_routes)
@@ -72,6 +69,7 @@ def root_route():
 @app.route('/documentation') 
 def documentation(): 
     return auto.html() 
+
 
 # Running app
 if __name__ == '__main__':

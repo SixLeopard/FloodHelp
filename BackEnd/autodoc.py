@@ -155,7 +155,6 @@ class Autodoc(object):
 
         links = []
         for rule in current_app.url_map.iter_rules():
-
             if rule.endpoint == 'static':
                 continue
 
@@ -165,21 +164,19 @@ class Autodoc(object):
             func_props = self.func_props[func] if func in self.func_props \
                 else {}
             location = self.func_locations.get(func, None)
-
-            if func_groups.intersection(groups_to_generate):
-                props = dict(
-                    methods=rule.methods,
-                    rule="%s" % rule,
-                    endpoint=rule.endpoint,
-                    docstring=func.__doc__,
-                    args=arguments,
-                    defaults=rule.defaults,
-                    location=location,
-                )
-                for p in func_props:
-                    if p not in self.immutable_props:
-                        props[p] = func_props[p]
-                links.append(props)
+            props = dict(
+                methods=rule.methods,
+                rule="%s" % rule,
+                endpoint=rule.endpoint,
+                docstring=func.__doc__,
+                args=arguments,
+                defaults=rule.defaults,
+                location=location,
+            )
+            for p in func_props:
+                if p not in self.immutable_props:
+                    props[p] = func_props[p]
+            links.append(props)
         if sort:
             return sort(links)
         else:
@@ -205,8 +202,7 @@ class Autodoc(object):
         else:
             filename = os.path.join(
                 os.path.dirname(__file__),
-                'templates',
-                'autodoc_default.html'
+                'doc_template.html'
             )
             with open(filename) as file:
                 content = file.read()

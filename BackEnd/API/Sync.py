@@ -13,6 +13,12 @@ def sync_route():
         get updates notfications locations etc...
         everyhting that needs to be regularly synced 
         for user
+
+        Form Data:
+            None
+
+        Return:
+            Combiend Json of all the information needed for an update
     '''
     sync_data = {}
 

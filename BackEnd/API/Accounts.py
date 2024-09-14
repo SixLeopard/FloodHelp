@@ -10,7 +10,6 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from API.database import database_interface
-from globals import auto
 
 login_routes = Blueprint("login_routes", __name__)
 
@@ -69,8 +68,20 @@ def login(email: str, password):
         
 
 @login_routes.route("/accounts/login", methods = ['POST'])
-@auto.doc()
 def login_route():
+    '''
+        Route for user Logins
+
+        Form Data:
+            email -> User Email
+            password -> User Password
+        
+        Return:
+            Json containing if the login was completed
+            denoted by login: True oor Login: False if it failed
+            in additon if the login was succsessful
+            the sessionid
+    '''
     if request.method == 'POST':
         #get uername and password from api call
         username = request.form.get('email')
@@ -99,8 +110,21 @@ def login_route():
     return make_response({"Login":"login mut be completed through POST request"})
 
 @login_routes.route("/accounts/create", methods = ['POST'])
-@auto.doc()
 def create_route():
+    '''
+        Form Data:
+            name -> Users Fullname
+            email -> User Email
+            password -> User Password
+        
+        Return:
+            Json containing if the creation was
+            completed by created : True or 
+            created: False if it was unsuccsesful
+            in additon if th eaccount creation
+            was completed then also returns
+            the username and encrypted password
+    '''
     if request.method == 'POST':
         #get uername and password from api call
         name = request.form.get('name')
@@ -115,6 +139,16 @@ def create_route():
     
 @login_routes.route('/accounts/test', methods = ['GET'])
 def test_route():
+    '''
+        route to test if accounts route is working
+
+        Form Data:
+            takes nothing
+        
+        Return:
+            time stamp + some other test output
+        
+    '''
     # Returning data through api
     value = "calcualte_test_values()"
     time_stamp = "datetime.datetime.now()"
