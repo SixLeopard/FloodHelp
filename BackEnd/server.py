@@ -73,7 +73,7 @@ def documentation():
 
 @app.route("/site-map")
 def site_map():
-    print(app.url_map)
+    make_response({"map": app.url_map})
 
 
 # Running app

@@ -155,7 +155,7 @@ class Autodoc(object):
 
         links = []
         for rule in current_app.url_map.iter_rules():
-
+            print(rule)
             if rule.endpoint == 'static':
                 continue
 
