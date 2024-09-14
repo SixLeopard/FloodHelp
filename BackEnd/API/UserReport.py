@@ -70,7 +70,7 @@ def get_all_report_details_route():
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
-                return make_response({'reports': str(db.get_all_hazard_details()).strip('[]').replace("\'",'"')})
+                return make_response({'reports': str(db.get_all_hazard_details()).strip('[]').replace("'",'"')})
             except Exception as e:
                 return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
