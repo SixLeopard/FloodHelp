@@ -2,6 +2,7 @@
 
 import unittest
 import Proximity
+import CoordString_to_Tuple as convcord
 
 class TestProximity(unittest.TestCase):
     
@@ -18,4 +19,6 @@ class TestProximity(unittest.TestCase):
         self.assertFalse(Proximity.is_close(base, test, bound))
 
 if __name__ == '__main__':
+    print(convcord.convert("(12.12312,10.11)"))
+    print(convcord.convert("(43535,4234234)"))
     unittest.main(verbosity=3)
