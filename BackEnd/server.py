@@ -14,10 +14,7 @@ import datetime
 import os
  
 #app definintion
-from globals import *
-
-# Initializing flask app
-init()
+from cfg import *
 
 #import API Feaatures
 import API.Accounts as APIlogin
