@@ -205,8 +205,7 @@ class Autodoc(object):
         else:
             filename = os.path.join(
                 os.path.dirname(__file__),
-                'templates',
-                'autodoc_default.html'
+                'doc_template.html'
             )
             with open(filename) as file:
                 content = file.read()
