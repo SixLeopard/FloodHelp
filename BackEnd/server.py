@@ -9,6 +9,7 @@
 from flask import Flask, session, make_response,request, Blueprint
 from flask_session import Session
 from cachelib.file import FileSystemCache
+from autodoc import Autodoc
 import datetime
 import os
  
@@ -20,9 +21,12 @@ import API.UserReport as APIUserReport
 import API.Sync as APISync
 import API.Relationships as APIRelationships
 
+#app definintion
+from globals import *
+
 # Initializing flask app
-app = Flask(__name__)
- 
+init()
+
 #addin externals
 app.register_blueprint(APIlogin.login_routes)
 app.register_blueprint(APIsession.session_routes)
@@ -40,6 +44,7 @@ app.config.from_object(__name__)
 
 # Initiate the session
 Session(app)
+auto = Autodoc(app) 
 
 # Route for seeing a data
 @app.route('/test')
@@ -62,6 +67,11 @@ def root_route():
         'Intro':"Welcome to FloodHelp API", 
         "Current Time":time_stamp
     })
+
+# This route generates HTML of documentation 
+@app.route('/documentation') 
+def documentation(): 
+    return auto.html() 
 
 # Running app
 if __name__ == '__main__':
