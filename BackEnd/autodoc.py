@@ -164,7 +164,7 @@ class Autodoc(object):
             func_props = self.func_props[func] if func in self.func_props \
                 else {}
             location = self.func_locations.get(func, None)
-
+            print(groups_to_generate, func_groups)
             if func_groups.intersection(groups_to_generate):
                 props = dict(
                     methods=rule.methods,
