@@ -7,8 +7,8 @@ import CoordString_to_Tuple as convcord
 class TestProximity(unittest.TestCase):
     
     def test_in_bound(self):
-        base = (10,8)
-        test = (-2,-1)
+        base = (10.0,8.1)
+        test = (-2.2,-1.1)
         bound = 20
         self.assertTrue(Proximity.is_close(base, test, bound))
     
