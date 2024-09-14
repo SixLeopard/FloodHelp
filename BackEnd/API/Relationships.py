@@ -41,22 +41,59 @@ def create_relationship():
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@relationships_routes.route("/relationships/get", methods = ['GET'])
-def get_relationship():
+@relationships_routes.route("/relationships/get_approved", methods = ['GET'])
+def get_approved_relationships():
     '''
-
+    Get all approved relationships of the user who is currently logged in
     '''
     if request.method == 'GET':        
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid = session["uid"]
-
-            relationship_uids =  db.get_relationships(uid)
-            
+            relationship_uids =  db.get_approved_relationships(uid)
             relationships = {}
             for ruid in relationship_uids:
                 # Returns: (uid, name, email, verified, password_hash, password_salt)
                 relationships[ruid] = db.get_user(ruid)[1]
-
             return make_response(relationships)
+        return make_response({"invalid_account":1})
+    return make_response({"invalid_request":1})
+
+@relationships_routes.route("/relationships/get_not_approved", methods = ['GET'])
+def get_not_approved_relationships():
+    '''
+    Get all NOT approved relationships of the user who is currently logged in
+    '''
+    if request.method == 'GET':        
+        if Accounts.verify_user_account(session["username"], session["id"]):
+            uid = session["uid"]
+            relationship_uids =  db.get_not_approved_relationships(uid)
+            relationships = {}
+            for ruid in relationship_uids:
+                # Returns: (uid, name, email, verified, password_hash, password_salt)
+                relationships[ruid] = db.get_user(ruid)[1]
+            return make_response(relationships)
+        return make_response({"invalid_account":1})
+    return make_response({"invalid_request":1})
+
+@relationships_routes.route("/relationships/approve/", methods = ['POST'])
+def approve_relationship():
+    '''
+    Approve a relationship (if exists) between the user who is currently
+    logged in, and the user specified in the other_user field of the request.
+    If no relationship exists, return error.
+    '''
+    if request.method == 'GET':        
+        if Accounts.verify_user_account(session["username"], session["id"]):
+            uid1 = session['uid']
+            uid2 = request.form.get('other_user')
+
+            if uid2 is None:
+                return make_response({"missing_uid": 1})
+            
+            try:
+                db.approve_relationship(uid1, uid2)
+                return make_response({"relationship_approved": 1})
+            except Exception:
+                return make_response({"no_relationship": 1})
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
