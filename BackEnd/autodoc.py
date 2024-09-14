@@ -155,7 +155,6 @@ class Autodoc(object):
 
         links = []
         for rule in current_app.url_map.iter_rules():
-            print(rule)
             if rule.endpoint == 'static':
                 continue
 
@@ -177,8 +176,10 @@ class Autodoc(object):
                     location=location,
                 )
                 for p in func_props:
+                    print(p)
                     if p not in self.immutable_props:
                         props[p] = func_props[p]
+                        print("added")
                 links.append(props)
         if sort:
             return sort(links)
