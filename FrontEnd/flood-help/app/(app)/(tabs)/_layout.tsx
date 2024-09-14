@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import {useTheme} from "@/constants/ThemeProvider";
+import {useTheme} from "@/contexts/ThemeContext";
 
 export default function TabLayout() {
     const { theme } = useTheme();
