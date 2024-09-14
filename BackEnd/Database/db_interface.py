@@ -366,7 +366,7 @@ class DBInterface():
         The list may contain any number of elements including 0.
     """
     def get_all_hazard_ranking_dict(self):
-        query = "SELECT hazard_id, coordinates, datetime, title, reporting_user_id FROM Hazards"
+        query = "SELECT hazard_id, coordinates, datetime, title, reporting_user FROM Hazards"
         results = self.query(query)
         final = {}
         
