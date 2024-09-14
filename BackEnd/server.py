@@ -16,16 +16,16 @@ import os
 #app definintion
 from globals import *
 
-#import externals
+# Initializing flask app
+init()
+
+#import API Feaatures
 import API.Accounts as APIlogin
 import API.Session as APIsession
 import API.Notifications as APINotifications
 import API.UserReport as APIUserReport
 import API.Sync as APISync
 import API.Relationships as APIRelationships
-
-# Initializing flask app
-init()
 
 #addin externals
 app.register_blueprint(APIlogin.login_routes)
