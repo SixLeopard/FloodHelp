@@ -71,11 +71,6 @@ def documentation():
     return auto.html() 
 
 
-@app.route("/site-map")
-def site_map():
-    make_response({"map": str(app.url_map)})
-
-
 # Running app
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
