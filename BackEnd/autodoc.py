@@ -165,6 +165,7 @@ class Autodoc(object):
                 else {}
             location = self.func_locations.get(func, None)
             print(groups_to_generate, func_groups)
+            print(func.__doc__)
             props = dict(
                 methods=rule.methods,
                 rule="%s" % rule,
