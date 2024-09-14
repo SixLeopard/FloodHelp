@@ -353,7 +353,7 @@ class DBInterface():
     
     """
     Retrieve the coordinates of all hazards and the corresponding hazard_id
-    from database. Useful for mapping hazards without retrieving details of
+    from database. Useful for ranking hazards without retrieving details of
     all hazards. When a user selects a hazard to see more detail, can call
     get_hazard() function to retrieve details.
 
@@ -365,9 +365,8 @@ class DBInterface():
         Where hazard_id is an integer and lattitude and longitude are floats.
         The list may contain any number of elements including 0.
     """
-    def get_all_hazard_coordinates_dict(self):
-        query = "SELECT hazard_id, coordinates, datetime, title FROM Hazards"
-        query = "SELECT hazard_id, coordinates, datetime, title FROM Hazards"
+    def get_all_hazard_ranking_dict(self):
+        query = "SELECT hazard_id, coordinates, datetime, title, reporting_user_id FROM Hazards"
         results = self.query(query)
         final = {}
         
@@ -376,7 +375,8 @@ class DBInterface():
                 'hazard_id': result[0],
                 'coordinates': result[1],
                 'datetime': result[2],
-                'title': result[3]
+                'title': result[3],
+                'reporting_user_id' : result[4]
             }
             final[str(result[0])] = hazard
 
