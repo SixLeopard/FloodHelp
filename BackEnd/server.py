@@ -13,6 +13,9 @@ from autodoc import Autodoc
 import datetime
 import os
  
+#app definintion
+from globals import *
+
 #import externals
 import API.Accounts as APIlogin
 import API.Session as APIsession
@@ -20,9 +23,6 @@ import API.Notifications as APINotifications
 import API.UserReport as APIUserReport
 import API.Sync as APISync
 import API.Relationships as APIRelationships
-
-#app definintion
-from globals import *
 
 # Initializing flask app
 init()
