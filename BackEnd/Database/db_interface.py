@@ -316,6 +316,8 @@ class DBInterface():
                 'description': result[7],
                 'img': img,
                 'description': result[7]
+                'img': img,
+                'description': result[7]
             }
             return hazard
         
