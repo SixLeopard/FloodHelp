@@ -73,8 +73,8 @@ def login_route():
         Route for user Logins
 
         Form Data:
-            Email -> User Email
-            Password -> User Password
+            email -> User Email
+            password -> User Password
         
         Return:
             Json containing if the login was completed
@@ -113,9 +113,9 @@ def login_route():
 def create_route():
     '''
         Form Data:
-            Name -> Users Fullname
-            Email -> User Email
-            Password -> User Password
+            name -> Users Fullname
+            email -> User Email
+            password -> User Password
         
         Return:
             Json containing if the creation was
