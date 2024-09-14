@@ -9,6 +9,12 @@ checkins = {}
 def send_checkin_route():
     '''
         send a checkin to a user
+
+        Form Data:
+            receiver -> who your checking in with
+        
+        Return:
+            {"added checkin to":receiver, "from":session["username"]}
     '''
     receiver = request.form.get('receiver')
     checkins[receiver][session["username"]] = {"status": "pending", "timestamp": str(Time.datetime.now())}
@@ -18,7 +24,15 @@ def send_checkin_route():
 @session_routes.route("/check_in/get_checkins", methods = ['GET'])
 def get_checkin_route():
     '''
-        get all check_ins and removes complete ones
+        get all check_ins and removes complete ones for user
+        running request
+
+        Form Data:
+            Nothing
+        
+        Return:
+            all checkins for the user and there status
+            either "Completed" or "Pending"
     '''
     results = make_response({"checkins":False})
     #if user has any checkins
@@ -35,9 +49,13 @@ def get_checkin_route():
 def respond_to_checkins():
     '''
         respond to all pending checkins against you
+
+        Form Data:
+            Nothing
+        
+        Return:
+            {"All Checkings Completed":True}
     '''
     for i in checkins[session["username"]]:
         checkins[session["username"]][i] = "Complete"
-    receiver = request.form.get('receiver')
-    checkins[receiver][session["username"]]["status"] = "Pending"
-    return make_response({"added checkin to":receiver, "from":session["username"]},200)
+    return make_response({"All Checkings Completed":True},200)

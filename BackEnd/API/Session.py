@@ -6,6 +6,14 @@ session_routes = Blueprint("session_routes", __name__)
 def set_session_route():
     '''
         set the current session id
+
+        takes session_id arg as the session id to set it to
+
+        Form Data:
+            None
+
+        Return:
+            {"response":"id session key is set"}
     '''
     session_id = request.args.get('session_id', None)
     session['id'] = session_id
@@ -15,5 +23,11 @@ def set_session_route():
 def get_session_route():
     '''
         get the current session id
+
+        Form Data:
+            None
+
+        Return:
+            {"response":f"the id is {session.get('id')}
     '''
     return make_response({"response":f"the id is {session.get('id')}"},200)
