@@ -6,7 +6,7 @@
 ###
 
 # Import flask
-from flask import Flask, session, make_response,request, Blueprint
+from flask import Flask, session, make_response,request, Blueprint, url_for
 from flask_session import Session
 from cachelib.file import FileSystemCache
 from autodoc import Autodoc
@@ -69,6 +69,17 @@ def root_route():
 @app.route('/documentation') 
 def documentation(): 
     return auto.html() 
+
+@app.route("/site-map")
+def site_map():
+    links = []
+    for rule in app.url_map.iter_rules():
+        # Filter out rules we can't navigate to in a browser
+        # and rules that require parameters
+        if "GET" in rule.methods:
+            url = url_for(rule.endpoint, **(rule.defaults or {}))
+            links.append((url, rule.endpoint))
+    # links is now a list of url, endpoint tuples
 
 # Running app
 if __name__ == '__main__':
