@@ -164,8 +164,6 @@ class Autodoc(object):
             func_props = self.func_props[func] if func in self.func_props \
                 else {}
             location = self.func_locations.get(func, None)
-            print(groups_to_generate, func_groups)
-            print(func.__doc__)
             props = dict(
                 methods=rule.methods,
                 rule="%s" % rule,
@@ -176,10 +174,8 @@ class Autodoc(object):
                 location=location,
             )
             for p in func_props:
-                print(p)
                 if p not in self.immutable_props:
                     props[p] = func_props[p]
-                    print("added")
             links.append(props)
         if sort:
             return sort(links)
@@ -201,7 +197,6 @@ class Autodoc(object):
             else self.generate(groups=groups)
         context['defaults'] = context['defaults'] if 'defaults' in context \
             else self.default_props
-        print(context)
         if template:
             return render_template(template, **context)
         else:
