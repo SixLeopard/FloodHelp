@@ -1,5 +1,6 @@
 <!--from https://github.com/acoomans/flask-autodoc/blob/master/flask_autodoc/templates/autodoc_default.html-->
 <!--used by autodoc to generate html docs-->
+<!--modifed by Jamie Westerhout For FloodHelp App-->
 
 <html>
     <head>
@@ -79,7 +80,7 @@
                 {% endfor %}
             </ul>
             {% autoescape false %}
-            <p class="docstring">{{doc.docstring|urlize|nl2br}}</p>
+            <p class="docstring"><pre>{{doc.docstring|urlize|nl2br}}</pre></p>
             {% endautoescape %}
         </div>
         {% endfor %}
