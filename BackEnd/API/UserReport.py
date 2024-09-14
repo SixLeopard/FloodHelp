@@ -2,6 +2,7 @@
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
 from Tools import UserReportVerfication
+import json
 import re
 
 from API.database import database_interface as db
@@ -69,7 +70,7 @@ def get_all_report_details_route():
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
-                return make_response({'reports': str(db.get_all_hazard_details()).strip('[]')})
+                return make_response({'reports': json.loads(db.get_all_hazard_details()).strip('[]')})
             except Exception as e:
                 return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
@@ -88,7 +89,7 @@ def get_all_report_coordinates_route():
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
-                return make_response({'reports': str(db.get_all_hazard_coordinates()).strip('[]')})
+                return make_response({'reports': json.loads(db.get_all_hazard_coordinates()).strip('[]')})
             except Exception as e:
                 return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
@@ -102,7 +103,7 @@ def get_report_validation_score_route():
     if request.method == 'GET':
         report_id = request.form.get('report_id')
         if Accounts.verify_user_account(session["username"], session["id"]):
-            score = UserReportVerfication.validate_user_reports(get_user_report(), get_user_report(report_id))
+            score = UserReportVerfication.validate_user_reports(json.loads(db.get_all_hazard_coordinates()), json.loads(get_user_report(report_id)))
             return make_response({report_id:score})
         
         return make_response({"invalid_account":1})
