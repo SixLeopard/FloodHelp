@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 import useStyles from "@/constants/style";
-import getAPI from "../GetAPI";
+import getAPI from "@/hooks/GetAPI";
 
 export default function ApiTesting() {
     const styles = useStyles();

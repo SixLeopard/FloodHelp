@@ -1,6 +1,31 @@
 #originally from https://github.com/acoomans/flask-autodoc
+# Licensed under MIT:
+        #
+        # The MIT License (MIT)
+        #
+        # Copyright (c) 2013 Arnaud Coomans
+        #
+        # Permission is hereby granted, free of charge, to any person obtaining a copy
+        # of this software and associated documentation files (the "Software"), to deal
+        # in the Software without restriction, including without limitation the rights
+        # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        # copies of the Software, and to permit persons to whom the Software is
+        # furnished to do so, subject to the following conditions:
+        #
+        # The above copyright notice and this permission notice shall be included in
+        # all copies or substantial portions of the Software.
+        #
+        # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+        # THE SOFTWARE.
+
+
 # updated to https://github.com/SixLeopard/flask-autodoc-updated/tree/master
-# by Jamie Westerhout
+# by Jamie Westerhout to work with the latest version of flask
 
 from operator import attrgetter, itemgetter
 import os
@@ -130,7 +155,6 @@ class Autodoc(object):
 
         links = []
         for rule in current_app.url_map.iter_rules():
-
             if rule.endpoint == 'static':
                 continue
 
@@ -140,21 +164,19 @@ class Autodoc(object):
             func_props = self.func_props[func] if func in self.func_props \
                 else {}
             location = self.func_locations.get(func, None)
-
-            if func_groups.intersection(groups_to_generate):
-                props = dict(
-                    methods=rule.methods,
-                    rule="%s" % rule,
-                    endpoint=rule.endpoint,
-                    docstring=func.__doc__,
-                    args=arguments,
-                    defaults=rule.defaults,
-                    location=location,
-                )
-                for p in func_props:
-                    if p not in self.immutable_props:
-                        props[p] = func_props[p]
-                links.append(props)
+            props = dict(
+                methods=rule.methods,
+                rule="%s" % rule,
+                endpoint=rule.endpoint,
+                docstring=func.__doc__,
+                args=arguments,
+                defaults=rule.defaults,
+                location=location,
+            )
+            for p in func_props:
+                if p not in self.immutable_props:
+                    props[p] = func_props[p]
+            links.append(props)
         if sort:
             return sort(links)
         else:
@@ -180,8 +202,7 @@ class Autodoc(object):
         else:
             filename = os.path.join(
                 os.path.dirname(__file__),
-                'templates',
-                'autodoc_default.html'
+                'doc_template.html'
             )
             with open(filename) as file:
                 content = file.read()

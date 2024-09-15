@@ -27,6 +27,15 @@ def clear_notification(receiver : str) -> None:
 def add_notification_route():
     '''
         submit new pending notification
+
+        Form Data:
+            notification -> the notification string to send
+            receiver -> who you want to send notification too
+
+        Return:
+            if succsessful: {notifcation added: " + str(notification) + "}
+            no login: {"invalid_account":1}
+            not using POST: {"invalid_request":1}
     '''
     if request.method == 'POST':
         notification = request.form.get('notification')
@@ -45,6 +54,15 @@ def add_notification_route():
 def get_notification_route():
     '''
         get all pending notification
+
+        Form Data:
+            None
+
+        Return:
+            if succsessful: {current pending notifications: " + str(users_pending_notifications) + "}"
+            in which users_pending_notifications is json of all the user notification
+            no login: {"invalid_account":1}
+            not using POST: {"invalid_request":1}
     '''
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):

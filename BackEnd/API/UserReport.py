@@ -5,6 +5,7 @@ from Tools import UserReportVerfication
 import re
 
 from API.database import database_interface as db
+import json
 
 userreport_routes = Blueprint("userreport_routes", __name__)
 
@@ -20,11 +21,9 @@ def create_user_report(uid : int, location : str, type : str, description: str, 
     lat, long = map(float, re.findall(r"[-+]?\d*\.\d+|\d+", location))
 
     try:
-        report_id = db.create_hazard(type, img_str, session['uid'], (lat, long), description)
+        return db.create_hazard(type, img_str, session['uid'], (lat, long), description)
     except Exception as e:
         return make_response({'internal_error': str(e)})
-
-    return report_id
 
 @userreport_routes.route("/reporting/user/add_report", methods = ['POST'])
 def add_user_report_route():
@@ -64,30 +63,33 @@ def get_user_report_route():
     return make_response({"invalid_request":1})
 
 @userreport_routes.route("/reporting/user/get_all_report_details", methods = ['GET'])
-def get_all_user_report_route():
+def get_all_report_details_route():
     '''
     Retrieve all reports made by all users including all details
     '''
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
-                return make_response(db.get_all_hazard_details())
+                return make_response({'reports': str(db.get_all_hazard_details()).strip('[]')})
             except Exception as e:
                 return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@userreport_routes.route("/reporting/user/get_all_report_coordinates", methods = ['GET'])
-def get_all_user_report_route():
+@userreport_routes.route("/reporting/user/get_all_report_basic", methods = ['GET'])
+def get_all_report_coordinates_route():
     '''
-    Retrieve all reports made by all users but only include the report ID and the
-    coordinates. Useful for mapping reports. Details for a specific report can be
-    retrieved by using get_report with the report ID
+    Retrieve all reports made by all users but only include some details.
+    Details included are:
+        - hazard_id
+        - datetime
+        - title
+        - coordinates
     '''
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
-                return make_response(db.get_all_hazard_coordinates())
+                return make_response({'reports': str(db.get_all_hazard_coordinates()).strip('[]')})
             except Exception as e:
                 return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
@@ -101,7 +103,7 @@ def get_report_validation_score_route():
     if request.method == 'GET':
         report_id = request.form.get('report_id')
         if Accounts.verify_user_account(session["username"], session["id"]):
-            score = UserReportVerfication.validate_user_reports(get_user_report(), get_user_report(report_id))
+            score = UserReportVerfication.validate_user_reports(db.get_all_hazard_ranking_dict(), get_user_report(report_id))
             return make_response({report_id:score})
         
         return make_response({"invalid_account":1})
