@@ -202,7 +202,7 @@ class Autodoc(object):
         else:
             filename = os.path.join(
                 os.path.dirname(__file__),
-                '/templates/'
+                './templates/'
                 'doc_template.html'
             )
             with open(filename) as file:
