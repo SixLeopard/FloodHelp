@@ -71,7 +71,7 @@ def root_route():
     '''
       Returning welcome page through api
     '''
-    return render_template("WelcomePage.html")
+    return render_template("./WelcomePage.html")
 
 # This route generates HTML for the autodocs documentation 
 @app.route('/documentation') 
