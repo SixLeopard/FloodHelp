@@ -143,14 +143,6 @@
                 {% endif %}
             {% endfor %}
         </ul>
-        <ul class="arguments">
-            {% for arg in doc.args %}
-            <li>
-                <!--<span class="argument">{{arg}}</span>
-                <span class="default">{{doc.defaults[arg]}}</span>-->
-            </li>
-            {% endfor %}
-        </ul>
         {% autoescape false %}
         <p class="docstring"><pre>{{doc.docstring|urlize|nl2br}}</pre></p>
         {% endautoescape %}
