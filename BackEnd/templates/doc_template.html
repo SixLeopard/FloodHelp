@@ -1,90 +1,160 @@
-<!--from https://github.com/acoomans/flask-autodoc/blob/master/flask_autodoc/templates/autodoc_default.html-->
-<!--used by autodoc to generate html docs-->
-<!--modifed by Jamie Westerhout For FloodHelp App-->
+<!-- From https://github.com/acoomans/flask-autodoc/blob/master/flask_autodoc/templates/autodoc_default.html -->
+<!-- Modified by Jamie Westerhout For FloodHelp App -->
 
 <html>
-    <head>
-        <title>
-            {% if title is defined -%}
-                {{title}}
-            {% else -%}
-                Documentation
-            {% endif -%}
-        </title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                font-family: Verdana, "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+<head>
+    <title>
+        {% if title is defined -%}
+            {{title}}
+        {% else -%}
+            Documentation
+        {% endif -%}
+    </title>
+    <!-- Google Font for a modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .mapping {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .mapping:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            font-size: 1.8em;
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+
+        ul.methods, ul.arguments {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding-left: 0;
+        }
+
+        ul.methods:before, ul.arguments:before {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        ul.methods li, ul.arguments li {
+            display: inline-block;
+            background-color: #e1f5fe;
+            color: #0277bd;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-right: 5px;
+            font-size: 1em;
+        }
+
+        .getmethod {
+            color: #fff;
+            background-color: #27ae60;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        .getmethod:hover {
+            background-color: #1e8449;
+        }
+
+        .docstring {
+            font-size: 1em;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-left: 5px solid #2980b9;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        .docstring pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
             }
 
-            body {
-                margin: 10px;
+            .mapping {
+                padding: 15px;
             }
 
-            div.mapping {
-                margin: 20px 20px;
+            h2 {
+                font-size: 1.5em;
             }
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        {% if title is defined -%}
+            {{title}}
+        {% else -%}
+            Documentation
+        {% endif -%}
+    </h1>
 
-            ul.methods:before { content: "Methods: "; }
-            ul.methods li {
-                display: inline;
-                list-style: none;
-            }
-            ul.methods li:after { content: ","; }
-            ul.methods li:last-child:after { content: ""; }
-
-            ul.arguments:before { content: "Arguments: "; }
-            ul.arguments li {
-                display: inline;
-                list-style: none;
-            }
-            ul.arguments .argument { font-style:italic }
-            ul.arguments .default:not(:empty):before { content: "("; }
-            ul.arguments .default:not(:empty):after { content: ")"; }
-            ul.arguments li:after { content: ","; }
-            ul.arguments li:last-child:after { content: ""; }
-
-            .docstring:before { content: "Description: "; }
-        </style>
-    </head>
-    <body>
-        <h1>
-            {% if title is defined -%}
-                {{title}}
-            {% else -%}
-                Documentation
-            {% endif -%}
-        </h1>
-
-        {% for doc in autodoc %}
-        <div class="mapping">
-            <a id="rule-{{doc.rule|urlencode}}" class="rule"><h2>{{doc.rule|escape}}</h2></a>
-            <ul class="methods">
-                {% for method in doc.methods -%}
-                    {% if method == 'GET' or method == 'POST' %}
-                        {% if method == 'GET' and doc.args == ['None'] %}
-                            <a href="{{doc.rule}}" class="getmethod">
-                                <li class="method">{{method}}</li>
-                            </a>
-                        {% else %}
+    {% for doc in autodoc %}
+    <div class="mapping">
+        <a id="rule-{{doc.rule|urlencode}}" class="rule"><h2>{{doc.rule|escape}}</h2></a>
+        <ul class="methods">
+            {% for method in doc.methods -%}
+                {% if method == 'GET' or method == 'POST' %}
+                    {% if method == 'GET' and doc.args == ['None'] %}
+                        <a href="{{doc.rule}}" class="getmethod">
                             <li class="method">{{method}}</li>
-                        {% endif %}
+                        </a>
+                    {% else %}
+                        <li class="method">{{method}}</li>
                     {% endif %}
-                {% endfor %}
-            </ul>
-            <ul class="arguments">
-                {% for arg in doc.args %}
-                <li>
-                    <!--<span class="argument">{{arg}}</span>
-                    <span class="default">{{doc.defaults[arg]}}</span>-->
-                </li>
-                {% endfor %}
-            </ul>
-            {% autoescape false %}
-            <p class="docstring"><pre>{{doc.docstring|urlize|nl2br}}</pre></p>
-            {% endautoescape %}
-        </div>
-        {% endfor %}
-    </body>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <ul class="arguments">
+            {% for arg in doc.args %}
+            <li>
+                <!--<span class="argument">{{arg}}</span>
+                <span class="default">{{doc.defaults[arg]}}</span>-->
+            </li>
+            {% endfor %}
+        </ul>
+        {% autoescape false %}
+        <p class="docstring"><pre>{{doc.docstring|urlize|nl2br}}</pre></p>
+        {% endautoescape %}
+    </div>
+    {% endfor %}
+</body>
 </html>
