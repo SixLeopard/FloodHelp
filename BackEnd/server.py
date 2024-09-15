@@ -26,14 +26,14 @@ import API.Relationships as APIRelationships
 ###############################################
 # File Info
 ###############################################
-__author__ = '{author}'
-__copyright__ = 'Copyright {year}, {project_name}'
-__credits__ = ['{credit_list}']
-__license__ = '{license}'
-__version__ = '{mayor}.{minor}.{rel}'
-__maintainer__ = '{maintainer}'
-__email__ = '{contact_email}'
-__status__ = '{dev_status}'
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__email__ = 'jamie.westerhout@student.uq.edu.au'
+__status__ = 'Prototype'
 ###############################################
 
 #addin externals
@@ -77,7 +77,13 @@ def root_route():
 @app.route('/documentation') 
 def documentation_route(): 
     '''
-    
+        Displays documentation page
+
+        Documentation is genertated for each of the routes
+        regested to the flask server, then gathers them
+        all and obtains there methods "get" or "post"
+        this is then used in combintation with the doc
+        strings on the route to generate the documenation automaticaly 
     '''
     return auto.html() 
 
