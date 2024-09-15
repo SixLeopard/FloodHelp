@@ -16,6 +16,7 @@ from autodoc import Autodoc
 import datetime
 import os
 # Import our Files
+from cfg import *
 import API.Accounts as APIlogin
 import API.Session as APIsession
 import API.Notifications as APINotifications
@@ -34,10 +35,6 @@ __maintainer__ = '{maintainer}'
 __email__ = '{contact_email}'
 __status__ = '{dev_status}'
 ###############################################
-
-# Initializing flask app
-app = Flask(__name__)
-auto = Autodoc(app)
 
 #addin externals
 app.register_blueprint(APIlogin.login_routes)

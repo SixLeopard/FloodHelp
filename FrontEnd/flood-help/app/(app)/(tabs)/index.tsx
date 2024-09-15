@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { View, Alert, Image, TouchableOpacity } from "react-native";
+import { View, Alert, TouchableOpacity } from "react-native";
 import useStyles from "@/constants/style";
 import MapView, { Marker, Region } from "react-native-maps";
-import { mapLightTheme } from "@/constants/mapLightTheme";
-import { mapDarkTheme } from "@/constants/mapDarkTheme";
-import { useTheme } from "@/constants/ThemeProvider";
+import {mapLightTheme, mapDarkTheme} from "@/constants/Themes"
+import { useTheme } from "@/contexts/ThemeContext";
 import * as Location from 'expo-location';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';

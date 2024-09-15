@@ -26,6 +26,9 @@ def update_locations():
         of each of the users who the user is allowed to track. If no location is 
         currently known for a user, the mapping is set to None.
 
+        Form Data:
+            location -> users current location
+
         Return:
             A JSON string of the locations of each of the users who the user
             who made the request can track. If no location known, the value of
