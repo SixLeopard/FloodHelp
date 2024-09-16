@@ -1,0 +1,98 @@
+IMPORTANT NOTE:
+THE SCHEMA MAY NOT BE ACCURATE DUE TO UPDATES.
+FOR UP TO DATE VERSION SEE ACTUAL DATABASE
+
+	CREATE TABLE Users (
+		uid SERIAL PRIMARY KEY,
+		name VARCHAR(100) NOT NULL,
+		email VARCHAR(100) NOT NULL UNIQUE,
+		verified boolean DEFAULT False,	-- Ensure user verifies by email
+		password_hash BYTEA NOT NULL,
+		password_salt BYTEA NOT NULL
+	);
+
+	ALTER TABLE Users ADD CONSTRAINT unique_users_email UNIQUE (email);
+
+	CREATE TABLE Relationships (
+		relationship_id SERIAL PRIMARY KEY,
+		requester INTEGER,
+		requestee INTEGER,
+		approved Boolean DEFAULT False,	-- Requestee must approve request before other user can see location
+		UNIQUE (uid_1, uid_2)	-- Avoid duplicate relationships
+	);
+
+	ALTER TABLE Relationships ADD CONSTRAINT fk_Relationships_uid1 FOREIGN KEY (uid_1) REFERENCES Users(uid) ON DELETE CASCADE;
+	ALTER TABLE Relationships ADD CONSTRAINT fk_Relationships_uid2 FOREIGN KEY (uid_2) REFERENCES Users(uid) ON DELETE CASCADE;
+	
+	CREATE Table User_Settings (
+		uid INTEGER PRIMARY KEY,
+		warnings_enabled BOOLEAN DEFAULT True,
+		family_notif_enabled BOOLEAN DEFAULT True
+		-- Add more here
+	);
+
+	ALTER TABLE User_Settings ADD CONSTRAINT fk_user_settings_uid FOREIGN KEY (uid) REFERENCES Users(uid) ON DELETE CASCADE;
+	
+	CREATE TYPE notification_type AS ENUM ('relationship_req', 'weather_warning', 'relationship_accepted');	
+
+	CREATE TABLE Notifications (
+		uid INTEGER,
+		notification_id SERIAL,
+		datetime timestamp DEFAULT NOW,
+		type VARCHAR(100),
+		content VARCHAR(255),
+		PRIMARY KEY (uid, notification_id)
+	);
+
+	ALTER TABLE Notifications ADD CONSTRAINT fk_notifications_uid FOREIGN KEY (uid) REFERENCES Users(uid) ON DELETE CASCADE;
+
+	CREATE Table Area (
+		name VARCHAR(50) PRIMARY KEY,
+		hazard_zone BOOLEAN DEFAULT False
+	);
+	
+	CREATE TABLE Hazards (
+		hazard_id SERIAL PRIMARY KEY,
+		title VARCHAR(50) NOT NULL,
+		description VARCHAR(255),
+		image BYTEA NOT NULL,
+		datetime TIMESTAMP DEFAULT NOW,
+		reporting_user INTEGER,
+		area VARCHAR(50),
+		coordinates POINT NOT NULL
+	);
+	
+	ALTER TABLE Hazards ADD CONSTRAINT fk_hazards_reporting_user FOREIGN KEY (reporting_user) REFERENCES Users(uid);
+	ALTER TABLE Hazards ADD CONSTRAINT fk_hazards_area FOREIGN KEY (area) REFERENCES Area(name) ON DELETE SET NULL;
+	
+	CREATE TABLE Warnings (
+		warning_id SERIAL PRIMARY KEY,
+		area VARCHAR(30),
+		description VARCHAR(255) NOT NULL,
+		datetime TIMESTAMP DEFAULT NOW
+	);
+	
+	ALTER TABLE Warnings ADD CONSTRAINT fk_warnings_area FOREIGN KEY (area) REFERENCES Area(name) ON DELETE SET NULL;
+	
+	CREATE TABLE historical_flood_risk (
+		id SERIAL PRIMARY KEY,
+		flood_risk VARCHAR(100),
+		flood_type VARCHAR(100),
+		coordinates bytea,
+		datatype bytea,
+		geo bytea
+	);
+
+	
+	CREATE OR REPLACE FUNCTION init_user_settings()
+	RETURNS TRIGGER AS $$
+	BEGIN
+		INSERT INTO user_settings (uid) VALUES (NEW.uid);
+		RETURN NEW;
+	END;
+	$$ LANGUAGE plpgsql;
+
+	CREATE TRIGGER init_user_settings
+	AFTER INSERT ON users
+	FOR EACH ROW
+	EXECUTE FUNCTION init_user_settings();
