@@ -41,8 +41,7 @@ def create_relationship():
             # Check if relationship exists
             existing_relationships = db.get_approved_relationships(requester_uid) \
                 + db.get_not_approved_relationships(requester_uid)
-            if (requester_uid, requestee_uid) in existing_relationships \
-                or (requestee_uid, requester_uid) in existing_relationships:
+            if requestee_uid in existing_relationships:
                 return make_response({"Error": "Relationship exists"})
 
             # Create relationship
