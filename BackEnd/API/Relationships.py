@@ -72,8 +72,17 @@ def get_approved_relationships():
                 relationship_uids =  db.get_approved_relationships(uid)
             except Exception as e:
                 return make_response({"internal_error": str(e)})
+            try:
+                relationship_uids =  db.get_approved_relationships(uid)
+            except Exception as e:
+                return make_response({"internal_error": str(e)})
             relationships = {}
             for ruid in relationship_uids:
+                try:
+                    # Returns: (uid, name, email, verified, password_hash, password_salt)
+                    relationships[ruid] = db.get_user(ruid)[1]
+                except Exception as e:
+                    return make_response({'internal_error': str(e)})
                 try:
                     # Returns: (uid, name, email, verified, password_hash, password_salt)
                     relationships[ruid] = db.get_user(ruid)[1]
@@ -103,8 +112,17 @@ def get_not_approved_relationships():
                 relationship_uids =  db.get_not_approved_relationships(uid)
             except Exception as e:
                 return make_response({'internal_error': str(e)})
+            try:
+                relationship_uids =  db.get_not_approved_relationships(uid)
+            except Exception as e:
+                return make_response({'internal_error': str(e)})
             relationships = {}
             for ruid in relationship_uids:
+                try:
+                    # Returns: (uid, name, email, verified, password_hash, password_salt)
+                    relationships[ruid] = db.get_user(ruid)[1]
+                except Exception as e:
+                    return make_response({'internal_error': str(e)})
                 try:
                     # Returns: (uid, name, email, verified, password_hash, password_salt)
                     relationships[ruid] = db.get_user(ruid)[1]
