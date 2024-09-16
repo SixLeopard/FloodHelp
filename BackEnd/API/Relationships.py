@@ -36,7 +36,7 @@ def create_relationship():
             try:
                 db.create_relationship(requester_uid, requestee_uid)
             except Exception as e:
-                return make_response({"Database error": e.pgerror})
+                return make_response({"internal_error": str(e)})
 
             return make_response({"success": 1})
         return make_response({"invalid_account":1})
@@ -50,11 +50,17 @@ def get_approved_relationships():
     if request.method == 'GET':        
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid = session["uid"]
-            relationship_uids =  db.get_approved_relationships(uid)
+            try:
+                relationship_uids =  db.get_approved_relationships(uid)
+            except Exception as e:
+                return make_response({"internal_error": str(e)})
             relationships = {}
             for ruid in relationship_uids:
-                # Returns: (uid, name, email, verified, password_hash, password_salt)
-                relationships[ruid] = db.get_user(ruid)[1]
+                try:
+                    # Returns: (uid, name, email, verified, password_hash, password_salt)
+                    relationships[ruid] = db.get_user(ruid)[1]
+                except Exception as e:
+                    return make_response({'internal_error': str(e)})
             return make_response(relationships)
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
@@ -67,11 +73,17 @@ def get_not_approved_relationships():
     if request.method == 'GET':        
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid = session["uid"]
-            relationship_uids =  db.get_not_approved_relationships(uid)
+            try:
+                relationship_uids =  db.get_not_approved_relationships(uid)
+            except Exception as e:
+                return make_response({'internal_error': str(e)})
             relationships = {}
             for ruid in relationship_uids:
-                # Returns: (uid, name, email, verified, password_hash, password_salt)
-                relationships[ruid] = db.get_user(ruid)[1]
+                try:
+                    # Returns: (uid, name, email, verified, password_hash, password_salt)
+                    relationships[ruid] = db.get_user(ruid)[1]
+                except Exception as e:
+                    return make_response({'internal_error': str(e)})
             return make_response(relationships)
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
