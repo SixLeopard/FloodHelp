@@ -130,6 +130,15 @@ class DBInterface():
             user = user[0]
             result = (user[0], user[1], user[2], user[3], user[4].tobytes(), user[5].tobytes())
             return result
+        
+    def get_user_by_uid(self, uid: int):
+        user = self.query("SELECT * FROM Users WHERE uid = %s", uid)
+        if not user:
+            return None
+        else:
+            user = user[0]
+            result = (user[0], user[1], user[2], user[3], user[4].tobytes(), user[5].tobytes())
+            return result
 
     '''
     Create an entry for a new relationship between two users. Users who have an approved relationship
