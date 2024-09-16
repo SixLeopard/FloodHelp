@@ -135,7 +135,7 @@ def get_all_report_coordinates_route():
     return make_response({"invalid_request":1})
 
 @userreport_routes.route("/reporting/user/get_all_reports_by_user", methods = ['GET'])
-def get_all_report_coordinates_route():
+def get_all_reports_by_user():
     '''
     Retrieve all reports made by a specific user including all detials.
     Returns a nested JSON string where the key is the report ID of each report
