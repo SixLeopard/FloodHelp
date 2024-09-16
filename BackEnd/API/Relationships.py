@@ -48,7 +48,6 @@ def create_relationship():
             try:
                 db.create_relationship(requester_uid, requestee_uid)
                 return make_response({"success": 1})
-                return make_response({"success": 1})
             except Exception as e:
                 return make_response({"internal_error": str(e)})
         return make_response({"invalid_account":1})
