@@ -125,7 +125,7 @@ def approve_relationship():
         If no relationship exists, return error.
 
         Form Data:
-            other_user -> the users who's relationship request you want to approve
+            other_user -> the uid of the user who's relationship request you want to approve
 
         Return:
             if succsessful: {"relationship_approved": 1}
@@ -134,7 +134,7 @@ def approve_relationship():
             no login: {"invalid_account":1}
             not using POST: {"invalid_request":1}
     '''
-    if request.method == 'GET':        
+    if request.method == 'POST':        
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid1 = session['uid']
             uid2 = request.form.get('other_user')
