@@ -350,6 +350,37 @@ class DBInterface():
             final.append(hazard)
 
         return final
+    
+    """
+    Retrieve the coordinates of all hazards and the corresponding hazard_id
+    from database. Useful for ranking hazards without retrieving details of
+    all hazards. When a user selects a hazard to see more detail, can call
+    get_hazard() function to retrieve details.
+
+    Returns:
+        A dict in the form:
+
+            {hazard_id: {hazard_id; int, coordinates: (lattitude, longitude)}, ...}
+
+        Where hazard_id is an integer and lattitude and longitude are floats.
+        The list may contain any number of elements including 0.
+    """
+    def get_all_hazard_ranking_dict(self):
+        query = "SELECT hazard_id, coordinates, datetime, title, reporting_user FROM Hazards"
+        results = self.query(query)
+        final = {}
+        
+        for result in results:
+            hazard = {
+                'hazard_id': result[0],
+                'coordinates': result[1],
+                'datetime': result[2],
+                'title': result[3],
+                'reporting_user_id' : result[4]
+            }
+            final[str(result[0])] = hazard
+
+        return final
 
     """
     Retrieve all hazards with all corresponding details to that hazard. Returns
@@ -385,6 +416,7 @@ class DBInterface():
             final.append(hazard)
         
         return final
+    
 
     def insert_historical_data(self, flood_risk: str, flood_type: str, \
         coordinates: str, datatype: str, geo: str):
