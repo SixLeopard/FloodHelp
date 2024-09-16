@@ -312,7 +312,6 @@ class DBInterface():
         if result:
             result = result[0]
             img = None if result[6] is None else result[6].tobytes()
-            img = None if result[6] is None else result[6].tobytes()
             hazard = {
                 'hazard_id': result[0],
                 'title': result[1],
@@ -345,9 +344,8 @@ class DBInterface():
     """
     def get_all_hazard_coordinates(self):
         query = "SELECT hazard_id, coordinates, datetime, title FROM Hazards"
-        query = "SELECT hazard_id, coordinates, datetime, title FROM Hazards"
         results = self.query(query)
-        final = []
+        final = {}
         
         for result in results:
             hazard = {
@@ -356,7 +354,7 @@ class DBInterface():
                 'datetime': result[2],
                 'title': result[3]
             }
-            final.append(hazard)
+            final[result[0]] = hazard
 
         return final
     
@@ -409,7 +407,7 @@ class DBInterface():
     def get_all_hazard_details(self):
         query = "SELECT * FROM Hazards"
         results = self.query(query)
-        final = []
+        final = {}
 
         for result in results:
             hazard = {
@@ -422,10 +420,45 @@ class DBInterface():
                 'img': None if result[6] is None else result[6].tobytes(),
                 'description': result[7]
             }
-            final.append(hazard)
+            final[result[0]] = hazard
         
         return final
     
+    """
+    Retrieve all hazards reported by user with the specified uid, including all corresponding 
+    details to that hazard. Returns a list of dictionaries in the form:
+
+        [{hazard_id, title, datetime, reporting_user, area, coordinates, image, description}, ...]
+
+    Where:
+        hazard_id (int): The numerical unique ID of the hazard
+        title (str): the name or type of hazard
+        datetime (str): The date and time when the hazard was reported in the form "DD/MM/YYY HH:MM:SS"
+        reporting_user (int): The uid of the user who reported the hazard
+        area (str): The area in which the report was made. Usually None since we chose not to use
+        coordinates (string): The coordinates where the report was made (latt, long)
+        img (str): The string encoded representation of the image
+    """
+    def get_all_reports_by_user(self, uid:int) -> dict:
+        query = "SELECT * FROM Hazards WHERE reporting_user = %s"
+        results = self.query(query, uid)
+
+        final = {}
+
+        for result in results:
+            hazard = {
+                'hazard_id': result[0],
+                'title': result[1],
+                'datetime': result[2].strftime('%d/%m/%y %H:%M:%S'),
+                'reporting_user_id': result[3],
+                'area_name': result[4],
+                'coordinates': result[5],
+                'img': None if result[6] is None else result[6].tobytes(),
+                'description': result[7]
+            }
+            final[result[0]] = hazard
+        
+        return final
 
     def insert_historical_data(self, flood_risk: str, flood_type: str, \
         coordinates: str, datatype: str, geo: str):
