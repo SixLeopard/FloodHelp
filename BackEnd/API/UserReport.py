@@ -60,6 +60,15 @@ def add_user_report_route():
 def get_user_report_route():
     '''
     Retrieve the report with the ID specified in the report_id field of the request body
+
+    Form Data:
+        report_id: The numerical ID of the report to retrieve
+
+    Returns:
+        if successful: {hazard_id, hazard_type, datetime, reporting_uid, area_name, coordinates, img}
+        error 1: {'internal_error': error_description}
+        no login: {"invalid_account":1}
+        not using POST: {"invalid_request":1}
     '''
     if request.method == 'GET':
         report_id = request.form.get('report_id')
@@ -78,6 +87,15 @@ def get_user_report_route():
 def get_all_report_details_route():
     '''
     Retrieve all reports made by all users including all details
+
+    Form data:
+        None
+
+    Returns:
+        if successful: {hazard_id, hazard_type, datetime, reporting_uid, area_name, coordinates, img}
+        error 1: {'internal_error': error_description}
+        no login: {"invalid_account":1}
+        not using POST: {"invalid_request":1}
     '''
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
@@ -97,6 +115,15 @@ def get_all_report_coordinates_route():
         - datetime
         - title
         - coordinates
+
+    Form data:
+        None
+
+    Returns:
+        if successful: {hazard_id, hazard_type, datetime, coordinates}
+        error 1: {'internal_error': error_description}
+        no login: {"invalid_account":1}
+        not using POST: {"invalid_request":1}
     '''
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
@@ -110,12 +137,23 @@ def get_all_report_coordinates_route():
 @userreport_routes.route("/reporting/user/get_all_reports_by_user", methods = ['GET'])
 def get_all_report_coordinates_route():
     '''
-    Retrieve all reports made by a specific user including all detials
+    Retrieve all reports made by a specific user including all detials.
+    Returns a nested JSON string where the key is the report ID of each report
+    and the value is the details of the report
+
+    Form data:
+        uid: The uid of the user for which to retrieve reports
+
+    Returns:
+        if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
+        error 1: {'internal_error': error_description}
+        no login: {"invalid_account":1}
+        not using POST: {"invalid_request":1}
     '''
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
-                return make_response({'reports': str(db.get_all_hazard_coordinates()).strip('[]')})
+                return make_response(db.get_all_reports_by_user(session['uid']))
             except Exception as e:
                 return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
