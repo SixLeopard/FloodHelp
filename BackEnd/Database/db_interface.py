@@ -311,7 +311,7 @@ class DBInterface():
 
         if result:
             result = result[0]
-            img = None if result[6] is None else result[6].tobytes()
+            img = None if result[6] is None else str(result[6].tobytes())
             hazard = {
                 'hazard_id': result[0],
                 'title': result[1],
@@ -417,7 +417,7 @@ class DBInterface():
                 'reporting_user_id': result[3],
                 'area_name': result[4],
                 'coordinates': result[5],
-                'img': None if result[6] is None else result[6].tobytes(),
+                'img': None if result[6] is None else str(result[6].tobytes()),
                 'description': result[7]
             }
             final[result[0]] = hazard
@@ -453,7 +453,7 @@ class DBInterface():
                 'reporting_user_id': result[3],
                 'area_name': result[4],
                 'coordinates': result[5],
-                'img': None if result[6] is None else result[6].tobytes(),
+                'img': None if result[6] is None else str(result[6].tobytes()),
                 'description': result[7]
             }
             final[result[0]] = hazard
@@ -476,9 +476,9 @@ class DBInterface():
             new_row.append(row[0])
             new_row.append(row[1])
             new_row.append(row[2])
-            new_row.append(row[3].tobytes())
-            new_row.append(row[4].tobytes())
-            new_row.append(row[5].tobytes())
+            new_row.append(str(row[3].tobytes()))
+            new_row.append(str(row[4].tobytes()))
+            new_row.append(str(row[5].tobytes()))
             results.append(new_row)
 
         return results
