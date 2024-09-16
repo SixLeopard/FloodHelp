@@ -1,0 +1,162 @@
+<!-- Orginally from From https://github.com/acoomans/flask-autodoc/blob/master/flask_autodoc/templates/autodoc_default.html -->
+<!-- Modified by Jamie Westerhout For FloodHelp App 
+    
+    Then the style was updated using the ChatGPT 4o model using
+    the prompt: 
+    could you update the style of this html file to make it look new and 
+    modern while still maintaining the same functionality
+
+    Modified by Jamie Westerhout Again to fix
+    bugs in the GPT generated style
+-->
+
+
+<html>
+<head>
+    <title>
+        {% if title is defined -%}
+            {{title}}
+        {% else -%}
+            Documentation
+        {% endif -%}
+    </title>
+    <!-- Google Font for a modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .mapping {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .mapping:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            font-size: 1.8em;
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+
+        ul.methods, ul.arguments {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding-left: 0;
+        }
+
+        ul.methods:before, ul.arguments:before {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        ul.methods li, ul.arguments li {
+            display: inline-block;
+            background-color: #e1f5fe;
+            color: #0277bd;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-right: 5px;
+            font-size: 1em;
+        }
+
+        .getmethod {
+            color: #fff;
+            background-color: #ffffff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        .getmethod:hover {
+            background-color: #1e7884;
+        }
+
+        .docstring {
+            font-size: 1em;
+            line-height: 1.6;
+            background-color: #ffffff;
+            padding: 10px;
+            border-left: 5px solid #ffffff;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        .docstring pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .mapping {
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        {% if title is defined -%}
+            {{title}}
+        {% else -%}
+            Documentation
+        {% endif -%}
+    </h1>
+
+    {% for doc in autodoc %}
+    <div class="mapping">
+        <a id="rule-{{doc.rule|urlencode}}" class="rule"><h2>{{doc.rule|escape}}</h2></a>
+        <ul class="methods">
+            {% for method in doc.methods -%}
+                {% if method == 'GET' or method == 'POST' %}
+                    {% if method == 'GET' and doc.args == ['None'] %}
+                        <a href="{{doc.rule}}" class="getmethod">
+                            <li class="method">{{method}}</li>
+                        </a>
+                    {% else %}
+                        <li class="method">{{method}}</li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        {% autoescape false %}
+        <p class="docstring"><pre>{{doc.docstring|urlize|nl2br}}</pre></p>
+        {% endautoescape %}
+    </div>
+    {% endfor %}
+</body>
+</html>

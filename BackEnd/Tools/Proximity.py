@@ -3,7 +3,7 @@ import numpy as np
 LAT = 0 #index of latitude
 LONG = 1 # index of longatude
 
-def is_close(base_location : tuple[int,int], test_location : tuple[int,int], bound : int) -> bool:
+def is_close(base_location : tuple[float,float], test_location : tuple[float,float], bound : float) -> bool:
     '''
     return wether the distance between base location adn test location is less than the
     bound distance
