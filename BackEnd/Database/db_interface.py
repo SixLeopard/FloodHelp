@@ -312,7 +312,6 @@ class DBInterface():
         if result:
             result = result[0]
             img = None if result[6] is None else result[6].tobytes()
-            img = None if result[6] is None else result[6].tobytes()
             hazard = {
                 'hazard_id': result[0],
                 'title': result[1],
@@ -345,9 +344,8 @@ class DBInterface():
     """
     def get_all_hazard_coordinates(self):
         query = "SELECT hazard_id, coordinates, datetime, title FROM Hazards"
-        query = "SELECT hazard_id, coordinates, datetime, title FROM Hazards"
         results = self.query(query)
-        final = []
+        final = {}
         
         for result in results:
             hazard = {
@@ -356,7 +354,7 @@ class DBInterface():
                 'datetime': result[2],
                 'title': result[3]
             }
-            final.append(hazard)
+            final[result[0]] = hazard
 
         return final
     
@@ -409,7 +407,7 @@ class DBInterface():
     def get_all_hazard_details(self):
         query = "SELECT * FROM Hazards"
         results = self.query(query)
-        final = []
+        final = {}
 
         for result in results:
             hazard = {
@@ -422,7 +420,7 @@ class DBInterface():
                 'img': None if result[6] is None else result[6].tobytes(),
                 'description': result[7]
             }
-            final.append(hazard)
+            final[result[0]] = hazard
         
         return final
     
