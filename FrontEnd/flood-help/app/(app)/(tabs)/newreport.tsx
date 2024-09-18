@@ -11,14 +11,13 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
 import { useAuth } from '@/contexts/AuthContext';
 
-
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
 
 const NewReport = () => {
     const styles = useStyles();
     const { theme } = useTheme();
     const navigation = useNavigation<NewReportScreenNavigationProp>();
-    const { user } = useAuth(); // Get the authenticated user's information
+    const { user } = useAuth();
 
     const [location, setLocation] = useState('Fetching current location...');
     const [floodType, setFloodType] = useState('');
@@ -51,14 +50,6 @@ const NewReport = () => {
             console.error("Error fetching current location:", error);
             setLocation('Error fetching location');
         }
-    };
-
-    const handleLocationPress = () => {
-        navigation.navigate('mapscreen', {
-            onLocationSelected: (address: string) => {
-                setLocation(address);
-            },
-        });
     };
 
     const pickImage = async () => {
@@ -110,28 +101,23 @@ const NewReport = () => {
         body.append("type", floodType);
         body.append("description", description || '');
     
-        // Handle photos one by one using Blob to properly handle the image file
-        for (const [index, photo] of photos.entries()) {
+        if (photos.length > 0) {
+            const photo = photos[0]; 
             const uriParts = photo.split('.');
             const fileType = uriParts[uriParts.length - 1];
-    
-            // Fetch the file as a blob
+
             const response = await fetch(photo);
             const blob = await response.blob();
-    
-            body.append('image', {
-                name: `photo_${index}.${fileType}`, 
-                type: `image/${fileType}`, 
-                uri: photo, 
-            } as any);
+
+            body.append('image', blob, `photo.${fileType}`); 
         }
-    
+
         try {
             const response = await fetch('http://54.206.190.121:5000/reporting/user/add_report', {
                 method: 'POST',
                 headers: {
-                    'Session-Id': user.token, 
-                    'Session-Username': user.username, 
+                    'Session-Id': user.token,
+                    'Session-Username': user.username,
                 },
                 body
             });
@@ -143,7 +129,6 @@ const NewReport = () => {
             } else if (result.invalid_request) {
                 Alert.alert('Error', 'Invalid request.');
             } else if (response.status === 401) {
-                // Handle unauthorized error, potentially log the user out
                 Alert.alert('Error', 'Your session has expired. Please log in again.');
             } else {
                 Alert.alert('Success', 'Report submitted successfully!');
@@ -166,7 +151,7 @@ const NewReport = () => {
         <View style={[styles.page]}>
             <Text style={[styles.headerText, { color: theme.colors.text }]}>New Report</Text>
             <View style={styles.formContainer}>
-                <TouchableOpacity onPress={handleLocationPress} style={styles.locationContainer}>
+                <TouchableOpacity onPress={fetchCurrentLocation} style={styles.locationContainer}>
                     <Text style={[styles.bodyTextBold]}>Location</Text>
                     <Text style={[styles.bodyTextBold]}>{location}</Text>
                 </TouchableOpacity>
