@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Alert, TouchableOpacity, ActivityIndicator, Text } from "react-native";
 import useStyles from "@/constants/style";
-import MapView, { Marker, Region } from "react-native-maps";
+import MapView, { Polygon, Marker, Region } from "react-native-maps";
 import { mapLightTheme, mapDarkTheme } from "@/constants/Themes";
 import { useTheme } from "@/contexts/ThemeContext";
 import * as Location from 'expo-location';
@@ -21,12 +21,27 @@ interface Report {
     coordinates: string;
 }
 
+interface HistoricalFloodData {
+    features: Array<{
+        attributes: {
+            OBJECTID: number;
+            FLOOD_RISK: string;
+            FLOOD_TYPE: string;
+        };
+        geometry: {
+            rings: number[][][];
+        };
+    }>;
+}
+
 export default function Index() {
     const styles = useStyles();
     const { theme } = useTheme();
     const [region, setRegion] = useState<Region | null>(null);
     const [floodReports, setFloodReports] = useState<Report[]>([]);
-    const [loadingReports, setLoadingReports] = useState(true); // To track if flood reports are being loaded
+    const [loadingReports, setLoadingReports] = useState(true);
+    const [historicalFloodData, setHistoricalFloodData] = useState<HistoricalFloodData | null>(null);
+    const [loadingHistorical, setLoadingHistorical] = useState(false); 
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { user, loading } = useAuth(); // Tracking user authentication status
 
@@ -47,28 +62,36 @@ export default function Index() {
             });
 
             const data = await response.json();
-            // Debugging console.log('Raw data from API:', data); 
+            //console.log('Raw data from API:', data); 
 
-            // Correcting the format of the string to valid JSON
-            let reportsString = data.reports;
+            const reports = Object.keys(data).map(key => ({
+                title: data[key].title,
+                datetime: data[key].datetime,
+                coordinates: data[key].coordinates
+            }));
 
-            // Replace single quotes with double quotes
-            reportsString = reportsString.replace(/'/g, '"');
-
-            // Replace Python's datetime.datetime with plain strings (removing `datetime.datetime`)
-            reportsString = reportsString.replace(
-                /datetime\.datetime\((\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*\d+\)/g,
-                '"$1-$2-$3T$4:$5:$6Z"'
-            );
-
-            // Wrap the corrected string into an array and parse it
-            const reports = JSON.parse(`[${reportsString}]`);
             return reports;
         } catch (error) {
             console.error('Error fetching flood reports:', error);
             return [];
         }
     };
+
+    const fetchHistoricalFloodData = async () => {
+        setLoadingHistorical(true);
+        try {
+            const response = await fetch(
+                'https://services2.arcgis.com/dEKgZETqwmDAh1rP/arcgis/rest/services/Flood_Awareness_Flood_Risk_Overall/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json'
+            );
+            const data: HistoricalFloodData = await response.json();
+            setHistoricalFloodData(data);
+        } catch (error) {
+            console.error('Error fetching historical flood data:', error);
+        } finally {
+            setLoadingHistorical(false);
+        }
+    };
+    
 
     useEffect(() => {
         const requestLocationPermission = async () => {
@@ -110,7 +133,13 @@ export default function Index() {
     };
 
     const handleSeeHistoricalFlooding = () => {
-        Alert.alert("Historical Flooding", "This will show historical flooding areas.");
+        if (historicalFloodData) {
+            // If historical data is already loaded, remove it
+            setHistoricalFloodData(null);
+        } else {
+            // If no data is loaded, fetch it
+            fetchHistoricalFloodData();
+        }
     };
 
     if (loading || loadingReports) {
@@ -163,6 +192,18 @@ export default function Index() {
                         );
                     })}
 
+                    {/* Render Historical Flood Polygons */}
+                {historicalFloodData?.features.map((feature, index) => (
+                    <Polygon
+                        key={index}
+                        coordinates={feature.geometry.rings[0].map(([longitude, latitude]) => ({
+                            latitude,
+                            longitude,
+                        }))}
+                        strokeColor="rgba(128,0,0,0.5)"
+                        fillColor="rgba(128,0,0,0.3)"
+                    />
+                ))}
                 </MapView>
             )}
 
@@ -174,8 +215,14 @@ export default function Index() {
                     <Icon name="history" size={40} color={theme.dark ? "midnightblue" : "midnightblue"} />
                 </TouchableOpacity>
             </View>
+
+            {loadingHistorical && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color={theme.colors.primary} />
+                    <Text>Loading Historical Flood Data...</Text>
+                </View>
+            )}
         </View>
     );
 }
-
 
