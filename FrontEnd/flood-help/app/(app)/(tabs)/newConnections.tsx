@@ -20,7 +20,7 @@ const NewConnections = () => {
             <UserCard username="Send a Request" userId="new2" sendRequest={true} status={undefined}
                       showConnectionRequest={false} pendingRequest={false} />
 
-            <Text style={styles.bodyText}>Connections can send you check in requests and see your location during an emergenc</Text>
+            <Text style={styles.bodyText}>Connections can send you check in requests and see your location during an emergency</Text>
 
 
         </View>
