@@ -1,43 +1,34 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Fetches API Data
- * @param {string} URL - The URL of the API from which data will be retrieved.
- * @param {string} method - The type of request (e.g. POST or GET).
- * @param {object} requestBody - The body of the request in JSON format.
- * @returns {array} - Array of objects containing relevant API data.
+ * @param {string} endpoint - The second part of the API URL after the base.
+ * @param {object|null} requestBody - The body of the request in JSON format, or null if no body is needed.
+ * @returns {array|null} - Array of objects containing relevant API data or null if loading.
  */
-const GetAPI = (URL, method, requestBody) => {
+const GetAPI = (endpoint, requestBody = null) => {
+    const baseURL = "http://54.206.190.121:5000";
     const [result, setResult] = useState(null);
 
     useEffect(() => {
         const fetchFromAPI = async () => {
-            const data = await fetchData(URL, method, requestBody);
+            const data = await fetchData(`${baseURL}${endpoint}`, requestBody);
             setResult(data);
-            // console.log(data);
         };
         fetchFromAPI();
-    }, [URL, method, requestBody]);
+    }, [endpoint, requestBody]);
 
-    async function fetchData(URL, method, requestBody) {
+    async function fetchData(URL) {
         try {
-            const response = await fetch(URL, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody),
-            });
-            const result = await response.json();
-            // console.log("Your intended result is: ", result);
-            return result;
+            const response = await fetch(URL);
+            return await response.json();
         } catch (error) {
-             console.error('Fetch error:', error);
+            console.error('Fetch error:', error);
             return null;
         }
     }
 
-    return result
+    return result;
 };
 
 export default GetAPI;
