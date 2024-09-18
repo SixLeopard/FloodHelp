@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
     const signIn = async (credentials) => {
         try {
             const token = await login(credentials);
-            // console.log("Tokrn", token)
+            // console.log("Token", token)
             if (token) {
                 setUser({ token });
                 console.log("user", user)

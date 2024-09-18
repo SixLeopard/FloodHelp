@@ -9,7 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
-import { useAuth } from '@/contexts/AuthContext'; // Import the useAuth hook
+import { useAuth } from '@/contexts/AuthContext';
 
 
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
@@ -99,34 +99,52 @@ const NewReport = () => {
             Alert.alert('Error', 'Location is required.');
             return;
         }
-
+    
         if (!user?.token) {
             Alert.alert('Error', 'You must be logged in to submit a report.');
             return;
         }
-
+    
         const body = new FormData();
         body.append("location", location);
         body.append("type", floodType);
         body.append("description", description || '');
-
+    
+        // Handle photos one by one using Blob to properly handle the image file
+        for (const [index, photo] of photos.entries()) {
+            const uriParts = photo.split('.');
+            const fileType = uriParts[uriParts.length - 1];
+    
+            // Fetch the file as a blob
+            const response = await fetch(photo);
+            const blob = await response.blob();
+    
+            body.append('image', {
+                name: `photo_${index}.${fileType}`, 
+                type: `image/${fileType}`, 
+                uri: photo, 
+            } as any);
+        }
+    
         try {
             const response = await fetch('http://54.206.190.121:5000/reporting/user/add_report', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Session-Id': user.token,        
-                    'Session-Username': user.username,   
+                    'Session-Id': user.token, 
+                    'Session-Username': user.username, 
                 },
                 body
             });
-
+    
             const result = await response.json();
-
+    
             if (result.invalid_account) {
                 Alert.alert('Error', 'Invalid account.');
             } else if (result.invalid_request) {
                 Alert.alert('Error', 'Invalid request.');
+            } else if (response.status === 401) {
+                // Handle unauthorized error, potentially log the user out
+                Alert.alert('Error', 'Your session has expired. Please log in again.');
             } else {
                 Alert.alert('Success', 'Report submitted successfully!');
                 resetForm();
@@ -136,7 +154,7 @@ const NewReport = () => {
             Alert.alert('Error', 'Failed to submit report. Please try again.');
         }
     };
-
+    
     const resetForm = () => {
         setLocation('Fetching current location...');
         setFloodType('');
