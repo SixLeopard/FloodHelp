@@ -32,23 +32,24 @@ def create_relationship():
             requester_uid = session["uid"]
 
             # Check if requestee with given email exists
-            requestee_uid = db.get_user(requestee_email)[0]
-            if requestee_uid is None:
+            requestee = db.get_user(requestee_email)
+            if requestee is None or requestee[0] is None:
                 return make_response({"Error": "Requested user does not exist"})
+            
+            requestee_uid = requestee[0]
 
             # Check if relationship exists
-            existing_relationships = db.get_relationships(requester_uid)
-            if (requester_uid, requestee_uid) not in existing_relationships \
-                and (requestee_uid, requester_uid) not in existing_relationships:
+            existing_relationships = db.get_approved_relationships(requester_uid) \
+                + db.get_not_approved_relationships(requester_uid)
+            if requestee_uid in existing_relationships:
                 return make_response({"Error": "Relationship exists"})
 
             # Create relationship
             try:
                 db.create_relationship(requester_uid, requestee_uid)
+                return make_response({"success": 1})
             except Exception as e:
-                return make_response({"Database error": e.pgerror})
-
-            return make_response({"success": 1})
+                return make_response({"internal_error": str(e)})
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
@@ -68,11 +69,18 @@ def get_approved_relationships():
     if request.method == 'GET':        
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid = session["uid"]
-            relationship_uids =  db.get_approved_relationships(uid)
+            try:
+                relationship_uids =  db.get_approved_relationships(uid)
+            except Exception as e:
+                return make_response({"internal_error": str(e)})
+            
             relationships = {}
             for ruid in relationship_uids:
-                # Returns: (uid, name, email, verified, password_hash, password_salt)
-                relationships[ruid] = db.get_user(ruid)[1]
+                try:
+                    # Returns: (uid, name, email, verified, password_hash, password_salt)
+                    relationships[ruid] = db.get_user_by_uid(ruid)[1]
+                except Exception as e:
+                    return make_response({'internal_error': str(e)})
             return make_response(relationships)
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
@@ -93,11 +101,18 @@ def get_not_approved_relationships():
     if request.method == 'GET':        
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid = session["uid"]
-            relationship_uids =  db.get_not_approved_relationships(uid)
+            try:
+                relationship_uids =  db.get_not_approved_relationships(uid)
+            except Exception as e:
+                return make_response({'internal_error': str(e)})
+            
             relationships = {}
             for ruid in relationship_uids:
-                # Returns: (uid, name, email, verified, password_hash, password_salt)
-                relationships[ruid] = db.get_user(ruid)[1]
+                try:
+                    # Returns: (uid, name, email, verified, password_hash, password_salt)
+                    relationships[ruid] = db.get_user_by_uid(ruid)[1]
+                except Exception as e:
+                    return make_response({'internal_error': str(e)})
             return make_response(relationships)
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
@@ -110,7 +125,7 @@ def approve_relationship():
         If no relationship exists, return error.
 
         Form Data:
-            other_user -> the users who's relationship request you want to approve
+            other_user -> the uid of the user who's relationship request you want to approve
 
         Return:
             if succsessful: {"relationship_approved": 1}
@@ -119,7 +134,7 @@ def approve_relationship():
             no login: {"invalid_account":1}
             not using POST: {"invalid_request":1}
     '''
-    if request.method == 'GET':        
+    if request.method == 'POST':        
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid1 = session['uid']
             uid2 = request.form.get('other_user')
