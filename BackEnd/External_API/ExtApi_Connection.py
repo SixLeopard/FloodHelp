@@ -5,6 +5,19 @@ from Database.db_interface import DBInterface
 db = DBInterface()
 
 def hazard_matches():
+    
+    """
+    Compares official flood hazard warnings with user-submitted hazard reports and identifies matches based on proximity.
+
+
+    Returns:
+        dict: A dictionary where the keys are the IDs of official flood hazard warnings and the values 
+        are lists of user-submitted reports that are within the specified minimum distance. 
+        Each user report is represented as a dictionary with keys:
+            - 'id': Unique identifier for the user-submitted report.
+            - 'coordinates': A tuple (latitude, longitude) representing the user's report location.
+    
+    """
 
     user_reports = db.get_all_hazard_coordinates()
     official_warnings = get_alerts()
