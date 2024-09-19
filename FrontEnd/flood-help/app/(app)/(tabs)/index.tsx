@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
+import { useReport } from '@/contexts/reportContext';
 
 type RootStackParamList = {
     newreport: undefined;
@@ -38,44 +39,12 @@ export default function Index() {
     const styles = useStyles();
     const { theme } = useTheme();
     const [region, setRegion] = useState<Region | null>(null);
-    const [floodReports, setFloodReports] = useState<Report[]>([]);
-    const [loadingReports, setLoadingReports] = useState(true);
     const [historicalFloodData, setHistoricalFloodData] = useState<HistoricalFloodData | null>(null);
-    const [loadingHistorical, setLoadingHistorical] = useState(false); 
+    const [loadingHistorical, setLoadingHistorical] = useState(false);
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { user, loading } = useAuth(); // Tracking user authentication status
 
-    const fetchFloodReports = async () => {
-        if (!user?.token) {
-            console.error("User is not authenticated");
-            return [];
-        }
-
-        try {
-            const response = await fetch('http://54.206.190.121:5000/reporting/user/get_all_report_basic', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Session-Id': user.token,
-                    'Session-Username': user.username,
-                },
-            });
-
-            const data = await response.json();
-            //console.log('Raw data from API:', data); 
-
-            const reports = Object.keys(data).map(key => ({
-                title: data[key].title,
-                datetime: data[key].datetime,
-                coordinates: data[key].coordinates
-            }));
-
-            return reports;
-        } catch (error) {
-            console.error('Error fetching flood reports:', error);
-            return [];
-        }
-    };
+    const { reports, getReports, loading: loadingReports } = useReport();
 
     const fetchHistoricalFloodData = async () => {
         setLoadingHistorical(true);
@@ -117,15 +86,9 @@ export default function Index() {
 
     // Fetch flood reports after authentication and location permission
     useEffect(() => {
-        const loadFloodReports = async () => {
-            if (loading || !user) return; // Wait until authentication is resolved
-            setLoadingReports(true); // Start loading reports
-            const reports = await fetchFloodReports();
-            setFloodReports(reports);
-            setLoadingReports(false); // Done loading reports
-        };
-
-        loadFloodReports();
+        if (user && !loading) {
+            getReports(user.token, user.username); // Fetch reports using the context method
+        }
     }, [loading, user]);
 
     const handleAddReport = () => {
@@ -163,8 +126,7 @@ export default function Index() {
                 >
 
                     {/* Render Flood Report Markers */}
-                    {floodReports.map((report, index) => {
-                        // Check if coordinates are missing or invalid
+                    {reports.map((report: Report, index: number) => {
                         if (!report.coordinates) {
                             console.warn(`Skipping report ${report.title} due to missing coordinates.`);
                             return null;
@@ -174,7 +136,6 @@ export default function Index() {
                         const latitude = parseFloat(latitudeStr);
                         const longitude = parseFloat(longitudeStr);
 
-                        // Skip if coordinates are not valid numbers
                         if (isNaN(latitude) || isNaN(longitude)) {
                             console.warn(`Skipping report ${report.title} due to invalid coordinates: ${report.coordinates}`);
                             return null;
@@ -193,17 +154,17 @@ export default function Index() {
                     })}
 
                     {/* Render Historical Flood Polygons */}
-                {historicalFloodData?.features.map((feature, index) => (
-                    <Polygon
-                        key={index}
-                        coordinates={feature.geometry.rings[0].map(([longitude, latitude]) => ({
-                            latitude,
-                            longitude,
-                        }))}
-                        strokeColor="rgba(128,0,0,0.5)"
-                        fillColor="rgba(128,0,0,0.3)"
-                    />
-                ))}
+                    {historicalFloodData?.features.map((feature, index) => (
+                        <Polygon
+                            key={index}
+                            coordinates={feature.geometry.rings[0].map(([longitude, latitude]) => ({
+                                latitude,
+                                longitude,
+                            }))}
+                            strokeColor="rgba(128,0,0,0.5)"
+                            fillColor="rgba(128,0,0,0.3)"
+                        />
+                    ))}
                 </MapView>
             )}
 
@@ -225,4 +186,3 @@ export default function Index() {
         </View>
     );
 }
-

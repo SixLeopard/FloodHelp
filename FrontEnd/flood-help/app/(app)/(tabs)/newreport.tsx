@@ -10,6 +10,7 @@ import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useReport } from '@/contexts/reportContext';
 
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
 
@@ -17,7 +18,8 @@ const NewReport = () => {
     const styles = useStyles();
     const { theme } = useTheme();
     const navigation = useNavigation<NewReportScreenNavigationProp>();
-    const { user } = useAuth();
+    const { user } = useAuth(); 
+    const { addReport, loading, error } = useReport();
 
     const [location, setLocation] = useState('Fetching current location...');
     const [floodType, setFloodType] = useState('');
@@ -95,51 +97,26 @@ const NewReport = () => {
             Alert.alert('Error', 'You must be logged in to submit a report.');
             return;
         }
-    
-        const body = new FormData();
-        body.append("location", location);
-        body.append("type", floodType);
-        body.append("description", description || '');
-    
-        if (photos.length > 0) {
-            const photo = photos[0]; 
-            const uriParts = photo.split('.');
-            const fileType = uriParts[uriParts.length - 1];
-
-            const response = await fetch(photo);
-            const blob = await response.blob();
-
-            body.append('image', blob, `photo.${fileType}`); 
-        }
 
         try {
-            const response = await fetch('http://54.206.190.121:5000/reporting/user/add_report', {
-                method: 'POST',
-                headers: {
-                    'Session-Id': user.token,
-                    'Session-Username': user.username,
-                },
-                body
+            // Submit the report using the context function
+            await addReport({
+                location,
+                type: floodType,
+                description,
+                image: photos.length > 0 ? photos[0] : undefined,
+                token: user.token,
+                username: user.username
             });
-    
-            const result = await response.json();
-    
-            if (result.invalid_account) {
-                Alert.alert('Error', 'Invalid account.');
-            } else if (result.invalid_request) {
-                Alert.alert('Error', 'Invalid request.');
-            } else if (response.status === 401) {
-                Alert.alert('Error', 'Your session has expired. Please log in again.');
-            } else {
-                Alert.alert('Success', 'Report submitted successfully!');
-                resetForm();
-            }
+
+            Alert.alert('Success', 'Report submitted successfully!');
+            resetForm();
         } catch (error) {
             console.error("Error submitting report:", error);
             Alert.alert('Error', 'Failed to submit report. Please try again.');
         }
     };
-    
+
     const resetForm = () => {
         setLocation('Fetching current location...');
         setFloodType('');
@@ -204,7 +181,9 @@ const NewReport = () => {
                     </TouchableOpacity>
                 </View>
 
-                <FH_Button text="Submit Report" onPress={handleSubmit} route='/(tabs)/index' />
+                <FH_Button text="Submit Report" onPress={handleSubmit} route='/(tabs)/index' disabled={loading} />
+                {loading && <Text>Submitting...</Text>}
+                {error && <Text>Error: {error}</Text>}
             </View>
         </View>
     );
