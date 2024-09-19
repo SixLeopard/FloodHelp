@@ -1,4 +1,5 @@
 const baseUrl = 'http://54.206.190.121:5000';
+import * as FileSystem from 'expo-file-system';
 
 // Function to submit a new report to the backend
 export const submitReport = async (report: {
@@ -6,36 +7,57 @@ export const submitReport = async (report: {
     type: string,
     description: string,
     image?: any
+    token: string,
+    email: string
 }) => {
     const body = new FormData();
     body.append('location', report.location);
     body.append('type', report.type);
     body.append('description', report.description || '');
 
+    console.log('Report Details:', { location: report.location, type: report.type, description: report.description });
+
     if (report.image) {
-        const uriParts = report.image.split('.');
-        const fileType = uriParts[uriParts.length - 1];
-        const response = await fetch(report.image);
-        const blob = await response.blob();
-        body.append('image', blob, `photo.${fileType}`);
+        try {
+            const uriParts = report.image.split('.');
+            const fileType = uriParts[uriParts.length - 1];
+            // Append the local file directly to FormData
+            body.append('image', {
+                uri: report.image,
+                name: `photo.${fileType}`,
+                type: `image/${fileType}`, // Ensure the correct MIME type
+            }as any);
+            console.log('Appending local image from URI:', report.image);
+
+        } catch (imageError) {
+            console.error('Error processing image:', imageError);
+            throw new Error('Image processing failed.');
+        }
     }
 
     try {
         const requestOptions: RequestInit = {
             method: 'POST',
             body: body,
-            credentials: 'include' 
+            credentials: 'include', // Make sure cookies (sessions) are sent with the request
         };
 
+        console.log('Sending POST request to:', `${baseUrl}/reporting/user/add_report`);
+
         const response = await fetch(`${baseUrl}/reporting/user/add_report`, requestOptions);
-        const data = await response.json();
+
+        console.log('Response received:', response);
 
         if (!response.ok) {
+            const data = await response.json();
             throw new Error(data.error || `HTTP Error: ${response.status}`);
         }
+
+        const data = await response.json();
+        console.log('Report submitted successfully:', data);
         return data;
     } catch (error) {
-        console.error("Error submitting report:", error);
+        console.error('Error submitting report:', (error as Error).message || error);
         throw error;
     }
 };
