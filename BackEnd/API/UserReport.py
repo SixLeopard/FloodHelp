@@ -56,7 +56,7 @@ def add_user_report_route():
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@userreport_routes.route("/reporting/user/get_report", methods = ['GET'])
+@userreport_routes.route("/reporting/user/get_report", methods = ['POST'])
 def get_user_report_route():
     '''
     Retrieve the report with the ID specified in the report_id field of the request body
@@ -70,7 +70,7 @@ def get_user_report_route():
         no login: {"invalid_account":1}
         not using POST: {"invalid_request":1}
     '''
-    if request.method == 'GET':
+    if request.method == 'POST':
         report_id = request.form.get('report_id')
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
@@ -137,12 +137,12 @@ def get_all_report_coordinates_route():
 @userreport_routes.route("/reporting/user/get_all_reports_by_user", methods = ['GET'])
 def get_all_reports_by_user():
     '''
-    Retrieve all reports made by a specific user including all detials.
+    Retrieve all reports made by the current user including all detials.
     Returns a nested JSON string where the key is the report ID of each report
     and the value is the details of the report
 
     Form data:
-        uid: The uid of the user for which to retrieve reports
+        None
 
     Returns:
         if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
@@ -159,12 +159,19 @@ def get_all_reports_by_user():
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@userreport_routes.route("/reporting/user/get_report_validation_score", methods = ['GET'])
+@userreport_routes.route("/reporting/user/get_report_validation_score", methods = ['POST'])
 def get_report_validation_score_route():
     '''
         get validation score for specific report
+
+        Form Data:
+            report_id: the report id to get the validation score for
+
+        Returns:
+            {report_id:score} where score gives the score number then a list of
+            of all the hazrd ids that contributeed to that score
     '''
-    if request.method == 'GET':
+    if request.method == 'POST':
         report_id = request.form.get('report_id')
         if Accounts.verify_user_account(session["username"], session["id"]):
             score = UserReportVerfication.validate_user_reports(db.get_all_hazard_ranking_dict(), get_user_report(report_id))
