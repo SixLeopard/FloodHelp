@@ -10,7 +10,7 @@ import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { useReport } from '@/contexts/reportContext';
+import { useReport } from '@/contexts/ReportContext';
 
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
 
@@ -22,6 +22,7 @@ const NewReport = () => {
     const { addReport, loading, error } = useReport();
 
     const [location, setLocation] = useState('Fetching current location...');
+    const [coordinates, setCoordinates] = useState<{ latitude: number, longitude: number } | null>(null);
     const [floodType, setFloodType] = useState('');
     const [description, setDescription] = useState('');
     const [photos, setPhotos] = useState<string[]>([]);
@@ -41,6 +42,9 @@ const NewReport = () => {
             let currentLocation = await Location.getCurrentPositionAsync({});
             const { latitude, longitude } = currentLocation.coords;
 
+            // Save the coordinates to state
+            setCoordinates({ latitude, longitude });
+
             let geocode = await Location.reverseGeocodeAsync({ latitude, longitude });
             if (geocode.length > 0) {
                 const address = `${geocode[0].streetNumber || ''} ${geocode[0].street || ''}, ${geocode[0].city || ''}`;
@@ -52,6 +56,13 @@ const NewReport = () => {
             console.error("Error fetching current location:", error);
             setLocation('Error fetching location');
         }
+    };
+    const handleLocationPress = () => {
+        navigation.navigate('mapscreen', {
+            onLocationSelected: (address: string) => {
+                setLocation(address);
+            },
+        });
     };
 
     const pickImage = async () => {
@@ -88,7 +99,7 @@ const NewReport = () => {
     };
 
     const handleSubmit = async () => {
-        if (!location || location === 'Fetching current location...') {
+        if (!coordinates || !location || location === 'Fetching current location...') {
             Alert.alert('Error', 'Location is required.');
             return;
         }
@@ -99,14 +110,22 @@ const NewReport = () => {
         }
 
         try {
+            const locationForBackend = `${coordinates.latitude},${coordinates.longitude}`;
+
+            // Debugging: Log token and username
+            console.log('Submitting report with the following user details:');
+            console.log('Token (sessionid):', user.token);
+            console.log('Email (username):', user.email);
+            console.log('Coordinates for submission:', locationForBackend);
+
             // Submit the report using the context function
             await addReport({
-                location,
+                location: locationForBackend,
                 type: floodType,
                 description,
                 image: photos.length > 0 ? photos[0] : undefined,
                 token: user.token,
-                username: user.username
+                email: user.email
             });
 
             Alert.alert('Success', 'Report submitted successfully!');
@@ -119,6 +138,7 @@ const NewReport = () => {
 
     const resetForm = () => {
         setLocation('Fetching current location...');
+        setCoordinates(null); // Reset coordinates
         setFloodType('');
         setDescription('');
         setPhotos([]);
@@ -128,9 +148,11 @@ const NewReport = () => {
         <View style={[styles.page]}>
             <Text style={[styles.headerText, { color: theme.colors.text }]}>New Report</Text>
             <View style={styles.formContainer}>
-                <TouchableOpacity onPress={fetchCurrentLocation} style={styles.locationContainer}>
+                <TouchableOpacity onPress={handleLocationPress} style={styles.locationContainer}>
                     <Text style={[styles.bodyTextBold]}>Location</Text>
-                    <Text style={[styles.bodyTextBold]}>{location}</Text>
+                    <Text style={[styles.bodyTextBold]}>
+                        {location}
+                    </Text>
                 </TouchableOpacity>
 
                 <View style={styles.pickerContainer}>
