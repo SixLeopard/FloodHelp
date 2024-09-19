@@ -163,6 +163,13 @@ def get_all_reports_by_user():
 def get_report_validation_score_route():
     '''
         get validation score for specific report
+
+        Form Data:
+            report_id: the report id to get the validation score for
+
+        Returns:
+            {report_id:score} where score gives the score number then a list of
+            of all the hazrd ids that contributeed to that score
     '''
     if request.method == 'POST':
         report_id = request.form.get('report_id')
