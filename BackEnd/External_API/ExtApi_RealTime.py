@@ -6,7 +6,13 @@ import json
 import random
 from datetime import datetime, timedelta
 from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
+import hashlib
 
+def generate_unique_id(alert: dict) -> str:
+        """Generates a unique ID using the components of the alert."""
+        alert_str = f"{alert['location']}_{alert['coordinates']}_{alert['risk']}_{alert['certainty']}_{alert['start']}_{alert['end']}"
+        return hashlib.md5(alert_str.encode('utf-8')).hexdigest()
 
 def get_real_time_data() -> str:
     """
@@ -159,7 +165,7 @@ def get_alerts() -> list:
         - 'certainty': The level of certainty associated with the alert.
         - 'start': The start time of the alert.
         - 'end': The end time of the alert.
-    
+        - 'id': a unique ID for the alert
     Returns:
         list: A list of flood alerts in JSON format, where each alert is represented as a dictionary.
     """
@@ -174,20 +180,25 @@ def get_alerts() -> list:
     }
 
 
+    
     response = requests.get(url, params=params)
     data = response.json()
     list_of_alerts = data["alerts"]["alert"]
     filtered_list_of_alerts = []
+    
     for alert in list_of_alerts:
         new_alert = {}
         if (alert["event"] == "Flood Warning" and alert["msgtype"] == "Alert"):
-
+            lat, lon = get_coordinates(f"Brisbane, {alert["areas"]}")
+            new_alert["id"] = generate_unique_id(alert)
             new_alert["headline"] = alert["headline"]
             new_alert["location"] = alert["areas"]
+            new_alert["coordinates"] = (lat, lon)
             new_alert["risk"] = alert["severity"]
             new_alert["certainty"] = alert["certainty"]
             new_alert["start"] = alert["effective"]
             new_alert["end"] = alert["expires"]
+            
 
             filtered_list_of_alerts.append(json.dumps(new_alert))
 
@@ -218,6 +229,7 @@ def get_fake_alerts() -> list:
             - 'certainty': A string indicating the certainty level of the alert (Possible, Likely, Observed, Unlikely)
             - 'start': A string with the start time of the alert, in ISO 8601 format. The start time is always going to be the time when this method is called. 
             - 'end': A string with the end time of the alert, in ISO 8601 format. This is the start time + random 1 to 6 hours
+            - 'id': a unique ID for the alert
     """
 
     locations = [
@@ -280,6 +292,9 @@ def get_fake_alerts() -> list:
             "start": start,
             "end": end
         }
+
+        alert["id"] = generate_unique_id(alert)
+
         random_alerts.append(json.dumps(alert))
     
     return random_alerts
