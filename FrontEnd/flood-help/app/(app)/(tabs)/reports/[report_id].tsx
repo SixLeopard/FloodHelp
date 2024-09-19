@@ -8,9 +8,11 @@ const ReportPage = () => {
     const { report_id } = useLocalSearchParams<{ report_id: string }>();
     const styles = useStyles();
 
+    const formData = new FormData();
+    formData.append('report_id', report_id);
 
-    console.log(report_id)
-    const reportData = GetAPI(`/reporting/user/get_report?report_id=${report_id}`);
+    const reportData = GetAPI(`/reporting/user/get_report`, formData);
+    console.log(formData)
     console.log(reportData)
 
 
