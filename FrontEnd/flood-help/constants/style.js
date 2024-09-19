@@ -612,6 +612,10 @@ const useStyles = () => {
             backgroundColor: 'rgba(0,0,0,0.5)',
         },
 
+        disabledButton: {
+            backgroundColor: '#cccccc', 
+        },
+
 
     });
 };
