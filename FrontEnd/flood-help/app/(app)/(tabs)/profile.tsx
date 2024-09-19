@@ -6,22 +6,15 @@ import ReportCard from '@/components/ReportCard';
 import FH_Button from '@/components/navigation/FH_Button';
 import ScrollView = Animated.ScrollView;
 import getAPI from '@/hooks/GetAPI';
-import {useAuth} from "@/contexts/AuthContext";
 
 const Profile = () => {
     const styles = useStyles();
     const allReports = getAPI('/reporting/user/get_all_reports_by_user');
-    const currentUser = useAuth()
-    console.log(allReports)
-    console.log(currentUser)
-    console.log(currentUser.token != "None")
 
     if (!allReports) {
-        return <Text>Loading... {(currentUser.token != "None").toString()}</Text>;
+        return <Text>Loading...</Text>;
     }
 
-    const currentUsersReports = Object.values(allReports);
-    console.log(currentUsersReports)
     console.log(allReports)
 
     return (
@@ -33,9 +26,10 @@ const Profile = () => {
 
             <ScrollView style={{ height: '50%', width: '100%' }}>
                 <View style={styles.reportCardsContainer}>
-                    {currentUsersReports.map((report) => (
+                    {Object.entries(allReports).map(([key, report]) => (
                         <ReportCard
-                            key={report.key}
+                            key={key}
+                            reportID={key}
                             report={report}
                         />
                     ))}
