@@ -230,6 +230,21 @@ class DBInterface():
             self.query(query, relationship_id[0])
         else:
             raise Exception('Relationship does not exist')
+    
+    def delete_relationship(self, uid1: int, uid2: int) -> None:
+        '''
+        Delete a relationship from the Relationships table if it exists, which has the two
+        users spcified by uid1 and uid2.
+
+        Paramters:
+            uid1: The id of the first user
+            uid2: The id of the second user
+        '''
+        query = "SELECT relationship_id FROM Relationships WHERE (requester = %s AND requestee = %s) OR (requestee = %s AND requester = %s)"
+        relationship_id = self.query(query, uid1, uid2, uid1, uid2)
+
+        query = "DELETE FROM Relationships WHERE relationship_id = %s"
+        self.query(query, relationship_id[0])
 
     """
     Not yet implemented. Will depend on the settings needed the front end.
