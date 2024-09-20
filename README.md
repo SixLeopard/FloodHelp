@@ -1,7 +1,10 @@
 # Project Structure
-BackEnd -> Contains all files related to API <br>
-FrontEnd -> Contains all the files related to the APP <br>
-Documentation -> Contains: statement of work, Team/Prject Documentation/Report, Video Story Board
+#### BackEnd 
+Contains all files related to API <br>
+#### FrontEnd 
+Contains all the files related to the APP <br>
+#### Documentation 
+Contains: statement of work, Team/Prject Documentation/Report, Video Story Board
 
 # Additional READMEs
 #### /BackEnd/README.md
