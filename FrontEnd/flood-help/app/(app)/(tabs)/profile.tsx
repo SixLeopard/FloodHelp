@@ -5,17 +5,17 @@ import UserAvatar from '@/components/UserAvatar';
 import ReportCard from '@/components/ReportCard';
 import FH_Button from '@/components/navigation/FH_Button';
 import ScrollView = Animated.ScrollView;
-import getAPI from '@/hooks/GetAPI';
+import useAPI from '@/hooks/useAPI';  // Corrected the import name
 
 const Profile = () => {
     const styles = useStyles();
-    const allReports = getAPI('/reporting/user/get_all_reports_by_user');
+    const allReports = useAPI('/reporting/user/get_all_reports_by_user');
 
     if (!allReports) {
         return <Text>Loading...</Text>;
     }
 
-    console.log(allReports)
+    console.log(allReports);
 
     return (
         <View style={styles.page}>
