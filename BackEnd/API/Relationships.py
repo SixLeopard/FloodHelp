@@ -138,7 +138,7 @@ def delete_relationship():
                 return make_response({"missing_relationship_id": 1})
 
             # Check if relationship exists
-            if db.relationship_exists(relationship_id=relationship_id):
+            if not db.relationship_exists(relationship_id=relationship_id):
                 return make_response({"no_relationship": 1})
         
             try:
