@@ -1,5 +1,6 @@
 from flask import Flask, Blueprint, request, make_response, session
 import datetime as Time
+from API.database import database_interface
 
 session_routes = Blueprint("session_routes", __name__)
 
@@ -25,7 +26,7 @@ def send_checkin_route():
 @session_routes.route("/check_in/get_checkins", methods = ['GET'])
 def get_checkin_route():
     '''
-        get all status for user with relationship
+        get all status for users that the requester has a relationship with
 
         Form Data:
             Nothing
@@ -35,8 +36,12 @@ def get_checkin_route():
             either "Completed" or "Pending"
     '''
     results = make_response({"checkins":False})
-    
-    return results
+    relationships = database_interface.get_approved_relationships_ids(session["uid"])
+    output = {}
+    for i in relationships:
+        output[database_interface.get_user_by_uid(int(i))[2]] = status[i]
+    results = make_response(output)
+    return output
 
 @session_routes.route("/check_in/send_push",  methods = ['POST'])
 def respond_to_checkins():
@@ -49,6 +54,6 @@ def respond_to_checkins():
         Return:
             {"All Checkings Completed":True}
     '''
-    for i in checkins[session["username"]]:
-        checkins[session["username"]][i] = "Complete"
+    #for i in checkins[session["username"]]:
+    #    checkins[session["username"]][i] = "Complete"
     return make_response({"All Checkings Completed":True},200)
