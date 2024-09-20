@@ -39,7 +39,7 @@ def add_user_report_route():
             location -> the location of the user in the form "{LAT},{LONG}"
             hazard_type -> The type or name of the hazard
             description -> textual description of the hazard
-            img -> An image assosciated with the hazard
+            image -> An image assosciated with the hazard
 
         Returns:
             if successful: {hazard_id, hazard_type, datetime, reporting_uid, area_name, coordinates, img}
