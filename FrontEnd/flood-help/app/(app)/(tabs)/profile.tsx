@@ -17,8 +17,8 @@ const Profile = () => {
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
-        setRefreshKey(prevKey => prevKey + 1); // Trigger a re-fetch by updating key
-        setRefreshing(false); // This should be after your fetch completes in a real scenario
+        setRefreshKey(prevKey => prevKey + 1);
+        setRefreshing(false);
     }, []);
 
     if (!allReports) {
