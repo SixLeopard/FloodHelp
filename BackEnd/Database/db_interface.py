@@ -212,8 +212,8 @@ class DBInterface():
         
         result = {}
         for r in relationships:
-            requester = self.query(query, r[1])
-            requestee = self.query(query, r[2])
+            requester = self.query(query, r[1])[0][0]
+            requestee = self.query(query, r[2])[0][0]
 
             result[r[0]] = {'requester_name': requester, 'requestee_name': requestee, 'approved': r[3]}
 
