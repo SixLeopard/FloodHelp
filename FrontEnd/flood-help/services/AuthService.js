@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import {router} from "expo-router";
-import getAPI from "@/hooks/GetAPI";
+import getAPI from "@/hooks/useAPI";
 
 const baseUrl = 'http://54.206.190.121:5000';
 
@@ -19,8 +19,8 @@ export const login = async ({ email, password }) => {
             },
         };
         console.log(formData);
-        const response = await fetch(`${baseUrl}/accounts/login`, requestOptions);
-        //const response = await getAPI(`/accounts/login`, formData)
+       const response = await fetch(`${baseUrl}/accounts/login`, requestOptions);
+       //  const response = await getAPI(`/accounts/login`, formData)
         console.log(response);
         console.log(requestOptions);
         if (!response.ok) {
