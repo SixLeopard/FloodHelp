@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
-import GetAPI from '@/hooks/GetAPI';
+import GetAPI from '@/hooks/useAPI';
 
 type RootStackParamList = {
     newreport: undefined;
