@@ -150,3 +150,41 @@ def delete_relationship():
                 return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
+
+@relationships_routes.route("/relationships/delete/", methods = ['POST'])
+def delete_relationship():
+    '''
+    Delete a relationship between the logged in user and the user specified
+    in the other_user field of the request.
+
+    Form Data:
+        other_user -> the uid of the user for which you want to delete the relationship
+    
+    Returns:
+        if succsessful: {"relationship_deleted": 1}
+        error1: {"no_relationship": 1}
+        error2: {"missing_uid": 1}
+        error3: {"internal_error": data}
+        no login: {"invalid_account":1}
+        not using POST: {"invalid_request":1}
+    '''
+    if request.method == 'POST':        
+        if Accounts.verify_user_account(session["username"], session["id"]):
+            uid1 = session['uid']
+            uid2 = request.form.get('other_user')
+
+            if uid2 is None:
+                return make_response({"missing_uid": 1})
+
+            # Check if relationship exists
+            existing_relationships = db.get_approved_relationships(uid1) \
+                + db.get_not_approved_relationships(uid1)
+            if uid2 not in existing_relationships:
+                return make_response({"no_relationship": 1})
+        
+            try:
+                db.delete_relationship(uid1, uid2)
+            except Exception as e:
+                return make_response({'internal_error': str(e)})
+        return make_response({"invalid_account":1})
+    return make_response({"invalid_request":1})
