@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
  * @param {object|null} requestBody - The body of the request in JSON format, or null if nobody is needed.
  * @returns {array|null} - Array of objects containing relevant API data or null if loading.
  */
-const GetAPI = (endpoint, requestBody = null) => {
+const useAPI = (endpoint, requestBody = null) => {
     const baseURL = "http://54.206.190.121:5000";
     const [result, setResult] = useState(null);
 
@@ -38,4 +38,4 @@ const GetAPI = (endpoint, requestBody = null) => {
     return result;
 };
 
-export default GetAPI;
+export default useAPI;
