@@ -34,7 +34,7 @@ export const login = async ({ email, password }) => {
             // Save the session ID securely
             await SecureStore.setItemAsync('sessionid', data.sessionid);
             router.push('/(tabs)');
-            return data.sessionid;
+            return { token: data.sessionid, email };
         } else {
             throw new Error('Invalid login response');
         }
