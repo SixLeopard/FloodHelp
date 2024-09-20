@@ -1,15 +1,25 @@
-import React from 'react';
-import { View, Text, Animated } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, Animated, RefreshControl } from 'react-native';
 import useStyles from '@/constants/style';
 import UserAvatar from '@/components/UserAvatar';
 import ReportCard from '@/components/ReportCard';
 import FH_Button from '@/components/navigation/FH_Button';
-import ScrollView = Animated.ScrollView;
-import useAPI from '@/hooks/useAPI';  // Corrected the import name
+import useAPI from '@/hooks/useAPI';
+
+const ScrollView = Animated.ScrollView; // Reassignment remains unchanged
 
 const Profile = () => {
     const styles = useStyles();
-    const allReports = useAPI('/reporting/user/get_all_reports_by_user');
+    const [refreshing, setRefreshing] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0); // Use this to trigger re-fetch
+
+    const allReports = useAPI(`/reporting/user/get_all_reports_by_user?refreshKey=${refreshKey}`);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        setRefreshKey(prevKey => prevKey + 1); // Trigger a re-fetch by updating key
+        setRefreshing(false); // This should be after your fetch completes in a real scenario
+    }, []);
 
     if (!allReports) {
         return <Text>Loading...</Text>;
@@ -24,7 +34,12 @@ const Profile = () => {
             <Text style={styles.nameText}>User Name</Text>
             <Text style={styles.bodyTextBold}>Reporting History</Text>
 
-            <ScrollView style={{ height: '50%', width: '100%' }}>
+            <ScrollView
+                style={{ height: '50%', width: '100%' }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+            >
                 <View style={styles.reportCardsContainer}>
                     {Object.entries(allReports).map(([key, report]) => (
                         <ReportCard
