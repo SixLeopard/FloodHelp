@@ -201,7 +201,7 @@ const useStyles = () => {
             backgroundColor: 'transparent',
         },
         confirmButton: {
-            backgroundColor: colors.blue,
+            backgroundColor: colors.green,
             height: 40,
             display: "flex",
             flexDirection: "row",
@@ -209,7 +209,7 @@ const useStyles = () => {
             alignItems: 'center',
             borderStyle: "solid",
             borderWidth: 2,
-            borderColor: colors.blue,
+            borderColor: colors.green,
             padding: 5, 
             paddingHorizontal: 20,
         },
