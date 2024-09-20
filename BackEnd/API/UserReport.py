@@ -2,6 +2,7 @@
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
 from Tools import UserReportVerfication
+from BackEnd.Tools import GenerateRegion
 import re
 
 from API.database import database_interface as db
@@ -26,7 +27,9 @@ def create_user_report(uid : int, location : str, type : str, description: str, 
     lat, long = map(float, re.findall(r"[-+]?\d*\.\d+|\d+", location))
 
     try:
-        return db.create_hazard(type, img_str, session['uid'], (lat, long), description)
+        hazard_id = db.create_hazard(type, img_str, session['uid'], (lat, long), description)
+        hazard_count_per_region[GenerateRegion.generate_region((lat, long))] += 1
+        return hazard_id
     except Exception as e:
         return make_response({'internal_error': str(e)})
 
