@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import {router} from "expo-router";
+import getAPI from "@/hooks/GetAPI";
 
 const baseUrl = 'http://54.206.190.121:5000';
 
@@ -7,7 +8,7 @@ const baseUrl = 'http://54.206.190.121:5000';
 export const login = async ({ email, password }) => {
     try {
         const formData = new FormData();
-        formData.append('email', email); // Ensure this matches the backend expected field
+        formData.append('email', email);
         formData.append('password', password);
 
         const requestOptions = {
@@ -17,9 +18,11 @@ export const login = async ({ email, password }) => {
                 'Content-Type': 'multipart/form-data',
             },
         };
-
+        console.log(formData);
         const response = await fetch(`${baseUrl}/accounts/login`, requestOptions);
+        //const response = await getAPI(`/accounts/login`, formData)
         console.log(response);
+        console.log(requestOptions);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }

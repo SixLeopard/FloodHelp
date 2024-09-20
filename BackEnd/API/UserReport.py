@@ -9,6 +9,11 @@ import json
 
 userreport_routes = Blueprint("userreport_routes", __name__)
 
+# A dictionary that will contain a mapping of each region to the number of hazards
+# in that region. Regions are defined by the BackEnd/Tools/generate_region.py:generate_region
+# function. They are a tuple or 4 coordinate tuples define the corners of the (square) region
+hazard_count_per_region = {}
+
 def get_user_report(id):
     return db.get_hazard(id)
     
