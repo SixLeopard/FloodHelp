@@ -39,9 +39,7 @@ def create_relationship():
             requestee_uid = requestee[0]
 
             # Check if relationship exists
-            existing_relationships = db.get_approved_relationships(requester_uid) \
-                + db.get_not_approved_relationships(requester_uid)
-            if requestee_uid in existing_relationships:
+            if db.relationship_exists(requestee_uid=requestee_uid, requester_uid=requester_uid):
                 return make_response({"Error": "Relationship exists"})
 
             # Create relationship
@@ -53,67 +51,32 @@ def create_relationship():
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@relationships_routes.route("/relationships/get_approved", methods = ['GET'])
-def get_approved_relationships():
+@relationships_routes.route("/relationships/get_relationships", methods = ['GET'])
+def get_relationships():
     '''
-        Get all approved relationships of the user who is currently logged in
+        Get all relationships of the user who is currently logged in
+
+        Form Data:
+            None
+
+        Return:
+            if succsessful: Json of all relationships (see format beloew)
+            no login: {"invalid_account":1}
+            not using POST: {"invalid_request":1}
         
-        Form Data:
-            None
-
-        Return:
-            if succsessful: json of all approved relationships
-            no login: {"invalid_account":1}
-            not using POST: {"invalid_request":1}
+        Relationships format:
+            {relationship_id: {requester_name, requestee_name, approved}, ...}
     '''
     if request.method == 'GET':        
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid = session["uid"]
             try:
-                relationship_uids =  db.get_approved_relationships(uid)
-            except Exception as e:
-                return make_response({"internal_error": str(e)})
-            
-            relationships = {}
-            for ruid in relationship_uids:
-                try:
-                    # Returns: (uid, name, email, verified, password_hash, password_salt)
-                    relationships[ruid] = db.get_user_by_uid(ruid)[1]
-                except Exception as e:
-                    return make_response({'internal_error': str(e)})
-            return make_response(relationships)
-        return make_response({"invalid_account":1})
-    return make_response({"invalid_request":1})
-
-@relationships_routes.route("/relationships/get_not_approved", methods = ['GET'])
-def get_not_approved_relationships():
-    '''
-        Get all NOT approved relationships of the user who is currently logged in
-
-        Form Data:
-            None
-
-        Return:
-            if succsessful: Json of all non-approved relationships
-            no login: {"invalid_account":1}
-            not using POST: {"invalid_request":1}
-    '''
-    if request.method == 'GET':        
-        if Accounts.verify_user_account(session["username"], session["id"]):
-            uid = session["uid"]
-            try:
-                relationship_uids =  db.get_not_approved_relationships(uid)
+                relationships = db.get_relationships(uid)
             except Exception as e:
                 return make_response({'internal_error': str(e)})
             
-            relationships = {}
-            for ruid in relationship_uids:
-                try:
-                    # Returns: (uid, name, email, verified, password_hash, password_salt)
-                    relationships[ruid] = db.get_user_by_uid(ruid)[1]
-                except Exception as e:
-                    return make_response({'internal_error': str(e)})
-            return make_response(relationships)
+            result = db.get_relationships(uid)
+            return make_response(result)
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
@@ -125,27 +88,65 @@ def approve_relationship():
         If no relationship exists, return error.
 
         Form Data:
-            other_user -> the uid of the user who's relationship request you want to approve
+            relationship_id -> the id of the relationship to approve
 
         Return:
             if succsessful: {"relationship_approved": 1}
             error1: {"no_relationship": 1}
-            error2: {"missing_uid": 1}
+            error2: {"missing_relationship_id": 1}
+            error3: {"internal_error": data}
             no login: {"invalid_account":1}
             not using POST: {"invalid_request":1}
     '''
     if request.method == 'POST':        
         if Accounts.verify_user_account(session["username"], session["id"]):
-            uid1 = session['uid']
-            uid2 = request.form.get('other_user')
+            relationship_id = request.form.get('relationship_id')
 
-            if uid2 is None:
-                return make_response({"missing_uid": 1})
+            if relationship_id is None:
+                return make_response({"missing_relationship_id": 1})
             
             try:
-                db.approve_relationship(uid1, uid2)
+                db.approve_relationship(relationship_id)
                 return make_response({"relationship_approved": 1})
-            except Exception:
+            except Exception as e:
+                return make_response({"internal_error": str(e)})
+        return make_response({"invalid_account":1})
+    return make_response({"invalid_request":1})
+
+@relationships_routes.route("/relationships/delete/", methods = ['POST'])
+def delete_relationship():
+    '''
+    Delete a relationship specified by the relationship id
+
+    Form Data:
+        relationship_id -> the id of the relationship to delete
+    
+    Returns:
+        if succsessful: {"relationship_deleted": 1}
+        error1: {"no_relationship": 1}
+        error2: {"missing_relationship_id": 1}
+        error3: {"internal_error": data}
+        error4: {"failed": 1}
+        no login: {"invalid_account":1}
+        not using POST: {"invalid_request":1}
+    '''
+    if request.method == 'POST':        
+        if Accounts.verify_user_account(session["username"], session["id"]):
+            relationship_id = request.form.get('relationship_id')
+
+            if relationship_id is None:
+                return make_response({"missing_relationship_id": 1})
+
+            # Check if relationship exists
+            if db.relationship_exists(relationship_id=relationship_id):
                 return make_response({"no_relationship": 1})
+        
+            try:
+                success = db.delete_relationship(relationship_id)
+                if not success:
+                    return make_response({'failed': 1})
+                return make_response({"relationship_deleted": 1})
+            except Exception as e:
+                return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
