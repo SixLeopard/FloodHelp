@@ -59,8 +59,9 @@ const NewReport = () => {
     };
     const handleLocationPress = () => {
         navigation.navigate('mapscreen', {
-            onLocationSelected: (address: string) => {
+            onLocationSelected: (address: string, selectedCoordinates: { latitude: number, longitude: number }) => {
                 setLocation(address);
+                setCoordinates(selectedCoordinates);
             },
         });
     };
