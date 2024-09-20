@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
-import { useReport } from '@/contexts/ReportContext';
+import GetAPI from '@/hooks/GetAPI';
 
 type RootStackParamList = {
     newreport: undefined;
@@ -30,7 +30,7 @@ interface HistoricalFloodData {
             FLOOD_TYPE: string;
         };
         geometry: {
-            rings: number[][][];
+            rings: number[][][]; 
         };
     }>;
 }
@@ -42,9 +42,11 @@ export default function Index() {
     const [historicalFloodData, setHistoricalFloodData] = useState<HistoricalFloodData | null>(null);
     const [loadingHistorical, setLoadingHistorical] = useState(false);
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-    const { user, loading } = useAuth(); // Tracking user authentication status
+    const { user, loading } = useAuth();
 
-    const { reports, getReports, loading: loadingReports } = useReport();
+    const reports = GetAPI('/reporting/user/get_all_report_basic');
+
+    console.log('Reports:', reports);
 
     const fetchHistoricalFloodData = async () => {
         setLoadingHistorical(true);
@@ -84,28 +86,19 @@ export default function Index() {
         requestLocationPermission();
     }, []);
 
-    // Fetch flood reports after authentication and location permission
-    useEffect(() => {
-        if (user && !loading) {
-            getReports(user.token, user.username); // Fetch reports using the context method
-        }
-    }, [loading, user]);
-
     const handleAddReport = () => {
         navigation.navigate('newreport');
     };
 
     const handleSeeHistoricalFlooding = () => {
         if (historicalFloodData) {
-            // If historical data is already loaded, remove it
             setHistoricalFloodData(null);
         } else {
-            // If no data is loaded, fetch it
             fetchHistoricalFloodData();
         }
     };
 
-    if (loading || loadingReports) {
+    if (loading || !reports) {
         return (
             <View style={styles.page}>
                 <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -126,7 +119,7 @@ export default function Index() {
                 >
 
                     {/* Render Flood Report Markers */}
-                    {reports.map((report: Report, index: number) => {
+                    {reports && Object.entries(reports).map(([key, report]: [string, any], index) => {
                         if (!report.coordinates) {
                             console.warn(`Skipping report ${report.title} due to missing coordinates.`);
                             return null;

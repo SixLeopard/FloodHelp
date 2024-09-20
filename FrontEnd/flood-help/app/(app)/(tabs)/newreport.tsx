@@ -10,7 +10,7 @@ import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { useReport } from '@/contexts/ReportContext';
+import GetAPI from '@/hooks/GetAPI';
 
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
 
@@ -19,13 +19,13 @@ const NewReport = () => {
     const { theme } = useTheme();
     const navigation = useNavigation<NewReportScreenNavigationProp>();
     const { user } = useAuth(); 
-    const { addReport, loading, error } = useReport();
-
     const [location, setLocation] = useState('Fetching current location...');
     const [coordinates, setCoordinates] = useState<{ latitude: number, longitude: number } | null>(null);
     const [floodType, setFloodType] = useState('');
     const [description, setDescription] = useState('');
     const [photos, setPhotos] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchCurrentLocation(); // Fetch location when the component loads
@@ -108,31 +108,36 @@ const NewReport = () => {
             Alert.alert('Error', 'You must be logged in to submit a report.');
             return;
         }
-
+    
         try {
             const locationForBackend = `${coordinates.latitude},${coordinates.longitude}`;
-
-            // Debugging: Log token and username
-            console.log('Submitting report with the following user details:');
-            console.log('Token (sessionid):', user.token);
-            console.log('Email (username):', user.email);
-            console.log('Coordinates for submission:', locationForBackend);
-
-            // Submit the report using the context function
-            await addReport({
-                location: locationForBackend,
-                type: floodType,
-                description,
-                image: photos.length > 0 ? photos[0] : undefined,
-                token: user.token,
-                email: user.email
+            setLoading(true);
+    
+            const body = new FormData();
+            body.append('location', locationForBackend);
+            body.append('type', floodType);
+            body.append('description', description);
+            if (photos.length > 0) {
+                body.append('image', photos[0]);
+            }
+    
+            // Submit the form data using a standard fetch call
+            const response = await fetch('http://54.206.190.121:5000/reporting/user/add_report', {
+                method: 'POST',
+                body: body
             });
 
-            Alert.alert('Success', 'Report submitted successfully!');
-            resetForm();
+            if (response.ok) {
+                Alert.alert('Success', 'Report submitted successfully!');
+                resetForm();
+            } else {
+                setError('Failed to submit report.');
+            }
         } catch (error) {
             console.error("Error submitting report:", error);
-            Alert.alert('Error', 'Failed to submit report. Please try again.');
+            setError('Failed to submit report. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
