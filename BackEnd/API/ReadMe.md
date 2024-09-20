@@ -267,7 +267,7 @@ documention of all the routes and there data inputs and request type
             location -> the location of the user in the form "{LAT},{LONG}"  
             hazard\_type -> The type or name of the hazard  
             description -> textual description of the hazard  
-            img -> An image assosciated with the hazard  
+            image -> An image assosciated with the hazard  
   
         Returns:  
             if successful: {hazard\_id, hazard\_type, datetime, reporting\_uid, area\_name, coordinates, img}  
