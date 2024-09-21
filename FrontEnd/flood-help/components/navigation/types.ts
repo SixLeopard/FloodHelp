@@ -1,7 +1,9 @@
 import { RouteProp } from '@react-navigation/native';
 
 export type RootStackParamList = {
-    mapscreen: { onLocationSelected: (address: string) => void };
+    mapscreen: {
+        onLocationSelected: (address: string, selectedCoordinates: { latitude: number, longitude: number }) => void;
+    };
     newreport: undefined;
 };
 
