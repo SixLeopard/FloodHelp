@@ -12,9 +12,9 @@ const ReportPage = () => {
     formData.append('report_id', report_id);
 
     const reportData = GetAPI(`/reporting/user/get_report`, formData);
+
     console.log(formData)
     console.log(reportData)
-
 
 
     if (!reportData) {
