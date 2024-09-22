@@ -11,9 +11,10 @@ A dictionary containing a mapping of uid to the last known location of the
 user with that uid. If no location is known, then the value of None.
 
 locations = {
-    uid1: location1
-    uid2: location2
-    uid3: location3
+    uid1: {rel1: location1, rel2: location, ..},
+    uid2: {rel1: location1, rel2: location, ..},
+    uid3: {rel1: location1, rel2: location, ..},
+    ...
 }
 '''
 locations = {}
@@ -44,11 +45,15 @@ def update_locations():
             locations[uid] = curr_location
 
             # Get locations of users who current user has approved relations with
-            relationships = db.get_relationships(uid)   # Only returns approved relationships
-            result = {}
+            relationships = db.get_approved_relationships_ids(uid)   # Only returns approved relationships
             for relation_uid in relationships:
-                result[relation_uid] = locations[relation_uid]
+                if relation_uid in locations:
+                    locations[relation_uid] = {session["uid"] : curr_location}
+                else:
+                    locations[relation_uid][session["uid"]] = curr_location
+            result = locations[session["uid"]]
+            locations[session["uid"]].clear()
 
             return make_response(result)
         return make_response({"invalid_account":1})
-    return make_response({"invalid_request":1})
+    return make_response({"invalid_request":1}) 
