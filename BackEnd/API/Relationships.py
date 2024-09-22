@@ -69,7 +69,7 @@ def get_relationships():
             not using POST: {"invalid_request":1}
         
         Relationships format:
-            {relationship_id: {requester_name, requestee_name, approved}, ...}
+            {relationship_id: {requester_name, requester_uid, requestee_name, requestee_uid, approved}, ...}
     '''
     if request.method == 'GET':        
         if Accounts.verify_user_account(session["username"], session["id"]):
