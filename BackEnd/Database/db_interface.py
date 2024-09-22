@@ -123,6 +123,16 @@ class DBInterface():
         (uid, name, email, verified, password_hash, password_salt)
     """
     def get_user(self, email: str):
+        '''
+        Get a users information from the database.
+
+        Paramters:
+            email: The email of the user for who to get info
+
+        Returns:
+            A tuple in the form
+                (uid, name, email, verified, pwd_hash, pwd_salt)
+        '''
         user = self.query("SELECT * FROM Users WHERE email = %s", email)
         if not user:
             return None
@@ -132,6 +142,16 @@ class DBInterface():
             return result
         
     def get_user_by_uid(self, uid: int):
+        '''
+        Get a users information from the database.
+
+        Paramters:
+            uid: The uid of the user for who to get info
+
+        Returns:
+            A tuple in the form
+                (uid, name, email, verified, pwd_hash, pwd_salt)
+        '''
         user = self.query("SELECT * FROM Users WHERE uid = %s", uid)
         if not user:
             return None
@@ -164,7 +184,7 @@ class DBInterface():
             query = "SELECT * FROM Relationships WHERE relationship_id = %s"
             result = self.query(query, relationship_id)
 
-        if result is None:
+        if result == []:
             return False
         return True
 
@@ -208,14 +228,16 @@ class DBInterface():
         """
         query = "SELECT relationship_id, requester, requestee, approved FROM Relationships WHERE (requester = %s OR requestee = %s)"
         relationships = self.query(query, uid, uid)
-        query = "SELECT name FROM users WHERE uid = %s"
+        query = "SELECT name, uid FROM users WHERE uid = %s"
         
         result = {}
         for r in relationships:
-            requester = self.query(query, r[1])
-            requestee = self.query(query, r[2])
+            requester = self.query(query, r[1])[0][0]
+            requestee = self.query(query, r[2])[0][0]
+            requester_uid = self.query(query, r[1])[0][1]
+            requestee_uid = self.query(query, r[2])[0][1]
 
-            result[r[0]] = {'requester_name': requester, 'requestee_name': requestee, 'approved': r[3]}
+            result[r[0]] = {'requester_name': requester, 'requestee_name': requestee, 'requester_uid': requester_uid, 'requestee_uid': requestee_uid, 'approved': r[3]}
 
         return result
     
@@ -277,7 +299,7 @@ class DBInterface():
             query = "SELECT * FROM Relationships WHERE relationship_id = %s"
             relationship = self.query(query, relationship_id)
 
-            if relationship is not None:
+            if relationship != []:
                 return 0
             return 1
         except:

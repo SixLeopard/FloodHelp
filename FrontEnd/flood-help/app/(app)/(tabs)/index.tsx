@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
-import GetAPI from '@/hooks/useAPI';
+import useAPI from '@/hooks/useAPI';
 
 type RootStackParamList = {
     newreport: undefined;
@@ -44,7 +44,7 @@ export default function Index() {
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { user, loading } = useAuth();
 
-    const reports = GetAPI('/reporting/user/get_all_report_basic');
+    const reports = useAPI('/reporting/user/get_all_report_basic');
 
     console.log('Reports:', reports);
 

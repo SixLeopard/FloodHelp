@@ -189,7 +189,7 @@ def get_alerts() -> list:
     for alert in list_of_alerts:
         new_alert = {}
         if (alert["event"] == "Flood Warning" and alert["msgtype"] == "Alert"):
-            lat, lon = get_coordinates(f"Brisbane, {alert["areas"]}")
+            lat, lon = get_coordinates(f"Brisbane, {alert['areas']}")
             new_alert["id"] = generate_unique_id(alert)
             new_alert["headline"] = alert["headline"]
             new_alert["location"] = alert["areas"]
