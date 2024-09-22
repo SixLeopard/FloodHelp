@@ -47,7 +47,7 @@ def update_locations():
             # Get locations of users who current user has approved relations with
             relationships = db.get_approved_relationships_ids(uid)   # Only returns approved relationships
             for relation_uid in relationships:
-                if relation_uid in locations:
+                if relation_uid not in locations:
                     locations[relation_uid] = {session["uid"] : curr_location}
                 else:
                     locations[relation_uid][session["uid"]] = curr_location
