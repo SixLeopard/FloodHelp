@@ -51,8 +51,11 @@ def update_locations():
                     locations[relation_uid] = {session["uid"] : curr_location}
                 else:
                     locations[relation_uid][session["uid"]] = curr_location
-            result = locations[session["uid"]]
-            locations[session["uid"]].clear()
+            if (session["uid"] in locations):
+                result = locations[session["uid"]]
+                locations[session["uid"]].clear()
+            else:
+                result = {}
 
             return make_response(result)
         return make_response({"invalid_account":1})
