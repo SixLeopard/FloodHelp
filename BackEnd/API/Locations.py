@@ -54,7 +54,7 @@ def update_locations():
                 locations[session["uid"]].clear()
             else:
                 result = {}
-
+            print(locations)
             return make_response(result)
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1}) 
