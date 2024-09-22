@@ -49,12 +49,9 @@ def update_locations():
                 else:
                     locations[relation_uid][session["uid"]] = curr_location
             # return all the current users pending and clear them if they exist
-            print(locations)
             if (session["uid"] in locations):
                 result = make_response(locations[session["uid"]])
-                print(locations, result)
                 locations[session["uid"]].clear()
-                print(result)
             else:
                 result = make_response({})
 
