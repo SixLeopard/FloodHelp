@@ -136,6 +136,25 @@ def create_route():
             return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
         else:
             return make_response({"created":"False"})
+        
+@login_routes.route("/accounts/get_current", methods = ['GET'])
+def create_route():
+    '''
+        Form Data:
+            None
+        
+        Return:
+            Json containing the information
+            of the current user logged in
+    '''
+    if request.method == 'GET':
+        if verify_user_account(session["username"], session["id"]):
+            #returns (uid, name, email, verified, pwd_hash, pwd_salt)
+            try:
+                current_user = database_interface.get_user(session["username"])
+            except:
+                return make_response({"could_not_fetch_user" : 1})
+            make_response({"uid": current_user[0], "name": current_user[1], "email": current_user[2], "verified": current_user[3]})
     
 @login_routes.route('/accounts/test', methods = ['GET'])
 def test_route():
