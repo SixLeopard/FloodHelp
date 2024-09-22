@@ -2,10 +2,10 @@ from geopy.distance import geodesic
 from ExtApi_RealTime import get_alerts
 from Database.db_interface import DBInterface
 
-db = DBInterface()
+from External_API.database import database_interface as db
 
 def hazard_matches():
-    
+
     """
     Compares official flood hazard warnings with user-submitted hazard reports and identifies matches based on proximity.
 
