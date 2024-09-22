@@ -41,16 +41,14 @@ def update_locations():
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid = session["uid"]
 
-            # Update user location
-            locations[uid] = curr_location
-
-            # Get locations of users who current user has approved relations with
+            # add users location to pending dict for all the users they have relationship with
             relationships = db.get_approved_relationships_ids(uid)   # Only returns approved relationships
             for relation_uid in relationships:
                 if relation_uid not in locations:
                     locations[relation_uid] = {session["uid"] : curr_location}
                 else:
                     locations[relation_uid][session["uid"]] = curr_location
+            # get current users pending locations then clear them if there is any
             if (session["uid"] in locations):
                 result = locations[session["uid"]]
                 locations[session["uid"]].clear()
