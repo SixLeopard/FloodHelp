@@ -228,14 +228,16 @@ class DBInterface():
         """
         query = "SELECT relationship_id, requester, requestee, approved FROM Relationships WHERE (requester = %s OR requestee = %s)"
         relationships = self.query(query, uid, uid)
-        query = "SELECT name FROM users WHERE uid = %s"
+        query = "SELECT name, uid FROM users WHERE uid = %s"
         
         result = {}
         for r in relationships:
             requester = self.query(query, r[1])[0][0]
             requestee = self.query(query, r[2])[0][0]
+            requester_uid = self.query(query, r[1])[0][1]
+            requestee_uid = self.query(query, r[2])[0][1]
 
-            result[r[0]] = {'requester_name': requester, 'requestee_name': requestee, 'approved': r[3]}
+            result[r[0]] = {'requester_name': requester, 'requestee_name': requestee, 'requester_uid': requester_uid, 'requestee_uid': requestee_uid, 'approved': r[3]}
 
         return result
     
