@@ -105,13 +105,10 @@ def approve_relationship():
         if Accounts.verify_user_account(session["username"], session["id"]):
             relationship_id = request.form.get('relationship_id')
             uid = session["uid"]
-            try:
-                relationships = db.get_relationships(uid)
-                requestee_uid = relationships[relationship_id]["requestee_uid"]
-                if requestee_uid != session["uid"]:
-                    return make_response({"current_user_not_requestee":1})
-            except Exception as e:
-                return make_response({"could_not_fetch_relationship": 1, "error" : str(e)})
+            relationships = db.get_relationships(uid)
+            requestee_uid = relationships[relationship_id]["requestee_uid"]
+            if requestee_uid != session["uid"]:
+                return make_response({"current_user_not_requestee":1})
 
             if relationship_id is None:
                 return make_response({"missing_relationship_id": 1})
