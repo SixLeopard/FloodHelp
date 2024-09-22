@@ -10,7 +10,7 @@ documention of all the routes and there data inputs and request type
    * [/accounts/login](#accountslogin)
    * [/accounts/test](#accountstest)
    * [/documentation](#documentation)
-   * [/externalData/get\_historical](#externaldataget_historical)
+   * [/externalData/get\get_river_conditions](#externaldataget_historical)
    * [/notifications/add](#notificationsadd)
    * [/notifications/get](#notificationsget)
    * [/relationships/approve/](#relationshipsapprove)
@@ -120,16 +120,16 @@ documention of all the routes and there data inputs and request type
 ## /externalData/get\_historical
 -----------------------------
 
-[*   GET](/externalData/get_historical)
+[*   GET](/externalData/get_river_conditions)
 
   
-        Extracts historical data  
+        Gives flood conditions for over 40 river height stations around Brisbane. 
           
         Form Data:  
-            Path to file with historical data  
+            None 
   
         Return:  
-            if succsessful: json of extracted historical data  
+            if succsessful: json of flood risks for river height stations. Keys are: 'location_name', 'Coordinates', 'Last Updated', and 'Flood Category'.  
             no login: {"invalid\_account":1}  
             not using GET: {"invalid\_request":1}  
     
