@@ -155,6 +155,8 @@ def get_current_route():
             except:
                 return make_response({"could_not_fetch_user" : 1})
             return make_response({"uid": current_user[0], "name": current_user[1], "email": current_user[2], "verified": current_user[3]})
+        return make_response({"invalid_account":1})
+    return make_response({"invalid_request":1})
     
 @login_routes.route('/accounts/test', methods = ['GET'])
 def test_route():
