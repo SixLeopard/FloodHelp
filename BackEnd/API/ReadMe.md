@@ -10,7 +10,7 @@ documention of all the routes and there data inputs and request type
    * [/accounts/login](#accountslogin)
    * [/accounts/test](#accountstest)
    * [/documentation](#documentation)
-   * [/externalData/get/get_river_conditions](#externaldataget_historical)
+   * [/externalData/get_river_conditions](#externaldataget_river_conditions)
    * [/notifications/add](#notificationsadd)
    * [/notifications/get](#notificationsget)
    * [/relationships/approve/](#relationshipsapprove)
