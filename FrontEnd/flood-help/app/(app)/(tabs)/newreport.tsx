@@ -10,7 +10,6 @@ import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
 import { useAuth } from '@/contexts/AuthContext';
-import GetAPI from '@/hooks/GetAPI';
 
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
 
@@ -59,8 +58,9 @@ const NewReport = () => {
     };
     const handleLocationPress = () => {
         navigation.navigate('mapscreen', {
-            onLocationSelected: (address: string) => {
+            onLocationSelected: (address: string, selectedCoordinates: { latitude: number, longitude: number }) => {
                 setLocation(address);
+                setCoordinates(selectedCoordinates);
             },
         });
     };

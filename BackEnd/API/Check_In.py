@@ -1,31 +1,32 @@
 from flask import Flask, Blueprint, request, make_response, session
 import datetime as Time
+from API.database import database_interface
 
 session_routes = Blueprint("session_routes", __name__)
 
-checkins = {}
+status = {}
 
 @session_routes.route("/check_in/send",  methods = ['POST'])
 def send_checkin_route():
     '''
-        send a checkin to a user
+        updates the current users status
 
         Form Data:
-            receiver -> who your checking in with
+            status -> what you want your status to be
         
         Return:
             {"added checkin to":receiver, "from":session["username"]}
     '''
-    receiver = request.form.get('receiver')
-    checkins[receiver][session["username"]] = {"status": "pending", "timestamp": str(Time.datetime.now())}
-    return make_response({"added checkin to":receiver, "from":session["username"]},200)
+    status = request.form.get('status')
+
+    status[session["uid"]] = (status, Time.datetime.now())
+    return make_response({"updated status for":session["username"], "Status set to":status},200)
 
 
 @session_routes.route("/check_in/get_checkins", methods = ['GET'])
 def get_checkin_route():
     '''
-        get all check_ins and removes complete ones for user
-        running request
+        get all status for users that the requester has a relationship with
 
         Form Data:
             Nothing
@@ -35,17 +36,14 @@ def get_checkin_route():
             either "Completed" or "Pending"
     '''
     results = make_response({"checkins":False})
-    #if user has any checkins
-    if session["username"] in checkins:
-        #make response
-        results = make_response(checkins[session["username"]],200)
-        #for every entry pending for the user remove there complete checkins
-        for i in checkins[session["username"]]:
-            if checkins[session["username"]][i]["status"] == "Complete":
-                checkins[session["username"]].pop(i)
-    return results
+    relationships = database_interface.get_approved_relationships_ids(session["uid"])
+    output = {}
+    for i in relationships:
+        output[database_interface.get_user_by_uid(int(i))[2]] = status[i]
+    results = make_response(output)
+    return output
 
-@session_routes.route("/check_in/respond",  methods = ['POST'])
+@session_routes.route("/check_in/send_push",  methods = ['POST'])
 def respond_to_checkins():
     '''
         respond to all pending checkins against you
@@ -56,6 +54,6 @@ def respond_to_checkins():
         Return:
             {"All Checkings Completed":True}
     '''
-    for i in checkins[session["username"]]:
-        checkins[session["username"]][i] = "Complete"
+    #for i in checkins[session["username"]]:
+    #    checkins[session["username"]][i] = "Complete"
     return make_response({"All Checkings Completed":True},200)
