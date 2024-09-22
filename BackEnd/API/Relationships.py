@@ -19,9 +19,10 @@ def create_relationship():
 
         Return:
             if succsessful: "success": 1}
-            error1: {"Error": "Requested user does not exist"}
-            error2: {"Error": "Relationship exists"}
-            error3: {"Database error": e.pgerror}
+            error1: {"user_does_not_exist": 1}
+            error2: {"relationship_exists": 1}
+            error3: {"self_relationship": 1}
+            error4: {"database error": e.pgerror}
             no login: {"invalid_account":1}
             not using POST: {"invalid_request":1}
     '''
@@ -34,13 +35,16 @@ def create_relationship():
             # Check if requestee with given email exists
             requestee = db.get_user(requestee_email)
             if requestee is None or requestee[0] is None:
-                return make_response({"Error": "Requested user does not exist"})
+                return make_response({"user_does_not_exist": 1})
+
+            if requestee[2] == db.get_user_by_uid(requester_uid)[2]:
+                return make_response({"self_relationship": 1})
             
             requestee_uid = requestee[0]
 
             # Check if relationship exists
             if db.relationship_exists(uid1=requestee_uid, uid2=requester_uid):
-                return make_response({"Error": "Relationship exists"})
+                return make_response({"relationship_exists": 1})
 
             # Create relationship
             try:
@@ -51,50 +55,21 @@ def create_relationship():
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@relationships_routes.route("/relationships/get_approved", methods = ['GET'])
-def get_approved_relationships():
+@relationships_routes.route("/relationships/get_relationships", methods = ['GET'])
+def get_relationships():
     '''
-        Get all approved relationships of the user who is currently logged in
+        Get all relationships of the user who is currently logged in
+
+        Form Data:
+            None
+
+        Return:
+            if succsessful: Json of all relationships (see format beloew)
+            no login: {"invalid_account":1}
+            not using POST: {"invalid_request":1}
         
-        Form Data:
-            None
-
-        Return:
-            if succsessful: json of all approved relationships
-            no login: {"invalid_account":1}
-            not using POST: {"invalid_request":1}
-    '''
-    if request.method == 'GET':        
-        if Accounts.verify_user_account(session["username"], session["id"]):
-            uid = session["uid"]
-            try:
-                relationship_uids =  db.get_approved_relationships(uid)
-            except Exception as e:
-                return make_response({"internal_error": str(e)})
-            
-            relationships = {}
-            for ruid in relationship_uids:
-                try:
-                    # Returns: (uid, name, email, verified, password_hash, password_salt)
-                    relationships[ruid] = db.get_user_by_uid(ruid)[1]
-                except Exception as e:
-                    return make_response({'internal_error': str(e)})
-            return make_response(relationships)
-        return make_response({"invalid_account":1})
-    return make_response({"invalid_request":1})
-
-@relationships_routes.route("/relationships/get_not_approved", methods = ['GET'])
-def get_not_approved_relationships():
-    '''
-        Get all NOT approved relationships of the user who is currently logged in
-
-        Form Data:
-            None
-
-        Return:
-            if succsessful: Json of all non-approved relationships
-            no login: {"invalid_account":1}
-            not using POST: {"invalid_request":1}
+        Relationships format:
+            {relationship_id: {requester_name, requestee_name, approved}, ...}
     '''
     if request.method == 'GET':        
         if Accounts.verify_user_account(session["username"], session["id"]):
