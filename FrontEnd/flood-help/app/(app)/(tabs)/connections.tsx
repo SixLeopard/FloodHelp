@@ -3,7 +3,7 @@ import {Text, View} from "react-native";
 import useStyles from "@/constants/style";
 import UserCard from "@/components/UserCard";
 import FH_Button from "@/components/navigation/FH_Button";
-import getAPI from "@/hooks/GetAPI";
+import getAPI from "@/hooks/useAPI";
 
 
 
