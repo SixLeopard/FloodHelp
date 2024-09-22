@@ -5,16 +5,17 @@ import UserCard from "@/components/UserCard";
 import FH_Button from "@/components/navigation/FH_Button";
 import getAPI from "@/hooks/GetAPI";
 import ReportCard from "@/components/ReportCard";
+import {useAuth} from "@/contexts/AuthContext";
 
 
 
 const Connections = () => {
-    const approvedConnections = getAPI(`/relationships/get_relationships`)
+    const relationships = getAPI(`/relationships/get_relationships`)
+    const currentUser = getAPI('/accounts/get_current')
     const styles = useStyles();
 
-    console.log(approvedConnections)
 
-    if (!approvedConnections) {
+    if (!relationships || !currentUser ){
         return <Text>Loading...</Text>;
     }
 
@@ -22,15 +23,29 @@ const Connections = () => {
         <View style={styles.page}>
 
             <Text style={styles.headerText}>Connections Page</Text>
-            {Object.entries(approvedConnections).map(([key, connection]) =>
+            {Object.entries(relationships).map(([key, connection]) =>
                 connection.approved ? (
                     <UserCard
                         username={connection.requestee_name}
                         userId={connection.requestee_name}
-                        status={undefined}
-                    />
+                        status={1}
+                    /> ): (null )
+            )}
+
+            <Text style={styles.headerText}>Pending Connection Requests</Text>
+            {Object.entries(relationships).map(([key, connection]) =>
+                connection.requestee_uid == currentUser.uid ? (
+                    connection.approved ? null : (
+                        <UserCard
+                            key = {key}
+                            username={connection.requester_name}
+                            userId={connection.requester_name}
+                            showConnectionRequest={true}
+                        />
+                    )
                 ) : null
             )}
+
             {/*<UserCard username={"Test User 1"} userId={1} status={undefined} showConnectionRequest={undefined}*/}
             {/*          sendRequest={undefined} pendingRequest={undefined}/>*/}
             {/*<UserCard username={"Test User 2"} userId={2} status={undefined} showConnectionRequest={undefined}*/}
