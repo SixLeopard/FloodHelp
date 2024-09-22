@@ -201,7 +201,7 @@ const useStyles = () => {
             backgroundColor: 'transparent',
         },
         confirmButton: {
-            backgroundColor: colors.blue,
+            backgroundColor: colors.green,
             height: 40,
             display: "flex",
             flexDirection: "row",
@@ -209,7 +209,7 @@ const useStyles = () => {
             alignItems: 'center',
             borderStyle: "solid",
             borderWidth: 2,
-            borderColor: colors.blue,
+            borderColor: colors.green,
             padding: 5, 
             paddingHorizontal: 20,
         },
@@ -599,6 +599,21 @@ const useStyles = () => {
             fontSize: 14,          
             marginTop: 10,        
             textAlign: 'center',  
+        },
+
+        loadingOverlay: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+        },
+
+        disabledButton: {
+            backgroundColor: '#cccccc', 
         },
 
 
