@@ -24,6 +24,7 @@ import API.UserReport as APIUserReport
 import API.Sync as APISync
 import API.Relationships as APIRelationships
 import API.External_data as APIExternal
+import API.Locations as APILocations
 ###############################################
 # File Info
 ###############################################
@@ -45,6 +46,7 @@ app.register_blueprint(APINotifications.notifications_routes)
 app.register_blueprint(APISync.sync_routes)
 app.register_blueprint(APIRelationships.relationships_routes)
 app.register_blueprint(APIExternal.externalData_routes)
+app.register_blueprint(APILocations.location_routes)
 
 #Session
 SESSION_TYPE = 'cachelib'
