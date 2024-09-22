@@ -116,8 +116,8 @@ documention of all the routes and there data inputs and request type
         strings on the route to generate the documenation automaticaly   
     
 
-<!-- TOC --><a name="externaldataget_historical"></a>
-## /externalData/get\_historical
+<!-- TOC --><a name="externaldataget_river_conditions"></a>
+## /externalData/get\_river_conditions
 -----------------------------
 
 [*   GET](/externalData/get_river_conditions)
