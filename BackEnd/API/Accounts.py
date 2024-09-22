@@ -138,7 +138,7 @@ def create_route():
             return make_response({"created":"False"})
         
 @login_routes.route("/accounts/get_current", methods = ['GET'])
-def create_route():
+def get_current_route():
     '''
         Form Data:
             None
