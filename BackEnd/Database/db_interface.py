@@ -123,6 +123,16 @@ class DBInterface():
         (uid, name, email, verified, password_hash, password_salt)
     """
     def get_user(self, email: str):
+        '''
+        Get a users information from the database.
+
+        Paramters:
+            email: The email of the user for who to get info
+
+        Returns:
+            A tuple in the form
+                (uid, name, email, verified, pwd_hash, pwd_salt)
+        '''
         user = self.query("SELECT * FROM Users WHERE email = %s", email)
         if not user:
             return None
@@ -132,6 +142,16 @@ class DBInterface():
             return result
         
     def get_user_by_uid(self, uid: int):
+        '''
+        Get a users information from the database.
+
+        Paramters:
+            uid: The uid of the user for who to get info
+
+        Returns:
+            A tuple in the form
+                (uid, name, email, verified, pwd_hash, pwd_salt)
+        '''
         user = self.query("SELECT * FROM Users WHERE uid = %s", uid)
         if not user:
             return None
@@ -212,8 +232,8 @@ class DBInterface():
         
         result = {}
         for r in relationships:
-            requester = self.query(query, r[1])
-            requestee = self.query(query, r[2])
+            requester = self.query(query, r[1])[0][0]
+            requestee = self.query(query, r[2])[0][0]
 
             result[r[0]] = {'requester_name': requester, 'requestee_name': requestee, 'approved': r[3]}
 
