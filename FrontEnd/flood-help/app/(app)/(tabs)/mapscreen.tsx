@@ -62,7 +62,7 @@ export default function MapScreen() {
             const address = await fetchAddress(selectedLocation.latitude, selectedLocation.longitude);
             const onLocationSelected = route.params?.onLocationSelected;
             if (onLocationSelected) {
-                onLocationSelected(address);
+                onLocationSelected(address, selectedLocation);
             }
             setLoading(false);
             navigation.navigate('newreport', { location: address }); 
@@ -80,7 +80,6 @@ export default function MapScreen() {
                 return 'Unable to determine address';
             }
         } catch (error: unknown) {
-            // Fix for 'error is of type unknown'
             if (error instanceof Error) {
                 if (error.message.includes('TimeoutException')) {
                     Alert.alert('Error', 'Location lookup timed out. Please try again or enter the address manually.');
