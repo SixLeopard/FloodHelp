@@ -78,9 +78,8 @@ def get_relationships():
                 relationships = db.get_relationships(uid)
             except Exception as e:
                 return make_response({'internal_error': str(e)})
-            
-            result = db.get_relationships(uid)
-            return make_response(result)
+        
+            return make_response(relationships)
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
