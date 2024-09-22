@@ -2,7 +2,7 @@
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
 from Tools import UserReportVerfication
-from BackEnd.Tools import GenerateRegion
+from Tools import GenerateRegion
 import re
 
 from API.database import database_interface as db
