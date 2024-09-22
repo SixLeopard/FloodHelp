@@ -111,7 +111,7 @@ def approve_relationship():
                 if requestee_uid != session["uid"]:
                     return make_response({"current_user_not_requestee":1})
             except Exception as e:
-                return make_response({"could_not_fetch_relationship": 1, "error" : str(e})
+                return make_response({"could_not_fetch_relationship": 1, "error" : str(e))
 
             if relationship_id is None:
                 return make_response({"missing_relationship_id": 1})
