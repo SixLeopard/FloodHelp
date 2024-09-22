@@ -106,7 +106,7 @@ def approve_relationship():
             relationship_id = request.form.get('relationship_id')
             uid = session["uid"]
             try:
-                relationships = db.get_relationships(uid)
+                relationships = db.get_relationships(relationship_id)
                 requestee_uid = relationships[relationship_id]["requestee_uid"]
                 if requestee_uid != session["uid"]:
                     return make_response({"current_user_not_requestee":1})
