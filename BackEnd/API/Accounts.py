@@ -154,7 +154,7 @@ def get_current_route():
                 current_user = database_interface.get_user(session["username"])
             except:
                 return make_response({"could_not_fetch_user" : 1})
-            make_response({"uid": current_user[0], "name": current_user[1], "email": current_user[2], "verified": current_user[3]})
+            return make_response({"uid": current_user[0], "name": current_user[1], "email": current_user[2], "verified": current_user[3]})
     
 @login_routes.route('/accounts/test', methods = ['GET'])
 def test_route():
