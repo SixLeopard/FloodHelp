@@ -184,7 +184,7 @@ class DBInterface():
             query = "SELECT * FROM Relationships WHERE relationship_id = %s"
             result = self.query(query, relationship_id)
 
-        if result is None:
+        if result == []:
             return False
         return True
 
@@ -297,7 +297,7 @@ class DBInterface():
             query = "SELECT * FROM Relationships WHERE relationship_id = %s"
             relationship = self.query(query, relationship_id)
 
-            if relationship is not None:
+            if relationship != []:
                 return 0
             return 1
         except:
