@@ -1,34 +1,68 @@
 import React, { useState, useEffect } from "react";
-import { View, Alert, TouchableOpacity } from "react-native";
+import { View, Alert, TouchableOpacity, ActivityIndicator, Text } from "react-native";
 import useStyles from "@/constants/style";
-import MapView, { Marker, Region } from "react-native-maps";
-import {mapLightTheme, mapDarkTheme} from "@/constants/Themes"
+import MapView, { Polygon, Marker, Region } from "react-native-maps";
+import { mapLightTheme, mapDarkTheme } from "@/constants/Themes";
 import { useTheme } from "@/contexts/ThemeContext";
 import * as Location from 'expo-location';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FontAwesome } from '@expo/vector-icons';
+import { useAuth } from '@/contexts/AuthContext';
+import useAPI from '@/hooks/useAPI';
 
 type RootStackParamList = {
-    newreport: undefined; 
+    newreport: undefined;
 };
 
-// Simulated Flood Data
-const simulatedFloodData = [
-    {
-        location_name: 'Flood 1',
-        Coordinates: { latitude: -27.5782, longitude: 153.09387 },
-        Flood_Category: 'Major Flood',
-    },
-];
+interface Report {
+    datetime: string;
+    title: string;
+    coordinates: string;
+}
+
+interface HistoricalFloodData {
+    features: Array<{
+        attributes: {
+            OBJECTID: number;
+            FLOOD_RISK: string;
+            FLOOD_TYPE: string;
+        };
+        geometry: {
+            rings: number[][][]; 
+        };
+    }>;
+}
 
 export default function Index() {
     const styles = useStyles();
     const { theme } = useTheme();
     const [region, setRegion] = useState<Region | null>(null);
-    const [markerSize, setMarkerSize] = useState({ width: 30, height: 30 });
+    const [historicalFloodData, setHistoricalFloodData] = useState<HistoricalFloodData | null>(null);
+    const [loadingHistorical, setLoadingHistorical] = useState(false);
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+    const { user, loading } = useAuth();
+
+    const reports = useAPI('/reporting/user/get_all_report_basic');
+
+    console.log('Reports:', reports);
+
+    const fetchHistoricalFloodData = async () => {
+        setLoadingHistorical(true);
+        try {
+            const response = await fetch(
+                'https://services2.arcgis.com/dEKgZETqwmDAh1rP/arcgis/rest/services/Flood_Awareness_Flood_Risk_Overall/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json'
+            );
+            const data: HistoricalFloodData = await response.json();
+            setHistoricalFloodData(data);
+        } catch (error) {
+            console.error('Error fetching historical flood data:', error);
+        } finally {
+            setLoadingHistorical(false);
+        }
+    };
+    
 
     useEffect(() => {
         const requestLocationPermission = async () => {
@@ -44,8 +78,8 @@ export default function Index() {
             setRegion({
                 latitude,
                 longitude,
-                latitudeDelta: 0.0922, 
-                longitudeDelta: 0.0421, 
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
             });
         };
 
@@ -57,8 +91,21 @@ export default function Index() {
     };
 
     const handleSeeHistoricalFlooding = () => {
-        Alert.alert("Historical Flooding", "This will show historical flooding areas.");
+        if (historicalFloodData) {
+            setHistoricalFloodData(null);
+        } else {
+            fetchHistoricalFloodData();
+        }
     };
+
+    if (loading || !reports) {
+        return (
+            <View style={styles.page}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+                <Text style={{ textAlign: "center", marginTop: 10 }}>Loading...</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.page}>
@@ -71,16 +118,45 @@ export default function Index() {
                     showsMyLocationButton={false}
                 >
 
-                    {/* Render Simulated Flood Data */}
-                    {simulatedFloodData.map((floodData, index) => (
-                        <Marker 
+                    {/* Render Flood Report Markers */}
+                    {reports && Object.entries(reports).map(([key, report]: [string, any], index) => {
+                        if (!report.coordinates) {
+                            console.warn(`Skipping report ${report.title} due to missing coordinates.`);
+                            return null;
+                        }
+
+                        const [latitudeStr, longitudeStr] = report.coordinates.replace(/[()]/g, '').split(',');
+                        const latitude = parseFloat(latitudeStr);
+                        const longitude = parseFloat(longitudeStr);
+
+                        if (isNaN(latitude) || isNaN(longitude)) {
+                            console.warn(`Skipping report ${report.title} due to invalid coordinates: ${report.coordinates}`);
+                            return null;
+                        }
+
+                        return (
+                            <Marker
+                                key={index}
+                                coordinate={{ latitude, longitude }}
+                                title={report.title}
+                                description={`Reported on: ${report.datetime}`}
+                            >
+                                <FontAwesome name="exclamation-triangle" size={40} color="maroon" />
+                            </Marker>
+                        );
+                    })}
+
+                    {/* Render Historical Flood Polygons */}
+                    {historicalFloodData?.features.map((feature, index) => (
+                        <Polygon
                             key={index}
-                            coordinate={floodData.Coordinates}
-                            title={floodData.location_name}
-                            description={`Flood Category: ${floodData.Flood_Category}`}
-                        >
-                            <FontAwesome name="exclamation-triangle" size={40} color="maroon" />
-                        </Marker>
+                            coordinates={feature.geometry.rings[0].map(([longitude, latitude]) => ({
+                                latitude,
+                                longitude,
+                            }))}
+                            strokeColor="rgba(128,0,0,0.5)"
+                            fillColor="rgba(128,0,0,0.3)"
+                        />
                     ))}
                 </MapView>
             )}
@@ -93,8 +169,13 @@ export default function Index() {
                     <Icon name="history" size={40} color={theme.dark ? "midnightblue" : "midnightblue"} />
                 </TouchableOpacity>
             </View>
+
+            {loadingHistorical && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color={theme.colors.primary} />
+                    <Text>Loading Historical Flood Data...</Text>
+                </View>
+            )}
         </View>
     );
 }
-
-

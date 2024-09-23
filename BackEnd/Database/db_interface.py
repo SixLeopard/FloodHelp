@@ -123,6 +123,16 @@ class DBInterface():
         (uid, name, email, verified, password_hash, password_salt)
     """
     def get_user(self, email: str):
+        '''
+        Get a users information from the database.
+
+        Paramters:
+            email: The email of the user for who to get info
+
+        Returns:
+            A tuple in the form
+                (uid, name, email, verified, pwd_hash, pwd_salt)
+        '''
         user = self.query("SELECT * FROM Users WHERE email = %s", email)
         if not user:
             return None
@@ -132,6 +142,16 @@ class DBInterface():
             return result
         
     def get_user_by_uid(self, uid: int):
+        '''
+        Get a users information from the database.
+
+        Paramters:
+            uid: The uid of the user for who to get info
+
+        Returns:
+            A tuple in the form
+                (uid, name, email, verified, pwd_hash, pwd_salt)
+        '''
         user = self.query("SELECT * FROM Users WHERE uid = %s", uid)
         if not user:
             return None
@@ -139,6 +159,34 @@ class DBInterface():
             user = user[0]
             result = (user[0], user[1], user[2], user[3], user[4].tobytes(), user[5].tobytes())
             return result
+    
+    def relationship_exists(self, uid1: int = None, uid2: int = None, relationship_id: int = None) -> bool:
+        '''
+        Determines if an entry in the Relationships table with the two users already exists.
+
+        If relationship_id is provided, then uses that to check. Else uses the user ids.
+
+        Paramters:
+            uid1/uid2: The ids of the users to check
+            relationship_id: The id of the relationship
+
+        Returns:
+            True: If an entry with the uid1 and uid2 as requestee and requester (or vice versa)
+            exists in the Relationships table.
+            False: otherwise
+        '''
+        result = None
+        
+        if relationship_id is None:
+            query = "SELECT * FROM Relationships WHERE ((requestee = %s AND requester = %s) OR (requester = %s AND requestee = %s))"
+            result = self.query(query, uid1, uid2, uid1, uid2)
+        else:
+            query = "SELECT * FROM Relationships WHERE relationship_id = %s"
+            result = self.query(query, relationship_id)
+
+        if result == []:
+            return False
+        return True
 
     '''
     Create an entry for a new relationship between two users. Users who have an approved relationship
@@ -167,9 +215,35 @@ class DBInterface():
 
         self.query(query, requester, requestee)
     
-    def get_approved_relationships(self, uid: int):
+    def get_relationships(self, uid: int):
         """
-        Get approved relationships for user with provided uid. Relationships
+        Get relationships for user with provided uid.
+
+        uid (int):
+            The uid of the user for who to retrieve relationships
+
+        Returns:
+            A dictionary with an entry for each relationship in the form:
+                relationship_id: requester_name, requestee_name, approved
+        """
+        query = "SELECT relationship_id, requester, requestee, approved FROM Relationships WHERE (requester = %s OR requestee = %s)"
+        relationships = self.query(query, uid, uid)
+        query = "SELECT name, uid FROM users WHERE uid = %s"
+        
+        result = {}
+        for r in relationships:
+            requester = self.query(query, r[1])[0][0]
+            requestee = self.query(query, r[2])[0][0]
+            requester_uid = self.query(query, r[1])[0][1]
+            requestee_uid = self.query(query, r[2])[0][1]
+
+            result[r[0]] = {'requester_name': requester, 'requestee_name': requestee, 'requester_uid': requester_uid, 'requestee_uid': requestee_uid, 'approved': r[3]}
+
+        return result
+    
+    def get_approved_relationships_ids(self, uid: int):
+        """
+        Get ids of users in approved relationships with user with provided uid. Relationships
         are considered approved if the 'approved' field in the database is set
         to true. Relationships can be approved manually be using the approve_relationship()
         function.
@@ -188,48 +262,48 @@ class DBInterface():
 
         return result
     
-    """
-    Get NOT approved relationships for user with provided uid. These are
-    entries in the Relationships table where the 'approved' field is set
-    to false. Relationships can be approved manually be using the 
-    approve_relationship() function.
-
-    uid (int):
-        The uid of the user for who to retrieve relationships
-
-    Returns:
-        A list containing the uid's of the users who the user with the
-        provided uid has NOT approved relationships with.
-    """
-    def get_not_approved_relationships(self, uid: int):
-        query = "SELECT requester, requestee FROM Relationships WHERE (requester = %s OR requestee = %s) AND approved = false"
-        relationships = self.query(query, uid, uid)
-
-        result = [x[0] if x[1] == uid else x[1] for x in relationships]
-
-        return result
-    
-    def approve_relationship(self, uid1:int, uid2: int) -> None:
+    def approve_relationship(self, relationship_id) -> None:
         """
-        Approve a relationship between the users with uid1 and uid2, by setting
+        Approve a relationship pf the relationship specified by relationship_id, by setting
         the 'approved' field of the entry in the 'Relationship' table to true.
-        If no entry exists, then throws Exception to indicate this. User who have
-        approved relationships have the ability to track each others locations.
+        If no entry exists, then throws Exception to indicate this.
 
-        uid1 (int):
-            The uid of one user in the relationship
-
-        uid2 (int):
-            The uid of the other user in the relationship.
+        relationship_id (int):
+            The id the relationship
         """
-        query = "SELECT relationship_id FROM Relationships WHERE (requester = %s AND requestee = %s) OR (requestee = %s AND requester = %s)"
-        relationship_id = self.query(query, uid1, uid2, uid1, uid2)
+        query = "SELECT * FROM Relationships WHERE relationship_id = %s"
+        relationship = self.query(query, relationship_id)
 
-        if relationship_id is not None:
+        if relationship is not None:
             query = "UPDATE Relationships SET approved = true WHERE relationship_id = %s"
-            self.query(query, relationship_id[0])
+            self.query(query, relationship_id)
         else:
             raise Exception('Relationship does not exist')
+    
+    def delete_relationship(self, relationship_id: int) -> None:
+        '''
+        Delete a relationship with the specified
+        relationship_id from from the Relationships table if it exists.
+
+        Paramters:
+            relationship_id: The id of the 
+        
+        Returns:
+            1: If succeeded
+            0: If not
+        '''
+        try:
+            query = "DELETE FROM Relationships WHERE relationship_id = %s"
+            self.query(query, relationship_id)
+
+            query = "SELECT * FROM Relationships WHERE relationship_id = %s"
+            relationship = self.query(query, relationship_id)
+
+            if relationship != []:
+                return 0
+            return 1
+        except:
+            return 0
 
     """
     Not yet implemented. Will depend on the settings needed the front end.

@@ -189,7 +189,7 @@ def get_alerts() -> list:
     for alert in list_of_alerts:
         new_alert = {}
         if (alert["event"] == "Flood Warning" and alert["msgtype"] == "Alert"):
-            lat, lon = get_coordinates(f"Brisbane, {alert["areas"]}")
+            lat, lon = get_coordinates(f"Brisbane, {alert['areas']}")
             new_alert["id"] = generate_unique_id(alert)
             new_alert["headline"] = alert["headline"]
             new_alert["location"] = alert["areas"]
@@ -215,7 +215,7 @@ def get_coordinates(location: str) -> tuple:
     else:
         return (None, None)
 
-def get_fake_alerts() -> list:
+def random_fake_alerts() -> list:
     """
     Generates a list of dummy flood alerts for various locations in Brisbane. The number of alerts is randomly chosen
     between 1 and 3. Each alert is guaranteed to have a unique location. 
@@ -298,3 +298,21 @@ def get_fake_alerts() -> list:
         random_alerts.append(json.dumps(alert))
     
     return random_alerts
+
+
+
+def fake_alert(headline, location, risk, certainty, issue_date, expiry_date) -> str:
+    lat, lon = get_coordinates(f"Brisbane, {location}")
+    alert = {
+        "headline": headline,
+        "location": location,
+        "coordinates": (lat, lon),
+        "risk": risk,
+        "certainty": certainty,
+        "start": issue_date,
+        "end": expiry_date
+    }
+    alert["id"] = generate_unique_id(alert)
+    alert = json.dumps(alert)
+    return alert
+    
