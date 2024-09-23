@@ -1,69 +1,78 @@
 import React from 'react';
-import {Text, View} from "react-native";
+import { Text, View } from "react-native";
 import useStyles from "@/constants/style";
 import UserCard from "@/components/UserCard";
 import FH_Button from "@/components/navigation/FH_Button";
 import useAPI from "@/hooks/useAPI";
-import ReportCard from "@/components/ReportCard";
-import {useAuth} from "@/contexts/AuthContext";
-
-
+import { useAuth } from "@/contexts/AuthContext";
 
 const Connections = () => {
-    const relationships = useAPI(`/relationships/get_relationships`)
-    const currentUser = useAPI('/accounts/get_current')
+    const relationships = useAPI(`/relationships/get_relationships`);
+    const currentUser = useAPI('/accounts/get_current');
     const styles = useStyles();
 
-
-    if (!relationships || !currentUser ){
+    if (!relationships || !currentUser) {
         return <Text>Loading...</Text>;
     }
+
+    // Helper function to determine the userAction prop
+    const determineUserAction = (connection, isCurrentUserRequester) => {
+        if (connection.approved) {
+            return { status: connection.status };
+        }
+
+        if (!connection.approved && isCurrentUserRequester) {
+            return { requestType: "pendingRequest" };
+        }
+
+        if (!connection.approved && !isCurrentUserRequester) {
+            return { requestType: "connectionRequest" };
+        }
+
+        return { requestType: "sendRequest" };
+    };
 
     return (
         <View style={styles.page}>
             <Text style={styles.headerText}>Connections Page</Text>
-            {Object.entries(relationships).map(([key, connection]) =>
-                connection.approved ? (
-                    <UserCard
-                        key = {key}
-                        username={connection.requestee_name}
-                        userId={connection.requestee_name}
-                        status={1}
-                    /> ): (null )
-            )}
+
+            {Object.entries(relationships).map(([key, connection]) => {
+                // Only show approved connections
+                if (connection.approved) {
+                    return (
+                        <UserCard
+                            key={key}
+                            username={connection.requestee_name}
+                            userID={connection.requestee_uid}
+                            relationshipID={key}
+                            userAction={"approvedRequest"}
+                        />
+                    );
+                }
+                return null;
+            })}
 
             <Text style={styles.headerText}>Pending Connection Requests</Text>
-            {Object.entries(relationships).map(([key, connection]) =>
-                connection.requestee_uid == currentUser.uid ? (
-                    connection.approved ? null : (
+
+            {Object.entries(relationships).map(([key, connection]) => {
+
+                // Show pending requests where the current user is the requestee
+                if (!connection.approved && !(connection.requester_uid === currentUser.uid)) {
+                    return (
                         <UserCard
-                            key = {key}
+                            key={key}
                             username={connection.requester_name}
-                            userId={connection.requester_name}
-                            showConnectionRequest={true}
+                            userId={connection.requester_id}
+                            relationshipID={key}
+                            userAction={"connectionRequest"}
                         />
-                    )
-                ) : null
-            )}
+                    );
+                }
 
-            {/*<UserCard username={"Test User 1"} userId={1} status={undefined} showConnectionRequest={undefined}*/}
-            {/*          sendRequest={undefined} pendingRequest={undefined}/>*/}
-            {/*<UserCard username={"Test User 2"} userId={2} status={undefined} showConnectionRequest={undefined}*/}
-            {/*          sendRequest={undefined} pendingRequest={undefined}/>*/}
-            {/*<UserCard username="Marked Safe" userId="marked safe" status={"safe"} showConnectionRequest={undefined}*/}
-            {/*          sendRequest={undefined} pendingRequest={undefined} />*/}
-            {/*<UserCard username="Status Unknown" userId="status unknown" status={"unknown"}*/}
-            {/*          showConnectionRequest={undefined} sendRequest={undefined} pendingRequest={undefined} />*/}
-            {/*<UserCard username="Connection Request" userId="connection request" showConnectionRequest={true}*/}
-            {/*          status={undefined} sendRequest={undefined} pendingRequest={undefined} />*/}
-            {/*<UserCard username="Send a Request" userId="send request" sendRequest={true} status={undefined}*/}
-            {/*          showConnectionRequest={undefined} pendingRequest={undefined} />*/}
-            {/*<UserCard username="Pending Request" userId="pending req" pendingRequest={true} status={undefined}*/}
-            {/*          showConnectionRequest={undefined} sendRequest={undefined} />*/}
+                return null;
+            })}
 
-            <FH_Button route="/newConnections" text="Add New Connections"></FH_Button>
-
-
+            <FH_Button route="/newConnections" text="Add New Connections" />
         </View>
     );
 };

@@ -1,49 +1,58 @@
 import React from 'react';
-import {Text, View} from "react-native";
+import { Text, View } from "react-native";
 import useStyles from "@/constants/style";
 import UserCard from "@/components/UserCard";
 import FH_Button from "@/components/navigation/FH_Button";
 import useAPI from "@/hooks/useAPI";
 
-
-const NewConnections = () => {
+const newConnections = () => {
     const styles = useStyles();
-    const relationships = useAPI(`/relationships/get_relationships`)
-    const currentUser = useAPI('/accounts/get_current')
-    if (!relationships || !currentUser ){
+    const relationships = useAPI(`/relationships/get_relationships`);
+    const currentUser = useAPI('/accounts/get_current');
+
+    if (!relationships || !currentUser) {
         return <Text>Loading...</Text>;
     }
+
     return (
         <View style={styles.page}>
             <Text style={styles.headerText}>Add Connections</Text>
             <Text>TODO: Add back button</Text>
-
             <Text>TODO: Add search bar</Text>
 
-            <UserCard username="Send a Request" userId="new1" sendRequest={true} status={undefined}
-                      showConnectionRequest={false} pendingRequest={false} />
-            <UserCard username="Send a Request" userId="new2" sendRequest={true} status={undefined}
-                      showConnectionRequest={false} pendingRequest={false} />
+            {/* Example for sending new connection requests */}
+            <UserCard
+                username="Send a Request"
+                userId="new1"
+                userAction={"sendRequest"}
+            />
+
 
             <Text style={styles.headerText}>Pending Connection Requests</Text>
-            {Object.entries(relationships).map(([key, connection]) =>
-                connection.requester_uid == currentUser.uid ? (
-                    connection.approved ? null : (
+
+            {/* Map through relationships and show pending requests */}
+            {Object.entries(relationships).map(([key, connection]) => {
+                if (!connection.approved && connection.requester_uid === currentUser.uid) {
+                    // Show pending requests where the current user is the requester
+                    return (
                         <UserCard
-                            key = {key}
+                            key={key}
                             username={connection.requestee_name}
-                            userId={connection.requestee_name}
-                            pendingRequest={true}
+                            userId={connection.requestee_uid}
+                            relationshipID={key}
+                            userAction={"pendingRequest"}
                         />
-                    )
-                ) : null
-            )}
+                    );
+                }
 
-            <Text style={styles.bodyText}>Connections can send you check in requests and see your location during an emergencies</Text>
+                return null;
+            })}
 
-
+            <Text style={styles.bodyText}>
+                Connections can send you check-in requests and see your location during emergencies.
+            </Text>
         </View>
     );
 };
 
-export default NewConnections;
+export default newConnections;
