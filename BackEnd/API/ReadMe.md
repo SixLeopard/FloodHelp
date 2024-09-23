@@ -10,7 +10,7 @@ documention of all the routes and there data inputs and request type
    * [/accounts/login](#accountslogin)
    * [/accounts/test](#accountstest)
    * [/documentation](#documentation)
-   * [/externalData/get\_historical](#externaldataget_historical)
+   * [/externalData/get_river_conditions](#externaldataget_river_conditions)
    * [/notifications/add](#notificationsadd)
    * [/notifications/get](#notificationsget)
    * [/relationships/approve/](#relationshipsapprove)
@@ -116,20 +116,20 @@ documention of all the routes and there data inputs and request type
         strings on the route to generate the documenation automaticaly   
     
 
-<!-- TOC --><a name="externaldataget_historical"></a>
-## /externalData/get\_historical
+<!-- TOC --><a name="externaldataget_river_conditions"></a>
+## /externalData/get\_river_conditions
 -----------------------------
 
-[*   GET](/externalData/get_historical)
+[*   GET](/externalData/get_river_conditions)
 
   
-        Extracts historical data  
+        Gives flood conditions for over 40 river height stations around Brisbane. 
           
         Form Data:  
-            Path to file with historical data  
+            None 
   
         Return:  
-            if succsessful: json of extracted historical data  
+            if succsessful: json of flood risks for river height stations. Keys are: 'location_name', 'Coordinates', 'Last Updated', and 'Flood Category'.  
             no login: {"invalid\_account":1}  
             not using GET: {"invalid\_request":1}  
     
@@ -267,7 +267,7 @@ documention of all the routes and there data inputs and request type
             location -> the location of the user in the form "{LAT},{LONG}"  
             hazard\_type -> The type or name of the hazard  
             description -> textual description of the hazard  
-            img -> An image assosciated with the hazard  
+            image -> An image assosciated with the hazard  
   
         Returns:  
             if successful: {hazard\_id, hazard\_type, datetime, reporting\_uid, area\_name, coordinates, img}  

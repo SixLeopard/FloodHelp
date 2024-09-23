@@ -3,15 +3,15 @@ import {Text, View} from "react-native";
 import useStyles from "@/constants/style";
 import UserCard from "@/components/UserCard";
 import FH_Button from "@/components/navigation/FH_Button";
-import getAPI from "@/hooks/GetAPI";
+import useAPI from "@/hooks/useAPI";
 import ReportCard from "@/components/ReportCard";
 import {useAuth} from "@/contexts/AuthContext";
 
 
 
 const Connections = () => {
-    const relationships = getAPI(`/relationships/get_relationships`)
-    const currentUser = getAPI('/accounts/get_current')
+    const relationships = useAPI(`/relationships/get_relationships`)
+    const currentUser = useAPI('/accounts/get_current')
     const styles = useStyles();
 
 
@@ -21,11 +21,11 @@ const Connections = () => {
 
     return (
         <View style={styles.page}>
-
             <Text style={styles.headerText}>Connections Page</Text>
             {Object.entries(relationships).map(([key, connection]) =>
                 connection.approved ? (
                     <UserCard
+                        key = {key}
                         username={connection.requestee_name}
                         userId={connection.requestee_name}
                         status={1}

@@ -25,10 +25,10 @@ export const AuthProvider = ({ children }) => {
 
     const signIn = async (credentials) => {
         try {
-            const token = await login(credentials);
-            // console.log("Tokrn", token)
+            const { token, email } = await login(credentials);
+            // console.log("Token", token)
             if (token) {
-                setUser({ token });
+                setUser({ token, email });
                 console.log("user", user)
             } else {
                 throw new Error('Invalid login response');

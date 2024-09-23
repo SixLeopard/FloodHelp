@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, TouchableOpacity, Alert, Image, StyleSheet, Button, TextInput } from 'react-native';
+import { Text, View, TouchableOpacity, Alert, TextInput } from 'react-native';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import useStyles from '@/constants/style';
@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
 
@@ -16,13 +17,17 @@ const NewReport = () => {
     const styles = useStyles();
     const { theme } = useTheme();
     const navigation = useNavigation<NewReportScreenNavigationProp>();
+    const { user } = useAuth(); 
     const [location, setLocation] = useState('Fetching current location...');
+    const [coordinates, setCoordinates] = useState<{ latitude: number, longitude: number } | null>(null);
     const [floodType, setFloodType] = useState('');
     const [description, setDescription] = useState('');
     const [photos, setPhotos] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchCurrentLocation();
+        fetchCurrentLocation(); // Fetch location when the component loads
     }, []);
 
     const fetchCurrentLocation = async () => {
@@ -36,6 +41,9 @@ const NewReport = () => {
             let currentLocation = await Location.getCurrentPositionAsync({});
             const { latitude, longitude } = currentLocation.coords;
 
+            // Save the coordinates to state
+            setCoordinates({ latitude, longitude });
+
             let geocode = await Location.reverseGeocodeAsync({ latitude, longitude });
             if (geocode.length > 0) {
                 const address = `${geocode[0].streetNumber || ''} ${geocode[0].street || ''}, ${geocode[0].city || ''}`;
@@ -48,11 +56,11 @@ const NewReport = () => {
             setLocation('Error fetching location');
         }
     };
-
     const handleLocationPress = () => {
         navigation.navigate('mapscreen', {
-            onLocationSelected: (address: string) => {
+            onLocationSelected: (address: string, selectedCoordinates: { latitude: number, longitude: number }) => {
                 setLocation(address);
+                setCoordinates(selectedCoordinates);
             },
         });
     };
@@ -64,7 +72,7 @@ const NewReport = () => {
             aspect: [4, 3],
             quality: 1,
         });
-    
+
         if (!result.canceled && result.assets) {
             const fileName = result.assets[0].uri.split('/').pop() ?? '';
             setPhotos([...photos, fileName]);
@@ -77,7 +85,7 @@ const NewReport = () => {
             aspect: [4, 3],
             quality: 1,
         });
-    
+
         if (!result.canceled && result.assets) {
             const fileName = result.assets[0].uri.split('/').pop() ?? '';
             setPhotos([...photos, fileName]);
@@ -91,60 +99,55 @@ const NewReport = () => {
     };
 
     const handleSubmit = async () => {
-        if (!location || location === 'Fetching current location...') {
+        if (!coordinates || !location || location === 'Fetching current location...') {
             Alert.alert('Error', 'Location is required.');
             return;
         }
-
+    
+        if (!user?.token) {
+            Alert.alert('Error', 'You must be logged in to submit a report.');
+            return;
+        }
+    
         try {
-            //const sessionID = await AsyncStorage.getItem('session_id');
-            //const username = await AsyncStorage.getItem('username');
-
-            // Mocked session data
-            const mockSession = {
-                username: 'john',
-                id: '3'
-            };
-
-            // Prepare form data
-            const formData = new URLSearchParams();
-            formData.append('location', location);
-            formData.append('type', floodType);
-            formData.append('description', description || '');
-
-            // Send the report to the Flask backend
+            const locationForBackend = `${coordinates.latitude},${coordinates.longitude}`;
+            setLoading(true);
+    
+            const body = new FormData();
+            body.append('location', locationForBackend);
+            body.append('type', floodType);
+            body.append('description', description);
+            if (photos.length > 0) {
+                body.append('image', photos[0]);
+            }
+    
+            // Submit the form data using a standard fetch call
             const response = await fetch('http://54.206.190.121:5000/reporting/user/add_report', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Session-Username': mockSession.username, //username
-                    'Session-ID': mockSession.id, //sessionID
-                },
-                body: formData.toString()
+                body: body
             });
 
-            const result = await response.json();
-
-            if (result.invalid_account) {
-                Alert.alert('Error', 'Invalid account.');
-            } else if (result.invalid_request) {
-                Alert.alert('Error', 'Invalid request.');
-            } else {
+            if (response.ok) {
                 Alert.alert('Success', 'Report submitted successfully!');
-                
-                // Clear form
-                setLocation('Fetching current location...');
-                setFloodType('');
-                setDescription('');
-                setPhotos([]);
+                resetForm();
+            } else {
+                setError('Failed to submit report.');
             }
         } catch (error) {
-            console.error('Error submitting report:', error);
-            Alert.alert('Error', 'Failed to submit report.');
+            console.error("Error submitting report:", error);
+            setError('Failed to submit report. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
-
+    const resetForm = () => {
+        setLocation('Fetching current location...');
+        setCoordinates(null); // Reset coordinates
+        setFloodType('');
+        setDescription('');
+        setPhotos([]);
+    };
 
     return (
         <View style={[styles.page]}>
@@ -152,7 +155,9 @@ const NewReport = () => {
             <View style={styles.formContainer}>
                 <TouchableOpacity onPress={handleLocationPress} style={styles.locationContainer}>
                     <Text style={[styles.bodyTextBold]}>Location</Text>
-                    <Text style={[styles.bodyTextBold]}>{location}</Text>
+                    <Text style={[styles.bodyTextBold]}>
+                        {location}
+                    </Text>
                 </TouchableOpacity>
 
                 <View style={styles.pickerContainer}>
@@ -160,7 +165,7 @@ const NewReport = () => {
                     <Picker
                         selectedValue={floodType}
                         onValueChange={(itemValue) => setFloodType(itemValue)}
-                        style={[styles.picker]} 
+                        style={[styles.picker]}
                     >
                         <Picker.Item label="Please select a flood type" value="" />
                         <Picker.Item label="Major Flood" value="Major Flood" />
@@ -171,16 +176,16 @@ const NewReport = () => {
                 </View>
 
                 <View style={styles.descriptionContainer}>
-                <Text style={[styles.bodyTextBold]}>Description</Text>
-                <View style={[styles.descriptionInput]}>
-                    <TextInput
-                        style={[styles.bodyTextBold]}  
-                        placeholder="Enter a description"
-                        multiline
-                        value={description}
-                        onChangeText={setDescription}
-                    />
-                </View>
+                    <Text style={[styles.bodyTextBold]}>Description</Text>
+                    <View style={[styles.descriptionInput]}>
+                        <TextInput
+                            style={[styles.bodyTextBold]}
+                            placeholder="Enter a description"
+                            multiline
+                            value={description}
+                            onChangeText={setDescription}
+                        />
+                    </View>
                 </View>
 
                 <View style={styles.imageContainer}>
@@ -193,7 +198,7 @@ const NewReport = () => {
                         </View>
                     ))}
                 </View>
-                
+
                 <View style={styles.imageButtonContainer}>
                     <TouchableOpacity onPress={takePhoto} style={styles.imageButton}>
                         <Text style={[styles.imageButtonText]}>Take Photo</Text>
@@ -203,11 +208,12 @@ const NewReport = () => {
                     </TouchableOpacity>
                 </View>
 
-                <FH_Button text="Submit Report" onPress={handleSubmit} route='/(tabs)/index'/>
+                <FH_Button text="Submit Report" onPress={handleSubmit} route='/(tabs)/index' disabled={loading} />
+                {loading && <Text>Submitting...</Text>}
+                {error && <Text>Error: {error}</Text>}
             </View>
         </View>
     );
 };
-
 
 export default NewReport;

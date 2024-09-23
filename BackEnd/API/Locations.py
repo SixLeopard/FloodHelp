@@ -11,9 +11,10 @@ A dictionary containing a mapping of uid to the last known location of the
 user with that uid. If no location is known, then the value of None.
 
 locations = {
-    uid1: location1
-    uid2: location2
-    uid3: location3
+    uid1: {rel1: location1, rel2: location, ..},
+    uid2: {rel1: location1, rel2: location, ..},
+    uid3: {rel1: location1, rel2: location, ..},
+    ...
 }
 '''
 locations = {}
@@ -38,17 +39,22 @@ def update_locations():
         curr_location = request.form.get('location')
         
         if Accounts.verify_user_account(session["username"], session["id"]):
-            uid = session["uid"]
+            uid = int(session["uid"])
 
-            # Update user location
-            locations[uid] = curr_location
-
-            # Get locations of users who current user has approved relations with
-            relationships = db.get_relationships(uid)   # Only returns approved relationships
-            result = {}
+            # add the user current location to the pending dict for all the users they have relationship with
+            relationships = db.get_approved_relationships_ids(uid)   # Only returns approved relationships
             for relation_uid in relationships:
-                result[relation_uid] = locations[relation_uid]
+                if relation_uid not in locations:
+                    locations[relation_uid] = {session["uid"] : curr_location}
+                else:
+                    locations[relation_uid][session["uid"]] = curr_location
+            # return all the current users pending and clear them if they exist
+            if (session["uid"] in locations):
+                result = make_response(locations[session["uid"]])
+                locations[session["uid"]].clear()
+            else:
+                result = make_response({})
 
-            return make_response(result)
+            return result
         return make_response({"invalid_account":1})
-    return make_response({"invalid_request":1})
+    return make_response({"invalid_request":1}) 

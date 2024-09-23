@@ -3,21 +3,19 @@ import {Text, View} from "react-native";
 import useStyles from "@/constants/style";
 import UserCard from "@/components/UserCard";
 import FH_Button from "@/components/navigation/FH_Button";
-import getAPI from "@/hooks/GetAPI";
+import useAPI from "@/hooks/useAPI";
 
 
 const NewConnections = () => {
     const styles = useStyles();
-    const relationships = getAPI(`/relationships/get_relationships`)
-    const currentUser = getAPI('/accounts/get_current')
+    const relationships = useAPI(`/relationships/get_relationships`)
+    const currentUser = useAPI('/accounts/get_current')
     if (!relationships || !currentUser ){
         return <Text>Loading...</Text>;
     }
     return (
         <View style={styles.page}>
             <Text style={styles.headerText}>Add Connections</Text>
-
-
             <Text>TODO: Add back button</Text>
 
             <Text>TODO: Add search bar</Text>
@@ -27,7 +25,7 @@ const NewConnections = () => {
             <UserCard username="Send a Request" userId="new2" sendRequest={true} status={undefined}
                       showConnectionRequest={false} pendingRequest={false} />
 
-            <Text style={styles.headerText}>Sent Connection Requests</Text>
+            <Text style={styles.headerText}>Pending Connection Requests</Text>
             {Object.entries(relationships).map(([key, connection]) =>
                 connection.requester_uid == currentUser.uid ? (
                     connection.approved ? null : (
@@ -41,7 +39,7 @@ const NewConnections = () => {
                 ) : null
             )}
 
-            <Text style={styles.bodyText}>Connections can send you check in requests and see your location during an emergenc</Text>
+            <Text style={styles.bodyText}>Connections can send you check in requests and see your location during an emergencies</Text>
 
 
         </View>
