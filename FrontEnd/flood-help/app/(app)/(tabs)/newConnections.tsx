@@ -27,7 +27,7 @@ const NewConnections = () => {
             <UserCard username="Send a Request" userId="new2" sendRequest={true} status={undefined}
                       showConnectionRequest={false} pendingRequest={false} />
 
-            <Text style={styles.headerText}>Pending Connection Requests</Text>
+            <Text style={styles.headerText}>Sent Connection Requests</Text>
             {Object.entries(relationships).map(([key, connection]) =>
                 connection.requester_uid == currentUser.uid ? (
                     connection.approved ? null : (
