@@ -2,6 +2,9 @@ import psycopg2
 import re
 from psycopg2.extensions import adapt, register_adapter, AsIs
 import datetime
+from External_API.ExtApi_RealTime import get_real_alerts
+from External_API.ExtApi_RealTime import are_alerts_equal
+from External_API.ExtApi_RealTime import random_fake_alerts
 
 class Point(object):
     def __init__(self, x, y):
@@ -628,4 +631,39 @@ class DBInterface():
         self.query(query, uid)
 
         return result
+    
+    def get_alerts(self):
+        query = "SELECT * FROM Alerts"
+        result = self.query(query)
+        return result
+    
+    def update_alerts_real(self):
+        alerts = get_real_alerts()
+        for alert in alerts:
+            is_recorded = False
+            for recorded_alert in self.get_alerts():
+                if(are_alerts_equal(alert, recorded_alert)):
+                    is_recorded = True
+
+            if(is_recorded == False):
+                query = "INSERT INTO Alerts (headline, location, risk, certainty, start_ts, end_ts) VALUES (%s, %s, %s, %s, %s, %s)"
+                self.query(query, alert["headline"], alert["location"], alert["risk"], alert["certainty"], alert["start"], alert["end"])
+
+    def update_alerts_fake_random(self):
+        alerts = random_fake_alerts
+        for alert in alerts:
+            is_recorded = False
+            for recorded_alert in self.get_alerts():
+                if(are_alerts_equal(alert, recorded_alert)):
+                    is_recorded = True
+
+            if(is_recorded == False):
+                query = "INSERT INTO Alerts (headline, location, risk, certainty, start_ts, end_ts) VALUES (%s, %s, %s, %s, %s, %s)"
+                self.query(query, alert["headline"], alert["location"], alert["risk"], alert["certainty"], alert["start"], alert["end"])    
+
+  
+    
+        
+
+
 
