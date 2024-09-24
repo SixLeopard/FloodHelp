@@ -8,6 +8,8 @@ from datetime import datetime, timedelta
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 import hashlib
+from dateutil import parser
+import pytz
 
 def generate_unique_id(alert: dict) -> str:
         """Generates a unique ID using the components of the alert."""
@@ -325,7 +327,32 @@ def specific_fake_alert(headline, location, risk, certainty, issue_date, expiry_
     return alert
     
 def are_alerts_equal(alert1, alert2):
-    if(alert1["headline"] == alert2["headline"] and alert1["location"] == alert2["location"] and alert1["coordinates"] == alert2["coordinates"] and alert1["risk"] == alert2["risk"] and alert1["certainty"] == alert2["certainty"] and alert1["start"] == alert2["start"] and alert1["end"] == alert2["end"]):
+    if(alert1["headline"] == alert2[1] and alert1["location"] == alert2[2] and alert1["coordinates"] == alert2[7] and alert1["risk"] == alert2[3] and alert1["certainty"] == alert2[4] and alert1["start"] == alert2[5] and alert1["end"] == alert2[6]):
         return True
     else:
         return False
+    
+def compare_to_current_time(date_str: str):
+    try:
+        # Brisbane timezone (AEST, UTC+10:00)
+        brisbane_tz = pytz.timezone('Australia/Brisbane')
+        
+        # Parse the input date string to a datetime object
+        input_date = parser.parse(date_str)
+        
+        # Get the current time in Brisbane timezone
+        current_time = datetime.now(brisbane_tz)
+
+        # If input_date is offset-naive, localize it to Brisbane timezone
+        if input_date.tzinfo is None:
+            input_date = brisbane_tz.localize(input_date)
+
+        # Compare input date to current time
+        if input_date < current_time:
+            return "past"
+        elif input_date > current_time:
+            return "future"
+        else:
+            return "present"
+    except ValueError:
+        return "Invalid date format."
