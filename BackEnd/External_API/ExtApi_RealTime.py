@@ -151,7 +151,7 @@ def get_real_time_data() -> str:
 
 
 
-def get_alerts() -> list:
+def get_real_alerts() -> list:
 
     """
     Retrieves all flood alerts for Brisbane from the past day using an external weather API.
@@ -293,8 +293,6 @@ def random_fake_alerts() -> list:
             "end": end
         }
 
-        alert["id"] = generate_unique_id(alert)
-
         random_alerts.append(json.dumps(alert))
     
     return random_alerts
@@ -312,7 +310,11 @@ def fake_alert(headline, location, risk, certainty, issue_date, expiry_date) -> 
         "start": issue_date,
         "end": expiry_date
     }
-    alert["id"] = generate_unique_id(alert)
     alert = json.dumps(alert)
     return alert
     
+def are_alerts_equal(alert1, alert2):
+    if(alert1["headline"] == alert2["headline"] and alert1["location"] == alert2["location"] and alert1["coordinates"] == alert2["coordinates"] and alert1["risk"] == alert2["risk"] and alert1["certainty"] == alert2["certainty"] and alert1["start"] == alert2["start"] and alert1["end"] == alert2["end"]):
+        return True
+    else:
+        return False
