@@ -293,8 +293,6 @@ def random_fake_alerts() -> list:
             "end": end
         }
 
-        alert["id"] = generate_unique_id(alert)
-
         random_alerts.append(json.dumps(alert))
     
     return random_alerts
@@ -312,7 +310,6 @@ def fake_alert(headline, location, risk, certainty, issue_date, expiry_date) -> 
         "start": issue_date,
         "end": expiry_date
     }
-    alert["id"] = generate_unique_id(alert)
     alert = json.dumps(alert)
     return alert
     
