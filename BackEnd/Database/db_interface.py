@@ -5,6 +5,7 @@ import datetime
 from External_API.ExtApi_RealTime import get_real_alerts
 from External_API.ExtApi_RealTime import are_alerts_equal
 from External_API.ExtApi_RealTime import random_fake_alerts
+from External_API.ExtApi_RealTime import specific_fake_alert
 
 class Point(object):
     def __init__(self, x, y):
@@ -633,6 +634,10 @@ class DBInterface():
         return result
     
     def get_alerts(self):
+        """
+            Gets all current alerts in the database 
+
+        """
         query = "SELECT * FROM Alerts"
         result = self.query(query)
         return result
@@ -646,8 +651,8 @@ class DBInterface():
                     is_recorded = True
 
             if(is_recorded == False):
-                query = "INSERT INTO Alerts (headline, location, risk, certainty, start_ts, end_ts) VALUES (%s, %s, %s, %s, %s, %s)"
-                self.query(query, alert["headline"], alert["location"], alert["risk"], alert["certainty"], alert["start"], alert["end"])
+                query = "INSERT INTO Alerts (headline, location, coordinates, risk, certainty, start_ts, end_ts) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                self.query(query, alert[0], alert[1], alert[2], alert[3], alert[4], alert[5], alert[6]) 
 
     def update_alerts_fake_random(self):
         alerts = random_fake_alerts
@@ -658,12 +663,23 @@ class DBInterface():
                     is_recorded = True
 
             if(is_recorded == False):
-                query = "INSERT INTO Alerts (headline, location, risk, certainty, start_ts, end_ts) VALUES (%s, %s, %s, %s, %s, %s)"
-                self.query(query, alert["headline"], alert["location"], alert["risk"], alert["certainty"], alert["start"], alert["end"])    
+                query = "INSERT INTO Alerts (headline, location, coordinates, risk, certainty, start_ts, end_ts) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                self.query(query, alert[0], alert[1], alert[2], alert[3], alert[4], alert[5], alert[6])   
 
-  
-    
+    def update_alerts_fake_specific(self, headline: str, location: str, risk: str, certainty: str, issue_date: str, expirydate: str, coordinates: tuple):
+        alert = specific_fake_alert(headline, location, risk, issue_date, expirydate, coordinates)
         
+        is_recorded = False
+        for recorded_alert in self.get_alerts():
+            if(are_alerts_equal(alert, recorded_alert)):
+                is_recorded = True
+
+        if(is_recorded == False):
+            query = "INSERT INTO Alerts (headline, location, coordinates, risk, certainty, start_ts, end_ts) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            self.query(query, alert[0], alert[1], alert[2], alert[3], alert[4], alert[5], alert[6]) 
+   
+        
+    
 
 
 
