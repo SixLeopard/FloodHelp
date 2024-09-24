@@ -161,6 +161,7 @@ def get_real_alerts() -> list:
     each formatted as a dictionary with the following keys:
         - 'headline': The title or summary of the alert.
         - 'location': The affected locations for the flood alert.
+        - 'coordinates': Coordinates for the flood alert.
         - 'risk': The severity of the flood risk (e.g., Minor, Moderate, Severe).
         - 'certainty': The level of certainty associated with the alert.
         - 'start': The start time of the alert.
@@ -190,7 +191,6 @@ def get_real_alerts() -> list:
         new_alert = {}
         if (alert["event"] == "Flood Warning" and alert["msgtype"] == "Alert"):
             lat, lon = get_coordinates(f"Brisbane, {alert['areas']}")
-            new_alert["id"] = generate_unique_id(alert)
             new_alert["headline"] = alert["headline"]
             new_alert["location"] = alert["areas"]
             new_alert["coordinates"] = (lat, lon)
@@ -299,17 +299,28 @@ def random_fake_alerts() -> list:
 
 
 
-def fake_alert(headline, location, risk, certainty, issue_date, expiry_date) -> str:
+def specific_fake_alert(headline, location, risk, certainty, issue_date, expiry_date, coordinates) -> str:
     lat, lon = get_coordinates(f"Brisbane, {location}")
-    alert = {
-        "headline": headline,
-        "location": location,
-        "coordinates": (lat, lon),
-        "risk": risk,
-        "certainty": certainty,
-        "start": issue_date,
-        "end": expiry_date
-    }
+    if coordinates == (0, 0):
+        alert = {
+            "headline": headline,
+            "location": location,
+            "coordinates": (lat, lon),
+            "risk": risk,
+            "certainty": certainty,
+            "start": issue_date,
+            "end": expiry_date
+        }
+    else:
+        alert = {
+            "headline": headline,
+            "location": location,
+            "coordinates": coordinates,
+            "risk": risk,
+            "certainty": certainty,
+            "start": issue_date,
+            "end": expiry_date
+        }        
     alert = json.dumps(alert)
     return alert
     
