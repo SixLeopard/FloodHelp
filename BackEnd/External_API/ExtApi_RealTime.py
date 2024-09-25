@@ -8,6 +8,8 @@ from datetime import datetime, timedelta
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 import hashlib
+from dateutil import parser
+import pytz
 
 def generate_unique_id(alert: dict) -> str:
         """Generates a unique ID using the components of the alert."""
@@ -151,7 +153,7 @@ def get_real_time_data() -> str:
 
 
 
-def get_alerts() -> list:
+def get_real_alerts() -> list:
 
     """
     Retrieves all flood alerts for Brisbane from the past day using an external weather API.
@@ -161,6 +163,7 @@ def get_alerts() -> list:
     each formatted as a dictionary with the following keys:
         - 'headline': The title or summary of the alert.
         - 'location': The affected locations for the flood alert.
+        - 'coordinates': Coordinates for the flood alert.
         - 'risk': The severity of the flood risk (e.g., Minor, Moderate, Severe).
         - 'certainty': The level of certainty associated with the alert.
         - 'start': The start time of the alert.
@@ -190,7 +193,6 @@ def get_alerts() -> list:
         new_alert = {}
         if (alert["event"] == "Flood Warning" and alert["msgtype"] == "Alert"):
             lat, lon = get_coordinates(f"Brisbane, {alert['areas']}")
-            new_alert["id"] = generate_unique_id(alert)
             new_alert["headline"] = alert["headline"]
             new_alert["location"] = alert["areas"]
             new_alert["coordinates"] = (lat, lon)
@@ -293,26 +295,64 @@ def random_fake_alerts() -> list:
             "end": end
         }
 
-        alert["id"] = generate_unique_id(alert)
-
         random_alerts.append(json.dumps(alert))
     
     return random_alerts
 
 
 
-def fake_alert(headline, location, risk, certainty, issue_date, expiry_date) -> str:
+def specific_fake_alert(headline, location, risk, certainty, issue_date, expiry_date, coordinates) -> str:
     lat, lon = get_coordinates(f"Brisbane, {location}")
-    alert = {
-        "headline": headline,
-        "location": location,
-        "coordinates": (lat, lon),
-        "risk": risk,
-        "certainty": certainty,
-        "start": issue_date,
-        "end": expiry_date
-    }
-    alert["id"] = generate_unique_id(alert)
+    if coordinates == (0, 0):
+        alert = {
+            "headline": headline,
+            "location": location,
+            "coordinates": (lat, lon),
+            "risk": risk,
+            "certainty": certainty,
+            "start": issue_date,
+            "end": expiry_date
+        }
+    else:
+        alert = {
+            "headline": headline,
+            "location": location,
+            "coordinates": coordinates,
+            "risk": risk,
+            "certainty": certainty,
+            "start": issue_date,
+            "end": expiry_date
+        }        
     alert = json.dumps(alert)
     return alert
     
+def are_alerts_equal(alert1, alert2):
+    if(alert1["headline"] == alert2[1] and alert1["location"] == alert2[2] and alert1["coordinates"] == alert2[7] and alert1["risk"] == alert2[3] and alert1["certainty"] == alert2[4] and alert1["start"] == alert2[5] and alert1["end"] == alert2[6]):
+        return True
+    else:
+        return False
+    
+def compare_to_current_time(date_str: str):
+    try:
+        # Brisbane timezone (AEST, UTC+10:00)
+        brisbane_tz = pytz.timezone('Australia/Brisbane')
+        
+        # Parse the input date string to a datetime object
+        input_date = parser.parse(date_str)
+        
+        # Get the current time in Brisbane timezone
+        current_time = datetime.now(brisbane_tz)
+
+        # If input_date is offset-naive, localize it to Brisbane timezone
+        if input_date.tzinfo is None:
+            input_date = brisbane_tz.localize(input_date)
+
+        # Compare input date to current time
+        if input_date < current_time:
+            return "past"
+        elif input_date > current_time:
+            return "future"
+        else:
+            return "present"
+    except ValueError:
+        return "Invalid date format."
