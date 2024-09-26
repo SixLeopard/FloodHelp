@@ -7,7 +7,7 @@ import useAPI from "@/hooks/useAPI";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Connections = () => {
-    const relationships = useAPI(`/relationships/get_relationships`);
+    const relationships = useAPI('/relationships/get_relationships');
     const currentUser = useAPI('/accounts/get_current');
     const styles = useStyles();
 
@@ -15,22 +15,9 @@ const Connections = () => {
         return <Text>Loading...</Text>;
     }
 
+    console.log(relationships)
+
     // Helper function to determine the userAction prop
-    const determineUserAction = (connection, isCurrentUserRequester) => {
-        if (connection.approved) {
-            return { status: connection.status };
-        }
-
-        if (!connection.approved && isCurrentUserRequester) {
-            return { requestType: "pendingRequest" };
-        }
-
-        if (!connection.approved && !isCurrentUserRequester) {
-            return { requestType: "connectionRequest" };
-        }
-
-        return { requestType: "sendRequest" };
-    };
 
     return (
         <View style={styles.page}>
@@ -38,11 +25,17 @@ const Connections = () => {
 
             {Object.entries(relationships).map(([key, connection]) => {
                 // Only show approved connections
+                var username = connection.requestee_name
                 if (connection.approved) {
+                    if (connection.requestee_name == currentUser.name) {
+                         username = connection.requester_name
+                    }
+
+
                     return (
                         <UserCard
                             key={key}
-                            username={connection.requestee_name}
+                            username={username}
                             userID={connection.requestee_uid}
                             relationshipID={key}
                             userAction={"approvedRequest"}

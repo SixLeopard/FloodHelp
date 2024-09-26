@@ -16,23 +16,23 @@ const UserCard = ({ username, userID, relationshipID, userAction }) => {
 
     // Function to handle API call on icon press
     const handlePress = async (actionType) => {
-        let endpoint;
+        let endpoint = "http://54.206.190.121:5000";
         const formData = new FormData();
         formData.append('relationship_id', relationshipID);
 
         // Define the endpoint based on the actionType
         switch (actionType) {
             case 'accept':
-                endpoint = "/relationships/approve";
+                endpoint += "/relationships/approve";
                 break;
             case 'remove':
-                endpoint = "/relationships/delete/";
+                endpoint += "/relationships/delete/";
                 break;
             case 'send-request':
-                endpoint = "/relationships/create"; // Example endpoint for sending new requests
+                endpoint += "/relationships/create"; // Example endpoint for sending new requests
                 break;
             case 'check-status':
-                endpoint = `/user/${userID}/status`; // Example endpoint for checking user status
+                endpoint += `/user/${userID}/status`; // Example endpoint for checking user status
                 break;
             default:
                 return;
@@ -102,7 +102,7 @@ const UserCard = ({ username, userID, relationshipID, userAction }) => {
 
     return (
         <View style={styles.userCard}>
-            <UserPressable userId={userID} username={username} />
+            <UserPressable userId={userID} username={username} relationshipID={relationshipID} />
 
             {loading ? (
                 // Show a loading spinner when API call is in progress
