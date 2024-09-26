@@ -1,19 +1,21 @@
-import React, {useState, useCallback, useEffect} from 'react';
-import { Text, View, Animated, RefreshControl, ActivityIndicator } from "react-native";
-import useStyles from "@/constants/style";
-import UserCard from "@/components/UserCard";
+import React, { useState, useCallback, useEffect } from 'react';
+import { Text, View, Animated, RefreshControl } from 'react-native';
+import useStyles from '@/constants/style';
+import useAPI from '@/hooks/useAPI';
+import UserCard from '@/components/UserCard';
+import Loading from '@/components/Loading';
+import EmptyState from '@/components/EmptyState';
 import FH_Button from "@/components/navigation/FH_Button";
-import useAPI from "@/hooks/useAPI";
 
 const ScrollView = Animated.ScrollView;
 
 const Connections = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
+    const styles = useStyles();
 
     const relationships = useAPI(`/relationships/get_relationships?refreshKey=${refreshKey}`);
     const currentUser = useAPI('/accounts/get_current');
-    const styles = useStyles();
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -22,22 +24,14 @@ const Connections = () => {
 
     useEffect(() => {
         if (relationships && currentUser) {
-            // Data is fetched, stop the spinner
             setRefreshing(false);
         }
     }, [relationships, currentUser]);
 
-    // Wait for the data to be available
     if (!relationships || !currentUser) {
-        return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color={styles.primaryColor} />
-                <Text style={styles.bodyText}>Loading Connections...</Text>
-            </View>
-        );
+        return <Loading text="Loading Connections..." />;
     }
 
-    // Get approved and pending connections
     const approvedConnections = [];
     const pendingRequests = [];
 
@@ -48,7 +42,6 @@ const Connections = () => {
         if (connection.approved) {
             const username = isCurrentUserRequestee ? connection.requester_name : connection.requestee_name;
             const userId = isCurrentUserRequestee ? connection.requester_uid : connection.requestee_uid;
-
             approvedConnections.push(
                 <UserCard
                     key={key}
@@ -63,7 +56,7 @@ const Connections = () => {
                 <UserCard
                     key={key}
                     username={connection.requester_name}
-                    userId={connection.requester_uid}
+                    userID={connection.requester_uid}
                     relationshipID={key}
                     userAction="connectionRequest"
                 />
@@ -74,25 +67,15 @@ const Connections = () => {
     return (
         <View style={styles.page}>
             <ScrollView
-                contentContainerStyle={{
-                    flexGrow: 1,
-                    alignItems: 'center', // Center content horizontally
-                    justifyContent: 'center' // Center content vertically
-                }}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
+                contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
                 <Text style={styles.headerText}>Connections</Text>
                 {approvedConnections.length > 0 ? (
                     approvedConnections
                 ) : (
-                    <><Text style={styles.bodyText}>No Approved Connections</Text><FH_Button
-                        route="/newConnections"
-                        text="add your first connection!"/></>
-
+                    <EmptyState message="No Approved Connections" buttonText="Add your first connection!" buttonRoute="/newConnections" />
                 )}
-
                 <Text style={styles.headerText}>Pending Connection Requests</Text>
                 {pendingRequests.length > 0 ? (
                     pendingRequests
@@ -100,7 +83,6 @@ const Connections = () => {
                     <Text style={styles.bodyText}>No Pending Connection Requests</Text>
                 )}
             </ScrollView>
-
             <FH_Button
                 route="/newConnections"
                 text="Add New Connections"
