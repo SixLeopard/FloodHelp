@@ -1,34 +1,55 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     Text,
     TextInput,
     TouchableOpacity,
     View,
     ActivityIndicator,
-    Alert,
     RefreshControl,
     Animated
 } from "react-native";
 import useStyles from "@/constants/style";
 import UserCard from "@/components/UserCard";
-import FH_Button from "@/components/navigation/FH_Button";
 import useAPI from "@/hooks/useAPI";
-import ScrollView = Animated.ScrollView;
+
+const ScrollView = Animated.ScrollView;
 
 const NewConnections = ({ navigation }) => {
     const styles = useStyles();
-    const relationships = useAPI(`/relationships/get_relationships`);
-    const currentUser = useAPI('/accounts/get_current');
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState(null);
-    const [refreshing, setRefreshing] = useState(false); // State for refreshing
-    const [refreshKey, setRefreshKey] = useState(0); // Trigger for refreshing
+    const [refreshing, setRefreshing] = useState(false);
+    const [relationships, setRelationships] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
+    const apiUrl = "http://54.206.190.121:5000";
+
+    // Fetch relationships and current user data
+    const fetchData = async () => {
+        try {
+            const relationshipsResponse = await fetch(`${apiUrl}/relationships/get_relationships`);
+            const relationshipsData = await relationshipsResponse.json();
+            setRelationships(relationshipsData);
+
+            const currentUserResponse = await fetch(`${apiUrl}/accounts/get_current`);
+            const currentUserData = await currentUserResponse.json();
+            setCurrentUser(currentUserData);
+
+            setRefreshing(false); // Stop refreshing after data is fetched
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            setRefreshing(false); // Stop refreshing even on error
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     // Handle user search and send a connection request
     const handleUserSearch = async (email) => {
         setLoading(true);
-        setFeedbackMessage(null); // Reset feedback message
+        setFeedbackMessage(null);
 
         if (!validateEmail(email)) {
             setFeedbackMessage({ type: 'error', message: 'Please enter a valid email address.' });
@@ -36,20 +57,14 @@ const NewConnections = ({ navigation }) => {
             return;
         }
 
-        let url = "http://54.206.190.121:5000/relationships/create";
+        const url = `${apiUrl}/relationships/create`;
         const formData = new FormData();
         formData.append('requestee_email', email);
 
         try {
-            const response = await fetch(url, {
-                method: 'POST',
-                body: formData,
-            });
+            const response = await fetch(url, { method: 'POST', body: formData });
             const result = await response.json();
-
-            // Handle different response cases
             handleApiResponse(result);
-
         } catch (error) {
             setFeedbackMessage({ type: 'error', message: 'Error with API call. Please try again.' });
         } finally {
@@ -61,20 +76,18 @@ const NewConnections = ({ navigation }) => {
     const handleApiResponse = (response) => {
         if (response.success) {
             setFeedbackMessage({ type: 'success', message: 'Connection request sent successfully!' });
-        } else if (response.user_does_not_exist) {
-            setFeedbackMessage({ type: 'error', message: 'User does not exist.' });
-        } else if (response.relationship_exists) {
-            setFeedbackMessage({ type: 'error', message: 'Error: Relationship already exists.' });
-        } else if (response.self_relationship) {
-            setFeedbackMessage({ type: 'error', message: 'Error: You cannot connect with yourself.' });
-        } else if (response['database error']) {
-            setFeedbackMessage({ type: 'error', message: `Database error: ${response['database error']}` });
-        } else if (response.invalid_account) {
-            setFeedbackMessage({ type: 'error', message: 'Error: Invalid account. Please log in.' });
-        } else if (response.invalid_request) {
-            setFeedbackMessage({ type: 'error', message: 'Error: Invalid request method.' });
         } else {
-            setFeedbackMessage({ type: 'error', message: 'Unknown error occurred. Please try again' });
+            const errorMessages = {
+                user_does_not_exist: 'User does not exist.',
+                relationship_exists: 'Error: Relationship already exists.',
+                self_relationship: 'Error: You cannot connect with yourself.',
+                'database error': (error) => `Database error: ${error}`,
+                invalid_account: 'Error: Invalid account. Please log in.',
+                invalid_request: 'Error: Invalid request method.',
+            };
+
+            const message = Object.keys(errorMessages).find(key => response[key]) || 'Unknown error occurred. Please try again';
+            setFeedbackMessage({ type: 'error', message: typeof errorMessages[message] === 'function' ? errorMessages[message](response['database error']) : errorMessages[message] });
         }
     };
 
@@ -85,102 +98,106 @@ const NewConnections = ({ navigation }) => {
     };
 
     const onRefresh = useCallback(() => {
-        setRefreshing(true); // Start refreshing
-        setRefreshKey(prevKey => prevKey + 1); // Increment refresh key to refetch data
+        setRefreshing(true);
+        fetchData(); // Re-fetch data on refresh
     }, []);
 
-    // Stop refreshing after data is fetched
-    useEffect(() => {
-        if (relationships && currentUser) {
-            setRefreshing(false); // Stop the spinner once data is loaded
-        }
-    }, [relationships, currentUser]);
+    // Centralized loading state and error handling
+    const renderLoadingState = () => (
+        <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+            <Text>Loading data...</Text>
+        </View>
+    );
 
-    if (!relationships || !currentUser) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#0000ff" />
-                <Text>Loading data...</Text>
-            </View>
+    // Centralized feedback message display
+    const renderFeedbackMessage = () => (
+        feedbackMessage && (
+            <Text style={feedbackMessage.type === 'error' ? styles.errorText : styles.successText}>
+                {feedbackMessage.message}
+            </Text>
+        )
+    );
+
+    // Function to render pending connection requests
+    const renderPendingRequests = () => {
+        const pendingRequests = Object.entries(relationships).filter(([key, connection]) =>
+            !connection.approved && connection.requester_uid === currentUser.uid
         );
+
+        // Check if there are pending requests
+        if (pendingRequests.length === 0) {
+            return <Text style={styles.bodyText}>No pending connection requests.</Text>;
+        }
+
+        // Map through pending requests to display UserCard components
+        return pendingRequests.map(([key, connection]) => (
+            <UserCard
+                key={key}
+                username={connection.requestee_name}
+                userID={connection.requestee_uid}
+                relationshipID={key}
+                userAction={"pendingRequest"}
+            />
+        ));
+    };
+
+    // Early return if relationships or currentUser data is not yet available
+    if (!relationships || !currentUser) {
+        return renderLoadingState();
     }
-
-
 
     return (
         <View style={styles.page}>
-        <ScrollView
-            contentContainerStyle={{
-                flexGrow: 1,
-                alignItems: 'center', // Center content horizontally
-                justifyContent: 'center' // Center content vertically
-            }}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-        >
-            <Text style={styles.headerText}>Add Connections</Text>
-            <Text style={styles.bodyText}>
-                Connections can send you check-in requests and see your location during emergencies.
-            </Text>
-
-
-            {/* Email Input Field */}
-            <TextInput
-                style={styles.inputBoxSignInPage}
-                value={email}
-                onChangeText={setEmail}
-                placeholder="floodhelp@example.com"
-                placeholderTextColor="#ccc"
-                keyboardType="email-address"
-                autoCapitalize="none"
-            />
-
-            {/* Feedback Message Display */}
-            {feedbackMessage && (
-                <Text style={feedbackMessage.type === 'error' ? styles.errorText : styles.successText}>
-                    {feedbackMessage.message}
-                </Text>
-            )}
-
-            {/* Send Connection Request Button */}
-            <TouchableOpacity
-                style={styles.signInButton}
-                onPress={() => handleUserSearch(email)}
-                disabled={loading}
+            <ScrollView
+                contentContainerStyle={{
+                    flexGrow: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
             >
-                {loading ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                    <Text style={styles.signInButtonText}>Send Connection Request</Text>
-                )}
-            </TouchableOpacity>
+                <Text style={styles.headerText}>Add Connections</Text>
+                <Text style={styles.bodyText}>
+                    Connections can send you check-in requests and see your location during emergencies.
+                </Text>
 
-            <Text style={styles.headerText}>Connection Requests Sent</Text>
-
-            {/* Render pending requests */}
-            {relationships && renderPendingRequests(relationships, currentUser)}
-        </ScrollView>
-            </View>
-    );
-};
-
-// Function to render pending connection requests
-const renderPendingRequests = (relationships, currentUser) => {
-    return Object.entries(relationships).map(([key, connection]) => {
-        if (!connection.approved && connection.requester_uid === currentUser.uid) {
-            return (
-                <UserCard
-                    key={key}
-                    username={connection.requestee_name}
-                    userID={connection.requestee_uid}
-                    relationshipID={key}
-                    userAction={"pendingRequest"}
+                {/* Email Input Field */}
+                <TextInput
+                    style={styles.inputBoxSignInPage}
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="floodhelp@example.com"
+                    placeholderTextColor="#ccc"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
                 />
-            );
-        }
-        return null;
-    });
+
+                {/* Feedback Message Display */}
+                {renderFeedbackMessage()}
+
+                {/* Send Connection Request Button */}
+                <TouchableOpacity
+                    style={styles.signInButton}
+                    onPress={() => handleUserSearch(email)}
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                        <Text style={styles.signInButtonText}>Send Connection Request</Text>
+                    )}
+                </TouchableOpacity>
+
+                <Text style={styles.headerText}>Connection Requests Sent</Text>
+
+                {/* Render pending requests */}
+                {renderPendingRequests()}
+            </ScrollView>
+        </View>
+    );
 };
 
 export default NewConnections;
