@@ -1,15 +1,11 @@
 import React from 'react';
 import {Animated, Text, TouchableOpacity, View} from "react-native";
 import useStyles from "@/constants/style";
-import {useLocalSearchParams} from "expo-router";
+import {router, useLocalSearchParams} from "expo-router";
 import UserAvatar from "@/components/UserAvatar";
-import ReportCard from "@/components/ReportCard";
-import FH_Button from "@/components/navigation/FH_Button";
-import ScrollView = Animated.ScrollView;
-import {MaterialCommunityIcons} from "@expo/vector-icons";
 
 const UserPage = () => {
-    const {id, relationshipID} = useLocalSearchParams<{ id: string, relationshipID: string}>();
+    const {id, username, relationshipID} = useLocalSearchParams<{ id: string, username: string, relationshipID: string}>();
     const styles = useStyles();
 
     const handlePress = async (relationshipID) => {
@@ -23,6 +19,7 @@ const UserPage = () => {
                 body: formData,
             });
            console.log(response.json())
+            router.replace('/connections')
 
         } catch (error) {
             console.error("Error with API call:", error);
@@ -35,7 +32,7 @@ const UserPage = () => {
 
     return (
         <View style={styles.page}>
-        <Text style={styles.headerText}>User Name {id}</Text>
+        <Text style={styles.headerText}>{username}</Text>
             <UserAvatar size={100} imageLink={""} />
                 <Text></Text>
                 <Text style={styles.bodyTextBold }>Current Status</Text>
@@ -44,15 +41,9 @@ const UserPage = () => {
             <Text></Text>
             <Text style={styles.bodyTextBold }>Reporting History </Text>
             <Text style={styles.bodyTextBold }>(will call databse to populate)</Text>
-
-
-            <Text></Text>
-            <Text style={styles.bodyTextBold }>Connection?</Text>
-            <Text style={styles.bodyTextBold }>(add connection / delete connection etc.)</Text>
-            <TouchableOpacity onPress={() => handlePress(relationshipID)}>
-                <MaterialCommunityIcons name="account-remove" size={35}  />
+            <TouchableOpacity style={styles.logoutButton} onPress={() => handlePress(relationshipID)}>
+                <Text style={styles.logoutButtonText}>Delete Connection</Text>
             </TouchableOpacity>
-
 
 
             </View>

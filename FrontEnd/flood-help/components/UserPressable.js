@@ -12,7 +12,7 @@ const UserPressable = ({username, userId, relationshipID}) => {
         <Pressable style ={styles.userPressable}
                    onPress={() => router.push({
                        pathname: '/user/[id]',
-                       params: {id : userId, relationshipID: relationshipID}
+                       params: {id : userId, username: username, relationshipID: relationshipID}
                    })
                    }>
 
