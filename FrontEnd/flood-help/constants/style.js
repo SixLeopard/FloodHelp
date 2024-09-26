@@ -3,7 +3,7 @@ import {useTheme} from "@/contexts/ThemeContext";
 import {Colors} from "@/constants/Colors";
 
 const useStyles = () => {
-    const { theme } = useTheme();
+    const {theme} = useTheme();
     const colors = theme.colors
 
 
