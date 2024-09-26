@@ -6,7 +6,7 @@ import ReportCard from '@/components/ReportCard';
 import FH_Button from '@/components/navigation/FH_Button';
 import useAPI from '@/hooks/useAPI';
 
-const ScrollView = Animated.ScrollView; // Reassignment remains unchanged
+const ScrollView = Animated.ScrollView;
 
 const Profile = () => {
     const styles = useStyles();
