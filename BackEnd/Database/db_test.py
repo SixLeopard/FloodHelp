@@ -1,9 +1,10 @@
 from db_interface import DBInterface
-
-db = DBInterface()
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+db = DBInterface()
+
 
 def test_select():
     result = db.query("SELECT * FROM Users")
