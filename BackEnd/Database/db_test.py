@@ -57,5 +57,5 @@ def test_update_alerts_fake_specific():
 # test_get_hazard()
 # test_historical_data()
 # test_get_user()
-test_notifications()
+test_get_alerts()
 
