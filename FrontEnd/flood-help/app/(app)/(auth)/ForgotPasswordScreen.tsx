@@ -4,7 +4,7 @@ import useStyles from '@/constants/style'; // Import your styles
 import { router } from 'expo-router'; // Import the router
 
 const ForgotPasswordScreen = () => {
-    const styles = useStyles(); // Access styles using useStyles
+   const styles = useStyles(); // Access styles using useStyles
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState(''); // State for displaying messages
 
