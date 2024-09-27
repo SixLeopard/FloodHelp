@@ -737,12 +737,10 @@ class DBInterface():
             expiry_date = alert[6]
             print(compare_to_current_time(expiry_date))
             if(compare_to_current_time(expiry_date) == "past"):
-                try:
-                    query = "DELETE FROM Alerts WHERE id = %s"
-                    self.query(query, id)
-                    return 1
-                except:
-                    return 0
+                query = "DELETE FROM Alerts WHERE id = %s"
+                self.query(query, id)
+                
+                    
     def delete_all_alerts(self):
         query = "DELETE FROM Alerts"
         self.query(query)
