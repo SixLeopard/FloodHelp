@@ -2,6 +2,11 @@ import psycopg2
 import re
 from psycopg2.extensions import adapt, register_adapter, AsIs
 import datetime
+
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from External_API.ExtApi_RealTime import get_real_alerts
 from External_API.ExtApi_RealTime import are_alerts_equal
 from External_API.ExtApi_RealTime import random_fake_alerts
