@@ -339,6 +339,17 @@ def specific_fake_alert(headline, location, risk, certainty, issue_date, expiry_
     return alert
     
 def are_alerts_equal(alert1, alert2):
+    print("checking equal alerts")
+    print()
+    print(str(alert1["headline"]), str(alert2[1]))
+    print()
+    print(str(alert1["location"]), str(alert2[2]))
+    print()
+    print(str(alert1["coordinates"]), str(alert2[7]))
+    print()
+    print(str(alert1["end"]), str(alert2[6]))
+    print()
+
     if(str(alert1["headline"]) == str(alert2[1]) and str(alert1["location"]) == str(alert2[2]) and str(alert1["coordinates"]) == str(alert2[7]) and str(alert1["risk"]) == str(alert2[3]) and str(alert1["certainty"]) == str(alert2[4]) and str(alert1["start"]) == str(alert2[5]) and str(alert1["end"]) == str(alert2[6])):
         return True
     else:
