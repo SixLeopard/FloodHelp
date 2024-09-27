@@ -51,12 +51,17 @@ def test_update_alerts_fake_specific_no_coordinates():
     print(db.get_alerts())
 
 def test_update_alerts_fake_specific_with_coordinates():
-    db.update_alerts_fake_specific("this is a specifc alert", "Brisbane, Kangaroo Point", "Run for your life", "very certain", "2024-09-27T01:37:00", "2024-09-27T02:37:00", (100,100))
+    db.update_alerts_fake_specific("this is a specifc alert", "Brisbane, Kangaroo Point", "Run for your life", "very certain", "2024-09-27T11:30:00", "2024-09-27T12:03:00", (100,100))
     print(db.get_alerts())
 
 def test_delete_all_alerts():
     db.delete_all_alerts()
     print(db.get_alerts())
+
+def test_delete_expired_alerts():
+    db.delete_expired_alerts()
+    print(db.get_alerts())
+
 
 
 
@@ -68,8 +73,5 @@ def test_delete_all_alerts():
 # test_get_hazard()
 # test_historical_data()
 # test_get_user()
-test_delete_all_alerts()
-test_update_alerts_fake_random()
-test_update_alerts_fake_specific_no_coordinates()
-test_update_alerts_fake_specific_with_coordinates()
+test_delete_expired_alerts()
 
