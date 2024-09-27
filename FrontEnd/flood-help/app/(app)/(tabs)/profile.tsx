@@ -6,7 +6,7 @@ import ReportCard from '@/components/ReportCard';
 import FH_Button from '@/components/navigation/FH_Button';
 import useAPI from '@/hooks/useAPI';
 
-const ScrollView = Animated.ScrollView; // Reassignment remains unchanged
+const ScrollView = Animated.ScrollView;
 
 const Profile = () => {
     const styles = useStyles();
@@ -14,6 +14,7 @@ const Profile = () => {
     const [refreshKey, setRefreshKey] = useState(0); // Use this to trigger re-fetch
 
     const allReports = useAPI(`/reporting/user/get_all_reports_by_user?refreshKey=${refreshKey}`);
+    const currentUser = useAPI('/accounts/get_current')
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -21,17 +22,18 @@ const Profile = () => {
         setRefreshing(false);
     }, []);
 
-    if (!allReports) {
+
+
+    if (!allReports || !currentUser) {
         return <Text>Loading...</Text>;
     }
 
-    console.log(allReports);
 
     return (
         <View style={styles.page}>
             <Text style={styles.headerText}>Profile Page</Text>
             <UserAvatar size={100} imageLink={''} />
-            <Text style={styles.nameText}>User Name</Text>
+            <Text style={styles.nameText}>{currentUser.name}</Text>
             <Text style={styles.bodyTextBold}>Reporting History</Text>
 
             <ScrollView

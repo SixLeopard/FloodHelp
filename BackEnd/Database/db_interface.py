@@ -2,6 +2,11 @@ import psycopg2
 import re
 from psycopg2.extensions import adapt, register_adapter, AsIs
 import datetime
+from External_API.ExtApi_RealTime import get_real_alerts
+from External_API.ExtApi_RealTime import are_alerts_equal
+from External_API.ExtApi_RealTime import random_fake_alerts
+from External_API.ExtApi_RealTime import specific_fake_alert
+from External_API.ExtApi_RealTime import compare_to_current_time
 
 class Point(object):
     def __init__(self, x, y):
@@ -628,4 +633,111 @@ class DBInterface():
         self.query(query, uid)
 
         return result
+    
+    def get_alerts(self):
+        """
+            Gets all current alerts in the database 
+            
+            Returns a list of tuples in the form:
+                [('headline', 'location', 'risk', 'certainty', 'start', 'end', 'coordinates'), ...]
+
+        """
+        query = "SELECT * FROM Alerts"
+        result = self.query(query)
+        return result
+    
+    def update_alerts_real(self):
+        """
+            Add all ongoing alerts to database, if not already there
+            Limit of use: Once per 5 minutes
+            Returns:
+                None
+
+        """
+        alerts = get_real_alerts()
+        for alert in alerts:
+            is_recorded = False
+            for recorded_alert in self.get_alerts():
+                if(are_alerts_equal(alert, recorded_alert)):
+                    is_recorded = True
+
+            if(is_recorded == False):
+                query = "INSERT INTO Alerts (headline, location, risk, certainty, start_ts, end_ts, coordinates) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                self.query(query, alert["headline"], alert["location"], alert["risk"], alert["certainty"], alert["start"], alert["end"], alert["coordinates"]) 
+
+    def update_alerts_fake_random(self):
+        """
+            Add 1-3 random fake alerts to database
+            Limit of use: Once per 5 minutes
+            Returns:
+                None
+
+        """
+        alerts = random_fake_alerts
+        for alert in alerts:
+            is_recorded = False
+            for recorded_alert in self.get_alerts():
+                if(are_alerts_equal(alert, recorded_alert)):
+                    is_recorded = True
+
+            if(is_recorded == False):
+                query = "INSERT INTO Alerts (headline, location, risk, certainty, start_ts, end_ts, coordinates) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                self.query(query, alert["headline"], alert["location"], alert["risk"], alert["certainty"], alert["start"], alert["end"], alert["coordinates"])   
+
+    def update_alerts_fake_specific(self, headline: str, location: str, risk: str, certainty: str, issue_date: str, expirydate: str, coordinates: tuple):
+        """
+            Add one custom fake alert to database
+            Limit of use: Once per 5 minutes
+
+            Args:
+                'headline' (str): general headline
+                'location' (str): area in which alert is in
+                'risk' (str): risk level of alert
+                'certainty' (str): certainty of alert
+                'start' (str): issue date of alert
+                'end' (str): expiry date of alert
+                'coordinates' (tuple (int, int)): exact coordinates of alert
+
+            If you want to specify exact coordinates of alert, put in the coordinates that you want in "coordinates" argument. If you want to just provide a location
+            without specifying exact coordinates, input (0,0) into the "coordinates" argument.
+
+            Returns:
+                None
+
+        """
+        alert = specific_fake_alert(headline, location, risk, issue_date, expirydate, coordinates)
+        
+        is_recorded = False
+        for recorded_alert in self.get_alerts():
+            if(are_alerts_equal(alert, recorded_alert)):
+                is_recorded = True
+
+        if(is_recorded == False):
+            query = "INSERT INTO Alerts (headline, location, risk, certainty, start_ts, end_ts, coordinates) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            self.query(query, alert["headline"], alert["location"], alert["risk"], alert["certainty"], alert["start"], alert["end"], alert["coordinates"])
+   
+        
+    def delete_expired_alerts(self):
+        """
+            Deletes all expired alerts in the database
+            Returns:
+                None
+        """
+        alerts = self.get_alerts()
+        for alert in alerts:
+            id = alert[0]
+            expiry_date = alert[6]
+            if(compare_to_current_time(expiry_date) == "past"):
+                try:
+                    query = "DELETE FROM Alerts WHERE id = %s"
+                    self.query(query, id)
+                    return 1
+                except:
+                    return 0
+
+
+
+
+
+
 
