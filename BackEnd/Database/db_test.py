@@ -32,6 +32,24 @@ def test_notifications():
     db.create_notification(31, 'flood warning', 'some text')
     print(db.get_notifications(31))
 
+def test_get_alerts():
+    print(db.get_alerts())
+
+def test_update_alerts_real():
+    db.update_alerts_real()
+    print(db.get_alerts())
+
+def test_update_alerts_fake_random():
+    db.update_alerts_fake_random()
+    print(db.get_alerts())
+
+def test_update_alerts_fake_specific():
+    db.update_alerts_fake_specific()
+    print(db.get_alerts())
+
+
+
+
 # test_create_user()
 # test_relationships()
 # test_select()
