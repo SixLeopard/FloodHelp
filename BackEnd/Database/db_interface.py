@@ -637,6 +637,9 @@ class DBInterface():
     def get_alerts(self):
         """
             Gets all current alerts in the database 
+            
+            Returns a list of tuples in the form:
+                [('headline', 'location', 'risk', 'certainty', 'start', 'end', 'coordinates'), ...]
 
         """
         query = "SELECT * FROM Alerts"
@@ -644,6 +647,13 @@ class DBInterface():
         return result
     
     def update_alerts_real(self):
+        """
+            Add all ongoing alerts to database, if not already there
+            Limit of use: Once per 5 minutes
+            Returns:
+                None
+
+        """
         alerts = get_real_alerts()
         for alert in alerts:
             is_recorded = False
@@ -656,6 +666,13 @@ class DBInterface():
                 self.query(query, alert["headline"], alert["location"], alert["risk"], alert["certainty"], alert["start"], alert["end"], alert["coordinates"]) 
 
     def update_alerts_fake_random(self):
+        """
+            Add 1-3 random fake alerts to database
+            Limit of use: Once per 5 minutes
+            Returns:
+                None
+
+        """
         alerts = random_fake_alerts
         for alert in alerts:
             is_recorded = False
@@ -668,6 +685,26 @@ class DBInterface():
                 self.query(query, alert["headline"], alert["location"], alert["risk"], alert["certainty"], alert["start"], alert["end"], alert["coordinates"])   
 
     def update_alerts_fake_specific(self, headline: str, location: str, risk: str, certainty: str, issue_date: str, expirydate: str, coordinates: tuple):
+        """
+            Add one custom fake alert to database
+            Limit of use: Once per 5 minutes
+
+            Args:
+                'headline' (str): general headline
+                'location' (str): area in which alert is in
+                'risk' (str): risk level of alert
+                'certainty' (str): certainty of alert
+                'start' (str): issue date of alert
+                'end' (str): expiry date of alert
+                'coordinates' (tuple (int, int)): exact coordinates of alert
+
+            If you want to specify exact coordinates of alert, put in the coordinates that you want in "coordinates" argument. If you want to just provide a location
+            without specifying exact coordinates, input (0,0) into the "coordinates" argument.
+
+            Returns:
+                None
+
+        """
         alert = specific_fake_alert(headline, location, risk, issue_date, expirydate, coordinates)
         
         is_recorded = False
@@ -681,6 +718,11 @@ class DBInterface():
    
         
     def delete_expired_alerts(self):
+        """
+            Deletes all expired alerts in the database
+            Returns:
+                None
+        """
         alerts = self.get_alerts()
         for alert in alerts:
             id = alert[0]
