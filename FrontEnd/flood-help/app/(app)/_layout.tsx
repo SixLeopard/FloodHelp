@@ -13,6 +13,7 @@ export default function RootLayout() {
                         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                         <Stack.Screen name="(auth)/LoginScreen" options={{ headerShown: false }} />
                         <Stack.Screen name="(auth)/CreateAccountScreen" options={{ headerShown: false }} />
+                        <Stack.Screen name="(auth)/ForgotPasswordScreen" options={{ headerShown: false }} />
                     </Stack>
                 </ThemeProvider>
             </FontContext>
