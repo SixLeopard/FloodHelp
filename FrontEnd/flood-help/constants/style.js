@@ -556,10 +556,9 @@ const useStyles = () => {
         // Forgot password page style
         formContainerForgotPassword: {
             width: '85%',
-            backgroundColor: colors.card, 
             padding: 20,
             borderRadius: 10,
-            borderColor: '#555', 
+            borderColor: '#e9ecef', 
             borderWidth: 1,
             alignItems: 'center',
             shadowColor: '#000',
