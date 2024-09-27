@@ -322,9 +322,9 @@ const useStyles = () => {
             width: '90%',
             padding: 15,
             marginVertical: 10,
-            borderWidth: 1,
+            borderWidth: 1.5,
             borderColor: theme.dark ? Colors.custom.borderDark : Colors.custom.borderLight, 
-            borderRadius: 10,
+            borderRadius: 20,
             backgroundColor: colors.card,
         },
         subHeaderText: {
