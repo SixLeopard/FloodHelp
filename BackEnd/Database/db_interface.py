@@ -713,7 +713,7 @@ class DBInterface():
                 None
 
         """
-        alert = specific_fake_alert(headline, location, risk, issue_date, expirydate, coordinates)
+        alert = specific_fake_alert(headline, location, risk, certainty, issue_date, expirydate, coordinates)
         alert = json.loads(alert)
         is_recorded = False
         for recorded_alert in self.get_alerts():
