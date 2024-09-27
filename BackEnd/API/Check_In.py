@@ -4,11 +4,11 @@ from API.database import database_interface
 import API.Accounts as Accounts
 from API.Notifications import add_notification
 
-session_routes = Blueprint("session_routes", __name__)
+checkin_routes = Blueprint("session_routes", __name__)
 
 status = {}
 
-@session_routes.route("/check_in/send",  methods = ['POST'])
+@checkin_routes.route("/check_in/send",  methods = ['POST'])
 def send_checkin_route():
     '''
         updates the current users status
@@ -31,7 +31,7 @@ def send_checkin_route():
     return make_response({"invalid_request":1})
 
 
-@session_routes.route("/check_in/get_checkins", methods = ['GET'])
+@checkin_routes.route("/check_in/get_checkins", methods = ['GET'])
 def get_checkin_route():
     '''
         get all status for users that the requester has a relationship with
@@ -56,7 +56,7 @@ def get_checkin_route():
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@session_routes.route("/check_in/send_push",  methods = ['POST'])
+@checkin_routes.route("/check_in/send_push",  methods = ['POST'])
 def send_checkin_push_route():
     '''
         respond to all pending checkins against you
