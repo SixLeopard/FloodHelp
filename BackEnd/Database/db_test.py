@@ -73,6 +73,10 @@ def test_delete_expired_alerts():
 # test_get_hazard()
 # test_historical_data()
 # test_get_user()
-test_update_alerts_fake_specific_with_coordinates()
+
+
+
+
+#test_update_alerts_fake_specific_with_coordinates()
 test_delete_expired_alerts()
 

@@ -735,10 +735,9 @@ class DBInterface():
         for alert in alerts:
             id = alert[0]
             expiry_date = alert[6]
-            print("time comparison:", compare_to_current_time(expiry_date) == "past")
             if(compare_to_current_time(expiry_date) == "past"):
                 try:
-                    query = "DELETE FROM Alerts WHERE id = %s"
+                    query = "DELETE * FROM Alerts WHERE id = %s"
                     self.query(query, id)
                     return 1
                 except:
