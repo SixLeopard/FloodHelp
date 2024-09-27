@@ -8,18 +8,21 @@ notifications_routes = Blueprint("notifications_routes", __name__)
 pending_notifications = {}
 
 def add_notification(receiver : str, notification : str) -> None:
+    receiver  = str(receiver)
     if receiver in pending_notifications:
         pending_notifications[receiver].append(notification)
     else:
         pending_notifications[receiver] = [notification]
 
 def get_notification(receiver : str) -> list[str]:
+    receiver  = str(receiver)
     if receiver in pending_notifications:
         return pending_notifications[receiver]
     else:
         return []
 
 def clear_notification(receiver : str) -> None:
+    receiver  = str(receiver)
     if receiver in pending_notifications:
         pending_notifications[receiver] = []
 
