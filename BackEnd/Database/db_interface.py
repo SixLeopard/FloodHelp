@@ -678,7 +678,7 @@ class DBInterface():
                 None
 
         """
-        alerts = random_fake_alerts
+        alerts = random_fake_alerts()
         for alert in alerts:
             is_recorded = False
             for recorded_alert in self.get_alerts():
