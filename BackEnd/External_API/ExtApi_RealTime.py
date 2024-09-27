@@ -10,6 +10,7 @@ from geopy.distance import geodesic
 import hashlib
 from dateutil import parser
 import pytz
+from zoneinfo import ZoneInfo
 
 def generate_unique_id(alert: dict) -> str:
         """Generates a unique ID using the components of the alert."""
@@ -252,11 +253,22 @@ def random_fake_alerts() -> list:
         return dt.replace(second=0, microsecond=0) + timedelta(minutes=round(dt.second / 60))
 
     def get_random_times() -> tuple:
-
-        start_time = datetime.now()
+        # Get current time in Brisbane timezone
+        brisbane_tz = ZoneInfo("Australia/Brisbane")
+        
+        # Get the current time in Brisbane
+        start_time = datetime.now(brisbane_tz)
+        
+        # Round the start time to the nearest minute
         start_time_rounded = round_to_nearest_minute(start_time)
+        
+        # Generate a random end time between 1 and 6 hours from the start time
         end_time = start_time_rounded + timedelta(hours=random.randint(1, 6))
+        
+        # Round the end time to the nearest minute
         end_time_rounded = round_to_nearest_minute(end_time)
+        
+        # Return ISO format strings
         return start_time_rounded.isoformat(), end_time_rounded.isoformat()
 
    
