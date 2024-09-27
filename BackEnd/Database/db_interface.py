@@ -742,6 +742,9 @@ class DBInterface():
                     return 1
                 except:
                     return 0
+    def delete_all_alerts(self):
+        query = "DELETE FROM Alerts"
+        self.query(query)
 
 
 
