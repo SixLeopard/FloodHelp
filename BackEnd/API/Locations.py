@@ -45,10 +45,10 @@ def update_locations():
             relationships = db.get_approved_relationships_ids(uid)   # Only returns approved relationships
             print(relationships)
             for relation_uid in relationships:
-                if relation_uid not in locations:
-                    locations[relation_uid] = {str(session["uid"]) : curr_location}
+                if str(relation_uid) not in locations:
+                    locations[str(relation_uid)] = {str(session["uid"]) : curr_location}
                 else:
-                    locations[relation_uid][str(session["uid"])] = curr_location
+                    locations[str(relation_uid)][str(session["uid"])] = curr_location
             # return all the current users pending and clear them if they exist
             print(locations)
             if (str(session["uid"]) in locations):
