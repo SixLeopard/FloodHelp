@@ -40,7 +40,7 @@ def update_locations():
         
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid = int(str(session["uid"]))
-
+            print(locations)
             # add the user current location to the pending dict for all the users they have relationship with
             relationships = db.get_approved_relationships_ids(uid)   # Only returns approved relationships
             for relation_uid in relationships:
@@ -54,7 +54,7 @@ def update_locations():
                 locations[str(session["uid"])].clear()
             else:
                 result = make_response({})
-
+            print(locations)
             return result
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1}) 
