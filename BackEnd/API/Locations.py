@@ -39,19 +39,19 @@ def update_locations():
         curr_location = request.form.get('location')
         
         if Accounts.verify_user_account(session["username"], session["id"]):
-            uid = int(session["uid"])
+            uid = int(str(session["uid"]))
 
             # add the user current location to the pending dict for all the users they have relationship with
             relationships = db.get_approved_relationships_ids(uid)   # Only returns approved relationships
             for relation_uid in relationships:
                 if relation_uid not in locations:
-                    locations[relation_uid] = {session["uid"] : curr_location}
+                    locations[relation_uid] = {str(session["uid"]) : curr_location}
                 else:
-                    locations[relation_uid][session["uid"]] = curr_location
+                    locations[relation_uid][str(session["uid"])] = curr_location
             # return all the current users pending and clear them if they exist
-            if (session["uid"] in locations):
-                result = make_response(locations[session["uid"]])
-                locations[session["uid"]].clear()
+            if (str(session["uid"]) in locations):
+                result = make_response(locations[str(session["uid"])])
+                locations[str(session["uid"])].clear()
             else:
                 result = make_response({})
 
