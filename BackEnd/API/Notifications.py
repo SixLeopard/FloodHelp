@@ -30,7 +30,7 @@ def add_notification_route():
 
         Form Data:
             notification -> the notification string to send
-            receiver -> who you want to send notification too
+            receiver -> the uid of who you want to send notification too
 
         Return:
             if succsessful: {notifcation added: " + str(notification) + "}
@@ -66,8 +66,8 @@ def get_notification_route():
     '''
     if request.method == 'GET':
         if Accounts.verify_user_account(session["username"], session["id"]):
-            users_pending_notifications = get_notification(session["username"])
-            clear_notification(session["username"])
+            users_pending_notifications = get_notification(session["uid"])
+            clear_notification(session["uid"])
             return make_response("{current pending notifications: " + str(users_pending_notifications) + "}")
         
         return make_response({"invalid_account":1})
