@@ -733,9 +733,9 @@ class DBInterface():
         """
         alerts = self.get_alerts()
         for alert in alerts:
-            alert = json.loads(alert)
             id = alert[0]
             expiry_date = alert[6]
+            print(compare_to_current_time(expiry_date) == "past")
             if(compare_to_current_time(expiry_date) == "past"):
                 try:
                     query = "DELETE FROM Alerts WHERE id = %s"
