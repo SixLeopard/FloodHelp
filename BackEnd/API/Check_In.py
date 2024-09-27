@@ -4,7 +4,7 @@ from API.database import database_interface
 import API.Accounts as Accounts
 from API.Notifications import add_notification
 
-checkin_routes = Blueprint("session_routes", __name__)
+checkin_routes = Blueprint("checkin_routes", __name__)
 
 status = {}
 
