@@ -2,7 +2,7 @@ import psycopg2
 import re
 from psycopg2.extensions import adapt, register_adapter, AsIs
 import datetime
-
+import json
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -660,7 +660,9 @@ class DBInterface():
 
         """
         alerts = get_real_alerts()
+        
         for alert in alerts:
+            alert = json.loads(alert)
             is_recorded = False
             for recorded_alert in self.get_alerts():
                 if(are_alerts_equal(alert, recorded_alert)):
@@ -680,6 +682,7 @@ class DBInterface():
         """
         alerts = random_fake_alerts()
         for alert in alerts:
+            alert = json.loads(alert)
             is_recorded = False
             for recorded_alert in self.get_alerts():
                 if(are_alerts_equal(alert, recorded_alert)):
@@ -711,7 +714,7 @@ class DBInterface():
 
         """
         alert = specific_fake_alert(headline, location, risk, issue_date, expirydate, coordinates)
-        
+        alert = json.loads(alert)
         is_recorded = False
         for recorded_alert in self.get_alerts():
             if(are_alerts_equal(alert, recorded_alert)):
