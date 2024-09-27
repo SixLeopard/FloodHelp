@@ -45,7 +45,7 @@ const useStyles = () => {
             margin: 10,
         },
         bodyText: {
-            color: colors.text,
+            color: colors.darkText,
             fontFamily: 'Urbanist_400Regular',
             fontSize: 16,
             flexWrap: 'wrap',
@@ -555,7 +555,7 @@ const useStyles = () => {
         
         // Forgot password page style
         formContainerForgotPassword: {
-            width: '90%',
+            width: '85%',
             backgroundColor: colors.card, 
             padding: 20,
             borderRadius: 10,
