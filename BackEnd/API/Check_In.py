@@ -23,7 +23,7 @@ def send_checkin_route():
         status = request.form.get('status')
         if Accounts.verify_user_account(session["username"], session["id"]):
 
-            statuses[session["uid"]] = (status, Time.datetime.now())
+            statuses[str(session["uid"])] = (status, Time.datetime.now())
 
             return make_response({"updated status for":session["username"], "Status set to":status},200)
         
