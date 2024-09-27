@@ -39,7 +39,7 @@ def update_locations():
         curr_location = request.form.get('location')
         
         if Accounts.verify_user_account(session["username"], session["id"]):
-            uid = str(session["uid"])
+            uid = int(str(session["uid"]))
             print(locations)
             # add the user current location to the pending dict for all the users they have relationship with
             relationships = db.get_approved_relationships_ids(uid)   # Only returns approved relationships
