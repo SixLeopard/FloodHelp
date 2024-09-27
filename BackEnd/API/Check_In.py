@@ -6,7 +6,7 @@ from API.Notifications import add_notification
 
 checkin_routes = Blueprint("session_routes", __name__)
 
-status = {}
+statuses = {}
 
 @checkin_routes.route("/check_in/send",  methods = ['POST'])
 def send_checkin_route():
@@ -23,7 +23,7 @@ def send_checkin_route():
         status = request.form.get('status')
         if Accounts.verify_user_account(session["username"], session["id"]):
 
-            status[session["uid"]] = (status, Time.datetime.now())
+            statuses[session["uid"]] = (status, Time.datetime.now())
 
             return make_response({"updated status for":session["username"], "Status set to":status},200)
         
@@ -48,9 +48,9 @@ def get_checkin_route():
             relationships = database_interface.get_approved_relationships_ids(session["uid"])
             output = {}
             for i in relationships:
-                if status[i][1] < Time.datetime.now() - Time.timedelta(hours=3):
-                    status[i] = ("Unknown", Time.datetime.now())
-                output[database_interface.get_user_by_uid(int(i))[2]] = status[i]
+                if statuses[i][1] < Time.datetime.now() - Time.timedelta(hours=3):
+                    statuses[i] = ("Unknown", Time.datetime.now())
+                output[database_interface.get_user_by_uid(int(i))[2]] = statuses[i]
             results = make_response(output)
             return results
         return make_response({"invalid_account":1})
