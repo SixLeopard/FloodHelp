@@ -34,8 +34,8 @@ const NewConnections = ({ navigation }) => {
             const currentUserResponse = await fetch(`${apiUrl}/accounts/get_current`);
             const currentUserData = await currentUserResponse.json();
             setCurrentUser(currentUserData);
-
             setRefreshing(false); // Stop refreshing after data is fetched
+
         } catch (error) {
             console.error("Error fetching data:", error);
             setRefreshing(false); // Stop refreshing even on error
@@ -99,7 +99,7 @@ const NewConnections = ({ navigation }) => {
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
-        fetchData(); // Re-fetch data on refresh
+        fetchData();
     }, []);
 
     // Centralized loading state and error handling
