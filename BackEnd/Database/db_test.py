@@ -1,9 +1,10 @@
 from db_interface import DBInterface
-
-db = DBInterface()
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+db = DBInterface()
+
 
 def test_select():
     result = db.query("SELECT * FROM Users")
@@ -78,5 +79,5 @@ def test_delete_expired_alerts():
 
 
 #test_update_alerts_fake_specific_with_coordinates()
-test_delete_expired_alerts()
+test_update_alerts_fake_specific_with_coordinates()
 
