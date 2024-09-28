@@ -79,5 +79,6 @@ def test_delete_expired_alerts():
 
 
 #test_update_alerts_fake_specific_with_coordinates()
-test_update_alerts_fake_specific_with_coordinates()
+test_delete_all_alerts()
+test_update_alerts_real()
 
