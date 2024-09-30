@@ -1,20 +1,38 @@
 import React from 'react';
-import {Animated, Text, View} from "react-native";
+import {Animated, Text, TouchableOpacity, View} from "react-native";
 import useStyles from "@/constants/style";
-import {useLocalSearchParams} from "expo-router";
+import {router, useLocalSearchParams} from "expo-router";
 import UserAvatar from "@/components/UserAvatar";
-import ReportCard from "@/components/ReportCard";
-import FH_Button from "@/components/navigation/FH_Button";
-import ScrollView = Animated.ScrollView;
 
 const UserPage = () => {
-    const {id} = useLocalSearchParams<{ id: string }>();
+    const {id, username, relationshipID} = useLocalSearchParams<{ id: string, username: string, relationshipID: string}>();
     const styles = useStyles();
+
+    const handlePress = async (relationshipID) => {
+        let call = "http://54.206.190.121:5000/relationships/delete";
+        const formData = new FormData();
+        formData.append('relationship_id', relationshipID);
+
+        try {
+            const response = await fetch(call, {
+                method: 'POST',
+                body: formData,
+            });
+           console.log(response.json())
+            router.replace('/connections')
+
+        } catch (error) {
+            console.error("Error with API call:", error);
+        }
+
+    };
+
+
 
 
     return (
         <View style={styles.page}>
-        <Text style={styles.headerText}>User Name {id}</Text>
+        <Text style={styles.headerText}>{username}</Text>
             <UserAvatar size={100} imageLink={""} />
                 <Text></Text>
                 <Text style={styles.bodyTextBold }>Current Status</Text>
@@ -23,11 +41,10 @@ const UserPage = () => {
             <Text></Text>
             <Text style={styles.bodyTextBold }>Reporting History </Text>
             <Text style={styles.bodyTextBold }>(will call databse to populate)</Text>
+            <TouchableOpacity style={styles.logoutButton} onPress={() => handlePress(relationshipID)}>
+                <Text style={styles.logoutButtonText}>Delete Connection</Text>
+            </TouchableOpacity>
 
-
-            <Text></Text>
-            <Text style={styles.bodyTextBold }>Connection?</Text>
-            <Text style={styles.bodyTextBold }>(add connection / delete connection etc.)</Text>
 
             </View>
 

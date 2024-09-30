@@ -1,6 +1,10 @@
 from db_interface import DBInterface
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 db = DBInterface()
+
 
 def test_select():
     result = db.query("SELECT * FROM Users")
@@ -32,6 +36,37 @@ def test_notifications():
     db.create_notification(31, 'flood warning', 'some text')
     print(db.get_notifications(31))
 
+def test_get_alerts():
+    print(db.get_alerts())
+
+def test_update_alerts_real():
+    db.update_alerts_real()
+    print(db.get_alerts())
+
+def test_update_alerts_fake_random():
+    db.update_alerts_fake_random()
+    print(db.get_alerts())
+
+def test_update_alerts_fake_specific_no_coordinates():
+    db.update_alerts_fake_specific("this is a specifc alert", "Brisbane, Kangaroo Point", "Run for your life", "very certain", "2024-09-27T01:37:00", "2024-09-27T02:37:00", (0,0))
+    print(db.get_alerts())
+
+def test_update_alerts_fake_specific_with_coordinates():
+    db.update_alerts_fake_specific("this is a specifc alert", "Brisbane, Kangaroo Point", "Run for your life", "very certain", "2024-09-27T11:30:00", "2024-09-27T12:05:00", (100,100))
+    print(db.get_alerts())
+
+def test_delete_all_alerts():
+    db.delete_all_alerts()
+    print(db.get_alerts())
+
+def test_delete_expired_alerts():
+    db.delete_expired_alerts()
+    print(db.get_alerts())
+
+
+
+
+
 # test_create_user()
 # test_relationships()
 # test_select()
@@ -39,5 +74,11 @@ def test_notifications():
 # test_get_hazard()
 # test_historical_data()
 # test_get_user()
-test_notifications()
+
+
+
+
+#test_update_alerts_fake_specific_with_coordinates()
+test_delete_all_alerts()
+test_update_alerts_real()
 

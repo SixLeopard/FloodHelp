@@ -10,7 +10,13 @@ documention of all the routes and there data inputs and request type
    * [/accounts/login](#accountslogin)
    * [/accounts/test](#accountstest)
    * [/documentation](#documentation)
-   * [/externalData/get\_historical](#externaldataget_historical)
+   * [/externalData/get\_river\_conditions](#externaldataget_river_conditions)
+   * [/externalData/get\_alerts](#externaldataget_alerts)
+   * [/externalData/clear\_alerts](#externaldataclear_alerts)
+   * [/externalData/clear\_expired\_alerts](#externaldataclear_expired_alerts)
+   * [/externalData/update\_fake\_specific\_alerts](#externaldataupdate_fake_specific_alerts)
+   * [/externalData/update\_fake\_random\_alerts](#externaldataupdate_fake_random_alerts)
+   * [/externalData/update\_real\_alerts](#externaldataupdate_real_alerts)
    * [/notifications/add](#notificationsadd)
    * [/notifications/get](#notificationsget)
    * [/relationships/approve/](#relationshipsapprove)
@@ -116,20 +122,20 @@ documention of all the routes and there data inputs and request type
         strings on the route to generate the documenation automaticaly   
     
 
-<!-- TOC --><a name="externaldataget_historical"></a>
-## /externalData/get\_historical
+<!-- TOC --><a name="externaldataget_river_conditions"></a>
+## /externalData/get\_river_conditions
 -----------------------------
 
-[*   GET](/externalData/get_historical)
+[*   GET](/externalData/get_river_conditions)
 
   
-        Extracts historical data  
+        Gives flood conditions for over 40 river height stations around Brisbane. 
           
         Form Data:  
-            Path to file with historical data  
+            None 
   
         Return:  
-            if succsessful: json of extracted historical data  
+            if succsessful: json of flood risks for river height stations. Keys are: 'location_name', 'Coordinates', 'Last Updated', and 'Flood Category'.  
             no login: {"invalid\_account":1}  
             not using GET: {"invalid\_request":1}  
     
@@ -426,6 +432,124 @@ documention of all the routes and there data inputs and request type
         Return:  
             Combiend Json of all the information needed for an update  
     
+
+<!-- TOC --><a name="externalDataget_alerts"></a>
+## /externalData/get\_alerts
+---------------------------------
+
+[*   GET](/externalData/get\_alerts)
+
+  
+        Retrieves all flood alerts in the database
+        
+        Form Data:
+            None
+
+        Return:
+            if succsessful: list of tuples, which are the alert. Looks like: [('headline', 'location', 'risk', 'certainty', 'start', 'end', 'coordinates'), ...] 
+            no login: {"invalid_account":1}
+            not using GET: {"invalid_request":1}
+
+
+<!-- TOC --><a name="externalDataupdate_real_alerts"></a>
+## /externalData/update\_real\_alerts
+---------------------------
+
+*   POST
+
+  
+        Updates the database with real alerts
+        Don't call too many times in a short period of time (3-5 min)
+
+        Form Data:
+            None
+
+        Return:
+            if succsessful: None
+            no login: {"invalid_account":1}
+            not using GET: {"invalid_request":1} 
+
+
+<!-- TOC --><a name="externalDataupdate_fake_random_alerts"></a>
+## /externalData/update\_fake\_random\_alerts
+---------------------------
+
+*   POST
+
+  
+        Updates the database with 1-3 random fake alerts
+        Don't call too many times in a short period of time (3-5 min)
+
+        Form Data:
+            None
+
+        Return:
+            if succsessful: None
+            no login: {"invalid_account":1}
+            not using GET: {"invalid_request":1} 
+
+<!-- TOC --><a name="externalDataupdate_fake_specific_alerts"></a>
+## /externalData/update\_fake\_specific\_alerts
+---------------------------
+
+*   POST
+
+  
+        Add one custom fake alert to database
+        Don't call too many times in a short period of time (3-5 min)
+
+        If you want to specify exact coordinates of alert, put in the coordinates that you want in "coordinates" argument. If you want to just provide a location
+        without specifying exact coordinates, input (0,0) into the "coordinates" argument.
+        
+        Form Data:
+            'headline': general headline
+            'location': area in which alert is in
+            'risk': risk level of alert
+            'certainty': certainty of alert
+            'start': issue date of alert
+            'end': expiry date of alert
+            'coordinates': exact coordinates of alert, in the form of a tuple
+
+        Return:
+            if succsessful: None
+            no login: {"invalid_account":1}
+            not using GET: {"invalid_request":1}
+
+
+<!-- TOC --><a name="externalDataclear_alerts"></a>
+## /externalData/clear\_alerts
+---------------------------
+
+*   POST
+
+  
+        Clears all alerts in the database
+        
+        Form Data:
+            None
+
+        Return:
+            if succsessful: None
+            no login: {"invalid_account":1}
+            not using GET: {"invalid_request":1}
+
+
+<!-- TOC --><a name="externalDataclear_expired_alerts"></a>
+## /externalData/clear\_expired\_alerts
+---------------------------
+
+*   POST
+
+  
+        Clears all expired alerts in the database
+        
+        Form Data:
+            None
+
+        Return:
+            if succsessful: None
+            no login: {"invalid_account":1}
+            not using GET: {"invalid_request":1}
 
 <!-- TOC --><a name="test"></a>
 ## /test

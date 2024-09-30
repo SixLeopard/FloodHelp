@@ -2,7 +2,7 @@ import React, {useMemo} from 'react';
 import { Text, View, ActivityIndicator } from 'react-native';
 import useStyles from '@/constants/style';
 import { useLocalSearchParams } from 'expo-router';
-import useAPI from '@/hooks/useAPI';  // Renamed for hook convention
+import useAPI from '@/hooks/useAPI';
 
 const ReportPage = () => {
     const { report_id } = useLocalSearchParams<{ report_id: string }>();
@@ -26,7 +26,6 @@ const ReportPage = () => {
         );
     }
 
-    // Check for invalid account response
     if (reportData.invalid_account) {
         return (
             <View style={styles.page}>
@@ -36,7 +35,6 @@ const ReportPage = () => {
         );
     }
 
-    // Extract report details from the response
     const { title, description, coordinates, datetime, area_name } = reportData;
 
     return (

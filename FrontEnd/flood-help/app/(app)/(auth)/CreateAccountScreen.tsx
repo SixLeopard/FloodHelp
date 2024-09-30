@@ -26,7 +26,7 @@ const RegisterScreen = () => {
         setSuccess(''); // Clear previous success message
 
         const formdata = new FormData();
-        formdata.append('username', email); // Use email as the username
+        formdata.append('email', email); // Use email as the username
         formdata.append('password', password);
         formdata.append('name', name);
 
