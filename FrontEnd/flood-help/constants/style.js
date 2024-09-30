@@ -3,7 +3,7 @@ import {useTheme} from "@/contexts/ThemeContext";
 import {Colors} from "@/constants/Colors";
 
 const useStyles = () => {
-    const { theme } = useTheme();
+    const {theme} = useTheme();
     const colors = theme.colors
 
 
@@ -615,6 +615,8 @@ const useStyles = () => {
         disabledButton: {
             backgroundColor: '#cccccc', 
         },
+
+        successText: colors.text
 
 
     });

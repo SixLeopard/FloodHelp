@@ -69,7 +69,7 @@ def get_relationships():
             not using POST: {"invalid_request":1}
         
         Relationships format:
-            {relationship_id: {requester_name, requestee_name, approved}, ...}
+            {relationship_id: {requester_name, requester_uid, requestee_name, requestee_uid, approved}, ...}
     '''
     if request.method == 'GET':        
         if Accounts.verify_user_account(session["username"], session["id"]):
@@ -104,6 +104,12 @@ def approve_relationship():
     if request.method == 'POST':        
         if Accounts.verify_user_account(session["username"], session["id"]):
             relationship_id = request.form.get('relationship_id')
+            uid = session["uid"]
+            relationships = db.get_relationships(uid)
+            print(relationships)
+            requestee_uid = relationships[int(relationship_id)]["requestee_uid"]
+            if requestee_uid != session["uid"]:
+                return make_response({"current_user_not_requestee":1})
 
             if relationship_id is None:
                 return make_response({"missing_relationship_id": 1})
