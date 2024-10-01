@@ -4,7 +4,7 @@ import API.Accounts as Accounts
 
 notifications_routes = Blueprint("notifications_routes", __name__)
 
-#switch to using database
+#switch to using database.      Why?
 pending_notifications = {}
 
 def add_notification(receiver : str, notification : str) -> None:
