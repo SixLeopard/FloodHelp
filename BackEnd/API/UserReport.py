@@ -49,7 +49,7 @@ last_high_hazard_notification = {}
 def hazard_maintenance_wrapper():
     hazard_maintenance()
 scheduler = BackgroundScheduler()
-job = scheduler.add_job(hazard_maintenance_wrapper, 'interval', hours=12)
+job = scheduler.add_job(hazard_maintenance_wrapper, 'interval', hours=1)
 scheduler.start()
 
 def get_user_report(id):
@@ -107,6 +107,7 @@ def hazard_maintenance():
 
     for hazard_id in hazards.keys():
         hazard = hazards[hazard_id]
+
         if (datetime.now() \
             - datetime.strptime(hazard['datetime'], '%d/%m/%y %H:%M:%S')) \
             > timedelta(hours=HAZARD_EXPIRY_HOURS):
