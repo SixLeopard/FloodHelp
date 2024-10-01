@@ -3,9 +3,13 @@ from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
 import API.UserReport as Reports
 import API.Notifications as Notifcations
+import API.UserReport as Reports
+import API.Notifications as Notifcations
 from Tools import UserReportVerfication
 from Tools import GenerateRegion
 import re
+from datetime import datetime, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -22,8 +26,17 @@ HAZARD_EXPIRY_HOURS = 48
 # of a high number of hazards
 HAZARD_REPORT_THRESHOLD = 10
 
+# The number of hours after which a user report will be deleted by the hazard_maintenance()
+# function.
+HAZARD_EXPIRY_HOURS = 48
+
+# The number of hazards which must be reported in a region for a user to be notified
+# of a high number of hazards
+HAZARD_REPORT_THRESHOLD = 10
+
 # A dictionary that will contain a mapping of each region to the number of hazards
 # in that region. Regions are defined by the BackEnd/Tools/generate_region.py:generate_region
+# function. They are a tuple of 4 coordinate tuples define the corners of the (square) region
 # function. They are a tuple of 4 coordinate tuples define the corners of the (square) region
 hazard_count_per_region = {}
 
@@ -52,6 +65,11 @@ def create_user_report(uid : int, location : str, type : str, description: str, 
 
     try:
         hazard_id = db.create_hazard(type, img_str, session['uid'], (lat, long), description)
+        region = GenerateRegion.generate_region((lat, long))
+        if region in hazard_count_per_region.keys():
+            hazard_count_per_region[region] += 1
+        else:
+            hazard_count_per_region[region] = 1
         region = GenerateRegion.generate_region((lat, long))
         if region in hazard_count_per_region.keys():
             hazard_count_per_region[region] += 1
@@ -173,6 +191,7 @@ def get_user_report_route():
 
     Returns:
         if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
+        if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
         error 1: {'internal_error': error_description}
         no login: {"invalid_account":1}
         not using POST: {"invalid_request":1}
@@ -199,6 +218,7 @@ def get_all_report_details_route():
         None
 
     Returns:
+        if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
         if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
         error 1: {'internal_error': error_description}
         no login: {"invalid_account":1}
