@@ -1,6 +1,7 @@
 #flask
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
+import API.UserReport as UserReport
 
 from API.database import database_interface as db
 
@@ -47,6 +48,10 @@ def update_locations():
                     locations[str(relation_uid)] = {str(session["uid"]) : curr_location}
                 else:
                     locations[str(relation_uid)][str(session["uid"])] = curr_location
+
+            # Generate notification if user is in a location with a high number of hazards
+            UserReport.check_hazard_counts(uid, curr_location)
+            
             # return all the current users pending and clear them if they exist
             if (str(session["uid"]) in locations):
                 result = make_response(locations[str(session["uid"])])

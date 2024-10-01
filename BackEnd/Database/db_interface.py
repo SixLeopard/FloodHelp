@@ -378,6 +378,29 @@ class DBInterface():
         return self.query(query)[0][0]
     
     """
+    Delete the hazard with the specified hazard_id from the database.
+
+    hazard_int (int): The numerical ID of the hazard to be deleted
+
+    Returns:
+        True: If the hazard was successfully deleted
+        False: If the hazard does not exist
+    """
+    def delete_hazard(self, hazard_id: int) -> bool:
+        # Check if hazard exists
+        query = "SELECT * FROM hazards WHERE hazard_id = %s"
+        result = self.query(query, hazard_id)
+
+        if result == []:
+            return False
+
+        # Delete hazard
+        query = "DELETE FROM hazards WHERE hazard_id = %s"
+        self.query(query, hazard_id)
+
+        return True
+    
+    """
     Retrieve hazard with the given ID from the database.
 
     Returns a dictionary containing:
