@@ -33,8 +33,10 @@ last_high_hazard_notification = {}
 
 # Initialise the background scheduler to call the hazard_maintenance() function at
 # a specific interval of time
+def hazard_maintenance_wrapper():
+    hazard_maintenance()
 scheduler = BackgroundScheduler()
-job = scheduler.add_job(hazard_maintenance, 'interval', hours=12)
+job = scheduler.add_job(hazard_maintenance_wrapper, 'interval', hours=12)
 scheduler.start()
 
 def get_user_report(id):
@@ -94,7 +96,9 @@ def hazard_maintenance():
             db.delete_hazard(hazard_id)
 
             # If hazard count for that region exists and is greater than 0, then decrement
-            region = GenerateRegion.generate_region(hazard['coordinates'])
+            coordinates = (float(hazard['coordinates'].split(',')[0].strip('(), ')), \
+                           float(hazard['coordinates'].split(',')[1].strip('(), ')))
+            region = GenerateRegion.generate_region(coordinates)
             if region in hazard_count_per_region.keys() \
                 and hazard_count_per_region[region] > 0:
 
@@ -104,7 +108,7 @@ def hazard_maintenance():
                 if hazard_count_per_region[region] == 0:
                     del hazard_count_per_region[region]
 
-def check_hazard_counts(uid: int, curr_location: tuple[float, float]) -> None:
+def check_hazard_counts(uid: int, coordinates: str) -> None:
     '''
     Check if the number of hazards reported in the region of curr_location exceeds
     the value specified in HAZARD_REPORT_THRESHOLD, and if so, generate a notification
@@ -113,9 +117,12 @@ def check_hazard_counts(uid: int, curr_location: tuple[float, float]) -> None:
 
     Paramters:
         uid: The uid of the user for which the notification should be generated
-        curr_location: The coordinates of the user
+        curr_location: The coordinates of the user in the form (x.xxx, y.yyy)
     '''
-    region = GenerateRegion.generate_region(curr_location)
+    coordinates = (float(coordinates.split(',')[0].strip('(), ')), \
+                   float(coordinates.split(',')[1].strip('(), ')))
+
+    region = GenerateRegion.generate_region(coordinates)
 
     if region in Reports.hazard_count_per_region.keys() \
         and Reports.hazard_count_per_region[region] > 10 \
