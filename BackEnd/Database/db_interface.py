@@ -116,9 +116,16 @@ class DBInterface():
         if (pwd_hash is None or pwd_salt is None):
             raise Exception('Missing password hash or salt')
         
+        # Check if user exists
+        query = "SELECT * FROM Users WHERE email = %s"
+        result = self.query(query, email)
+        if result is not None:
+            return False
+        
+        # Create user
         query = "INSERT INTO Users (name, email, password_hash, password_salt) VALUES (%s, %s, %s, %s)"
-
         self.query(query, name, email, pwd_hash, pwd_salt)
+        return True
     
     """
     Delete user with the given user id. 
