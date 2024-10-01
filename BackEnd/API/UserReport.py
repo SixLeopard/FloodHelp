@@ -3,9 +3,13 @@ from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
 import API.UserReport as Reports
 import API.Notifications as Notifcations
+import API.UserReport as Reports
+import API.Notifications as Notifcations
 from Tools import UserReportVerfication
 from Tools import GenerateRegion
 import re
+from datetime import datetime, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -22,8 +26,17 @@ HAZARD_EXPIRY_HOURS = 48
 # of a high number of hazards
 HAZARD_REPORT_THRESHOLD = 10
 
+# The number of hours after which a user report will be deleted by the hazard_maintenance()
+# function.
+HAZARD_EXPIRY_HOURS = 48
+
+# The number of hazards which must be reported in a region for a user to be notified
+# of a high number of hazards
+HAZARD_REPORT_THRESHOLD = 10
+
 # A dictionary that will contain a mapping of each region to the number of hazards
 # in that region. Regions are defined by the BackEnd/Tools/generate_region.py:generate_region
+# function. They are a tuple of 4 coordinate tuples define the corners of the (square) region
 # function. They are a tuple of 4 coordinate tuples define the corners of the (square) region
 hazard_count_per_region = {}
 
@@ -33,8 +46,10 @@ last_high_hazard_notification = {}
 
 # Initialise the background scheduler to call the hazard_maintenance() function at
 # a specific interval of time
+def hazard_maintenance_wrapper():
+    hazard_maintenance()
 scheduler = BackgroundScheduler()
-job = scheduler.add_job(hazard_maintenance, 'interval', hours=12)
+job = scheduler.add_job(hazard_maintenance_wrapper, 'interval', hours=12)
 scheduler.start()
 
 def get_user_report(id):
@@ -50,6 +65,11 @@ def create_user_report(uid : int, location : str, type : str, description: str, 
 
     try:
         hazard_id = db.create_hazard(type, img_str, session['uid'], (lat, long), description)
+        region = GenerateRegion.generate_region((lat, long))
+        if region in hazard_count_per_region.keys():
+            hazard_count_per_region[region] += 1
+        else:
+            hazard_count_per_region[region] = 1
         region = GenerateRegion.generate_region((lat, long))
         if region in hazard_count_per_region.keys():
             hazard_count_per_region[region] += 1
@@ -94,7 +114,9 @@ def hazard_maintenance():
             db.delete_hazard(hazard_id)
 
             # If hazard count for that region exists and is greater than 0, then decrement
-            region = GenerateRegion.generate_region(hazard['coordinates'])
+            coordinates = (float(hazard['coordinates'].split(',')[0].strip('(), ')), \
+                           float(hazard['coordinates'].split(',')[1].strip('(), ')))
+            region = GenerateRegion.generate_region(coordinates)
             if region in hazard_count_per_region.keys() \
                 and hazard_count_per_region[region] > 0:
 
@@ -104,7 +126,7 @@ def hazard_maintenance():
                 if hazard_count_per_region[region] == 0:
                     del hazard_count_per_region[region]
 
-def check_hazard_counts(uid: int, curr_location: tuple[float, float]) -> None:
+def check_hazard_counts(uid: int, coordinates: str) -> None:
     '''
     Check if the number of hazards reported in the region of curr_location exceeds
     the value specified in HAZARD_REPORT_THRESHOLD, and if so, generate a notification
@@ -113,9 +135,12 @@ def check_hazard_counts(uid: int, curr_location: tuple[float, float]) -> None:
 
     Paramters:
         uid: The uid of the user for which the notification should be generated
-        curr_location: The coordinates of the user
+        curr_location: The coordinates of the user in the form (x.xxx, y.yyy)
     '''
-    region = GenerateRegion.generate_region(curr_location)
+    coordinates = (float(coordinates.split(',')[0].strip('(), ')), \
+                   float(coordinates.split(',')[1].strip('(), ')))
+
+    region = GenerateRegion.generate_region(coordinates)
 
     if region in Reports.hazard_count_per_region.keys() \
         and Reports.hazard_count_per_region[region] > 10 \
@@ -166,6 +191,7 @@ def get_user_report_route():
 
     Returns:
         if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
+        if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
         error 1: {'internal_error': error_description}
         no login: {"invalid_account":1}
         not using POST: {"invalid_request":1}
@@ -192,6 +218,7 @@ def get_all_report_details_route():
         None
 
     Returns:
+        if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
         if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
         error 1: {'internal_error': error_description}
         no login: {"invalid_account":1}
