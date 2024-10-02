@@ -31,7 +31,6 @@ const ForgotPasswordScreen = () => {
 
             {/* Forgot Password Form */}
             <View style={styles.formContainerForgotPassword}>
-                <Text style={styles.headerText}>Forgot Password</Text>
 
                 {/* Message Display */}
                 {message && <Text style={{ color: 'green', marginBottom: 15 }}>{message}</Text>}

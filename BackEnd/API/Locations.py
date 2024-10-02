@@ -1,6 +1,7 @@
 #flask
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
+import API.UserReport as UserReport
 
 from API.database import database_interface as db
 
@@ -40,21 +41,23 @@ def update_locations():
         
         if Accounts.verify_user_account(session["username"], session["id"]):
             uid = int(str(session["uid"]))
-            print(locations)
             # add the user current location to the pending dict for all the users they have relationship with
             relationships = db.get_approved_relationships_ids(uid)   # Only returns approved relationships
             for relation_uid in relationships:
-                if relation_uid not in locations:
-                    locations[relation_uid] = {str(session["uid"]) : curr_location}
+                if str(relation_uid) not in locations:
+                    locations[str(relation_uid)] = {str(session["uid"]) : curr_location}
                 else:
-                    locations[relation_uid][str(session["uid"])] = curr_location
+                    locations[str(relation_uid)][str(session["uid"])] = curr_location
+
+            # Generate notification if user is in a location with a high number of hazards
+            UserReport.check_hazard_counts(uid, curr_location)
+            
             # return all the current users pending and clear them if they exist
             if (str(session["uid"]) in locations):
                 result = make_response(locations[str(session["uid"])])
                 locations[str(session["uid"])].clear()
             else:
                 result = make_response({})
-            print(locations)
             return result
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1}) 
