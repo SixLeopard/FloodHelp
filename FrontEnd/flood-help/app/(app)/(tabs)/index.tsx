@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { View, Alert, TouchableOpacity, ActivityIndicator, Text } from "react-native";
+import { View, Alert, TouchableOpacity, ActivityIndicator, Text, Image } from "react-native";
 import useStyles from "@/constants/style";
-import MapView, { Polygon, Marker, Region } from "react-native-maps";
+import MapView, { Marker, Region } from "react-native-maps";
 import { mapLightTheme, mapDarkTheme } from "@/constants/Themes";
 import { useTheme } from "@/contexts/ThemeContext";
 import * as Location from 'expo-location';
@@ -22,79 +22,119 @@ interface Report {
     coordinates: string;
 }
 
-interface HistoricalFloodData {
-    features: Array<{
-        attributes: {
-            OBJECTID: number;
-            FLOOD_RISK: string;
-            FLOOD_TYPE: string;
-        };
-        geometry: {
-            rings: number[][][]; 
-        };
-    }>;
+interface ConnectionLocation {
+    uid: number;
+    latitude: number;
+    longitude: number;
+}
+
+interface Relationship {
+    requestee_name: string;
+    requestee_uid: number;
+    requester_name: string;
+    requester_uid: number;
 }
 
 export default function Index() {
     const styles = useStyles();
     const { theme } = useTheme();
     const [region, setRegion] = useState<Region | null>(null);
-    const [historicalFloodData, setHistoricalFloodData] = useState<HistoricalFloodData | null>(null);
-    const [loadingHistorical, setLoadingHistorical] = useState(false);
+    const [connectionLocations, setConnectionLocations] = useState<ConnectionLocation[]>([]);
+    const [relationships, setRelationships] = useState<Relationship[]>([]);
+    const [loading, setLoading] = useState(true);
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-    const { user, loading } = useAuth();
+    const { user } = useAuth();
 
     const reports = useAPI('/reporting/user/get_all_report_basic');
 
-    console.log('Reports:', reports);
-
-    const fetchHistoricalFloodData = async () => {
-        setLoadingHistorical(true);
-        try {
-            const response = await fetch(
-                'https://services2.arcgis.com/dEKgZETqwmDAh1rP/arcgis/rest/services/Flood_Awareness_Flood_Risk_Overall/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json'
-            );
-            const data: HistoricalFloodData = await response.json();
-            setHistoricalFloodData(data);
-        } catch (error) {
-            console.error('Error fetching historical flood data:', error);
-        } finally {
-            setLoadingHistorical(false);
-        }
-    };
-    
-
     useEffect(() => {
-        const requestLocationPermission = async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert("Permission to access location was denied");
-                return;
+        console.log("useEffect triggered with user:", user);
+    
+        let didCancel = false;
+
+        if (!user) return;
+    
+        const updateLocationAndFetchConnections = async () => {
+            try {
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    Alert.alert("Permission to access location was denied");
+                    setLoading(false);
+                    return;
+                }
+    
+                let location = await Location.getCurrentPositionAsync({});
+                const { latitude, longitude } = location.coords;
+    
+                if (!didCancel) {
+                    setRegion({
+                        latitude,
+                        longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    });
+                }
+    
+                const formData = new FormData();
+                formData.append('location', `(${latitude},${longitude})`);
+    
+                const locationUpdateResponse = await fetch('http://54.206.190.121:5000/locations/update', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const locationData = await locationUpdateResponse.json();
+                console.log('Location Update Response:', locationData);
+    
+                if (!didCancel && Object.keys(locationData).length > 0) {
+                    const locationsArray: ConnectionLocation[] = Object.entries(locationData).map(([uid, loc]) => {
+                        const [latStr, longStr] = (loc as string).replace(/[()]/g, '').split(',');
+                        return {
+                            uid: parseInt(uid),
+                            latitude: parseFloat(latStr),
+                            longitude: parseFloat(longStr),
+                        };
+                    });
+                    setConnectionLocations(locationsArray);
+                }
+    
+                const relationshipsResponse = await fetch('http://54.206.190.121:5000/relationships/get_relationships', {
+                    method: 'GET',
+                });
+                const relationshipsData = await relationshipsResponse.json();
+                console.log('Relationships Data:', relationshipsData);
+    
+                if (!didCancel) {
+                    setRelationships(Object.values(relationshipsData));
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error("Error updating location and fetching connections:", error);
+                if (!didCancel) setLoading(false);
             }
-
-            let location = await Location.getCurrentPositionAsync({});
-            const { latitude, longitude } = location.coords;
-
-            setRegion({
-                latitude,
-                longitude,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-            });
         };
-
-        requestLocationPermission();
-    }, []);
+    
+        updateLocationAndFetchConnections();
+    
+        return () => {
+            didCancel = true;
+        };
+    }, [user]);
+    
+    
 
     const handleAddReport = () => {
         navigation.navigate('newreport');
     };
 
-    const handleSeeHistoricalFlooding = () => {
-        if (historicalFloodData) {
-            setHistoricalFloodData(null);
+    const getFloodColor = (title: string): string => {
+        if (title.includes('Major Flood')) {
+            return 'maroon';
+        } else if (title.includes('Moderate Flood')) {
+            return 'darkorange';
+        } else if (title.includes('Minor Flood')) {
+            return 'goldenrod';
         } else {
-            fetchHistoricalFloodData();
+            return 'maroon';
         }
     };
 
@@ -117,65 +157,64 @@ export default function Index() {
                     showsUserLocation={true}
                     showsMyLocationButton={false}
                 >
-
                     {/* Render Flood Report Markers */}
                     {reports && Object.entries(reports).map(([key, report]: [string, any], index) => {
-                        if (!report.coordinates) {
-                            console.warn(`Skipping report ${report.title} due to missing coordinates.`);
-                            return null;
-                        }
+                        if (!report.coordinates) return null;
 
                         const [latitudeStr, longitudeStr] = report.coordinates.replace(/[()]/g, '').split(',');
                         const latitude = parseFloat(latitudeStr);
                         const longitude = parseFloat(longitudeStr);
+                        const color = getFloodColor(report.title);
 
-                        if (isNaN(latitude) || isNaN(longitude)) {
-                            console.warn(`Skipping report ${report.title} due to invalid coordinates: ${report.coordinates}`);
-                            return null;
-                        }
+                        if (isNaN(latitude) || isNaN(longitude)) return null;
 
                         return (
                             <Marker
                                 key={index}
                                 coordinate={{ latitude, longitude }}
-                                title={report.title}
+                                title={`${report.title}`}
                                 description={`Reported on: ${report.datetime}`}
                             >
-                                <FontAwesome name="exclamation-triangle" size={40} color="maroon" />
+                                <FontAwesome name="exclamation-circle" size={40} color={color} />
                             </Marker>
                         );
                     })}
 
-                    {/* Render Historical Flood Polygons */}
-                    {historicalFloodData?.features.map((feature, index) => (
-                        <Polygon
-                            key={index}
-                            coordinates={feature.geometry.rings[0].map(([longitude, latitude]) => ({
-                                latitude,
-                                longitude,
-                            }))}
-                            strokeColor="rgba(128,0,0,0.5)"
-                            fillColor="rgba(128,0,0,0.3)"
-                        />
-                    ))}
+                    {/* Render Connections' Locations with custom pin image */}
+                    {connectionLocations.map((connection, index) => {
+                        const relationship = relationships.find(
+                            (rel) => (rel.requestee_uid === connection.uid || rel.requester_uid === connection.uid)
+                        );
+                        const connectionName = relationship?.requestee_uid === connection.uid
+                            ? relationship.requestee_name
+                            : relationship?.requester_name;
+
+                        return (
+                            <Marker
+                                key={index}
+                                coordinate={{ latitude: connection.latitude, longitude: connection.longitude }}
+                                title={connectionName}
+                            >
+                                <Image
+                                    source={require('@/assets/images/map-marker-default.png')}
+                                    style={{ width: 40, height: 40 }}
+                                    resizeMode="contain"
+                                />
+                            </Marker>
+                        );
+                    })}
                 </MapView>
             )}
-
             <View style={styles.iconContainer}>
                 <TouchableOpacity onPress={handleAddReport} style={styles.iconButton}>
                     <Icon name="report" size={40} color={theme.dark ? "maroon" : "maroon"} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleSeeHistoricalFlooding} style={styles.iconButton}>
+                <TouchableOpacity 
+                    style={styles.iconButton}
+                >
                     <Icon name="history" size={40} color={theme.dark ? "midnightblue" : "midnightblue"} />
                 </TouchableOpacity>
             </View>
-
-            {loadingHistorical && (
-                <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color={theme.colors.primary} />
-                    <Text>Loading Historical Flood Data...</Text>
-                </View>
-            )}
         </View>
     );
 }
