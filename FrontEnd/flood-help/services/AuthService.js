@@ -28,9 +28,9 @@ export const login = async ({ email, password }) => {
         }
 
         const data = await response.json(); // Parse the JSON response
-
+    console.log(data);
         // Check if the login was successful
-        if (data.Login === 'True' && data.sessionid) {
+        if (data.Login === 'True' && data.sessionid != "None") {
             // Save the session ID securely
             await SecureStore.setItemAsync('sessionid', data.sessionid);
             router.push('/(tabs)');

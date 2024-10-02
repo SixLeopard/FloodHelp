@@ -613,6 +613,8 @@ const useStyles = () => {
             backgroundColor: '#cccccc', 
         },
 
+        successText: colors.text
+
 
     });
 };
