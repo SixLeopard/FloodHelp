@@ -16,7 +16,6 @@ const useStyles = () => {
         },
         FH_Button: {
             backgroundColor: colors.blue,
-
             height: 40,
             display: "flex",
             flexBasis: 'auto',
@@ -62,6 +61,7 @@ const useStyles = () => {
             fontFamily: 'Urbanist_600SemiBold',
             fontSize: 16,
             flexWrap: 'wrap',
+            marginBottom: 8,
 
         },
         nameText: {
@@ -157,7 +157,13 @@ const useStyles = () => {
             width: '85%',
         },
         formContainer: {
-            flex: 1,
+            width: '90%',
+            backgroundColor: colors.white, // Light background for the form
+            borderColor: colors.grey, // Subtle border around the form
+            borderWidth: 2,
+            borderRadius: 10, // Rounded corners
+            padding: 20,
+            marginVertical: 20,
         },
         inputBox: {
             height: 40,
@@ -225,7 +231,7 @@ const useStyles = () => {
             marginTop: 40,
             marginBottom: 20,
             padding: 10,
-            borderWidth: 1,
+            borderWidth: 2,
             borderColor: colors.border,
             borderRadius: 5,
             backgroundColor: colors.card,
@@ -237,7 +243,7 @@ const useStyles = () => {
         pickerContainer: {
             marginBottom: 20,
             padding: 10,
-            borderWidth: 1,
+            borderWidth: 2,
             borderColor: colors.border,
             borderRadius: 5,
             backgroundColor: colors.card,
@@ -248,16 +254,16 @@ const useStyles = () => {
         imageContainer: {
             flexDirection: 'row',
             flexWrap: 'wrap',
-            marginVertical: 10,
+            marginVertical: 20,
         },
         imagePreviewContainer: {
-            position: 'relative',
             marginRight: 10,
             marginBottom: 10,
         },
         imageButtonContainer: {
             flexDirection: 'row',
             justifyContent: 'space-between',
+            marginBottom: 20,
         },
         imagePreview: {
             width: 100,
@@ -270,7 +276,6 @@ const useStyles = () => {
         },
         removeImageButton: {
             backgroundColor: colors.red,
-
             height: 40,
             display: "flex",
             flexBasis: 'auto',
@@ -294,22 +299,13 @@ const useStyles = () => {
             padding: 2,
         },
         imageButton: {
+            flex: 1,
             backgroundColor: colors.green,
-
-            height: 40,
-            display: "flex",
-            flexBasis: 'auto',
-            flexDirection: "row",
+            height: 45,
             justifyContent: 'center',
             alignItems: 'center',
-            alignSelf: 'center',
-            borderStyle: "solid",
-            borderWidth: 2,
-            borderColor: colors.green,
             borderRadius: 15,
-            margin: 15,
-            padding: 5,
-            paddingHorizontal: 20,
+            marginHorizontal: 5,
         },
         imageButtonText: {
             color: colors.white,
@@ -358,7 +354,7 @@ const useStyles = () => {
         descriptionContainer: {
             marginBottom: 20,
             padding: 10,
-            borderWidth: 1,
+            borderWidth: 2,
             borderColor: colors.border,
             borderRadius: 5,
             backgroundColor: colors.card,
