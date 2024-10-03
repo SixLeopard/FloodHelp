@@ -106,8 +106,13 @@ def hazard_maintenance():
         if (datetime.now() \
             - datetime.strptime(hazard['datetime'], '%d/%m/%y %H:%M:%S')) \
             > timedelta(hours=HAZARD_EXPIRY_HOURS):
+            # Generate notification to tell reporting user that their report expire
+            reporting_uid = hazard[3]
+            hazard_title = hazard[1]
+            Notifcations.add_notification(str(reporting_uid), f'Your report "{hazard_title}" has expired')
+
             # Delete from database
-            db.delete_hazard(hazard_id)
+            db.delete_hazard(hazard_id)            
 
             # If hazard count for that region exists and is greater than 0, then decrement
             coordinates = (float(hazard['coordinates'].split(',')[0].strip('(), ')), \
