@@ -28,7 +28,7 @@ const useStyles = () => {
             borderWidth: 2,
             borderColor: colors.blue,
             borderRadius: 15,
-            margin: 15,
+            margin: 4,
             padding: 5,
             paddingHorizontal: 20,
         },
@@ -129,7 +129,7 @@ const useStyles = () => {
 
         }, notificationBody: {
             marginVertical: 15,
-            width: '80%'
+            width: '70%'
         },  notifCautionIcon: {
             fontSize: 50,
             color: colors.red,
