@@ -369,6 +369,23 @@ const useStyles = () => {
             textAlignVertical: 'top',
         },
 
+        instructionContainer: {
+            position: 'absolute',
+            bottom: 30, 
+            left: 10,
+            right: 10,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent background
+            padding: 10,
+            borderRadius: 8,
+            zIndex: 1, // Ensures it sits above the map
+        },
+        instructionText: {
+            fontSize: 14, 
+            color: '#333', // Dark text for readability
+            textAlign: 'center',
+            marginBottom: 5, // Adds space between instructions
+        },
+
         logoImage: {
             width: 250,  // Adjust the width
             height: 250, // Adjust the height

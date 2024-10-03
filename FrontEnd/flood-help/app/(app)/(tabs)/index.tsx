@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Alert, TouchableOpacity, ActivityIndicator, Text, Image } from "react-native";
 import useStyles from "@/constants/style";
-import MapView, { Marker, Polygon, Region } from "react-native-maps";
+import MapView, { Marker, Region } from "react-native-maps";
 import { mapLightTheme, mapDarkTheme } from "@/constants/Themes";
 import { useTheme } from "@/contexts/ThemeContext";
 import * as Location from 'expo-location';
@@ -10,14 +10,6 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
-import historicalFloodData from '@/assets/historical_flood_data.json';
-
-// Define the structure of historical flood data
-interface HistoricalFloodData {
-    flood_risk: { [key: string]: string }; // 'Very Low', 'Low', 'Medium', 'High', etc.
-    coordinates: { [key: string]: number[][][] | number[][][][] }; // Polygon or MultiPolygon
-    type: { [key: string]: 'Polygon' | 'MultiPolygon' }; // 'Polygon' or 'MultiPolygon'
-}
 
 type RootStackParamList = {
     newreport: undefined;
@@ -51,7 +43,11 @@ export default function Index() {
     const [relationships, setRelationships] = useState<Relationship[]>([]);
     const [reports, setReports] = useState<{ [key: string]: Report }>({});
     const [loading, setLoading] = useState(true);
-    const [showHistoricalData, setShowHistoricalData] = useState(false);
+    const [showHistoricalMarker, setShowHistoricalMarker] = useState(false);
+    const [historicalMarkerCoords, setHistoricalMarkerCoords] = useState<{
+        latitude: number;
+        longitude: number;
+    } | null>(null);
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { user } = useAuth();
 
@@ -137,6 +133,40 @@ export default function Index() {
         navigation.navigate('newreport');
     };
 
+    // Toggle historical data marker
+    const handleHistoricalToggle = () => {
+        setShowHistoricalMarker(!showHistoricalMarker);
+        if (!showHistoricalMarker) {
+            // Set marker in the center of the map
+            setHistoricalMarkerCoords({
+                latitude: region?.latitude || 0,
+                longitude: region?.longitude || 0,
+            });
+        } else {
+            // Remove the marker
+            setHistoricalMarkerCoords(null);
+        }
+    };
+
+    // Function to handle marker drag event
+    const onMarkerDragEnd = (e: any) => {
+        const { latitude, longitude } = e.nativeEvent.coordinate;
+        setHistoricalMarkerCoords({ latitude, longitude });
+        displayCoordinatesAlert(latitude, longitude);
+    };
+
+    // Handle user tap on the map to move the marker
+    const onMapPress = (e: any) => {
+        const { latitude, longitude } = e.nativeEvent.coordinate;
+        setHistoricalMarkerCoords({ latitude, longitude });
+        displayCoordinatesAlert(latitude, longitude);
+    };
+
+    // Helper function to display alert with coordinates
+    const displayCoordinatesAlert = (latitude: number, longitude: number) => {
+        console.log("Marker moved/tapped to:", latitude, longitude);
+        Alert.alert("Coordinates Selected", `Lat: ${latitude}, Long: ${longitude}`);
+    };
 
     // Helper function to calculate proximity between two points
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -236,7 +266,8 @@ export default function Index() {
                     customMapStyle={theme.dark ? mapDarkTheme : mapLightTheme}
                     initialRegion={region}
                     showsUserLocation={true}
-                    showsMyLocationButton={false}
+                    showsMyLocationButton={true}
+                    onPress={showHistoricalMarker ? onMapPress : undefined}  // Only allow tap to place marker if historical mode is active
                 >
                     {/* Render Flood Report Markers */}
                     {reports && Object.entries(reports).map(([key, report]: [string, any], index) => {
@@ -256,10 +287,22 @@ export default function Index() {
                                 title={`${report.title}`}
                                 description={`Reported on: ${report.datetime}`}
                             >
-                                <FontAwesome name="exclamation-circle" size={40} color={color} />
+                                <FontAwesome name="exclamation-circle" size={50} color={color} />
                             </Marker>
                         );
                     })}
+
+                    {/* Render Historical Marker (Draggable) */}
+                    {showHistoricalMarker && historicalMarkerCoords && (
+                        <Marker
+                            coordinate={historicalMarkerCoords}
+                            draggable
+                            onDragEnd={onMarkerDragEnd}
+                            title="Move me to select coordinates"
+                        >
+                            <FontAwesome name="map-marker" size={50} color="maroon" />
+                        </Marker>
+                    )}
 
                     {/* Render Connections' Locations with custom pin image */}
                     {connectionLocations.map((connection, index) => {
@@ -294,14 +337,22 @@ export default function Index() {
                 <TouchableOpacity onPress={handleAddReport} style={styles.iconButton}>
                     <Icon name="report" size={40} color={theme.dark ? "maroon" : "maroon"} />
                 </TouchableOpacity>
-                {/* Historical Data Icon */}
-                <TouchableOpacity style={styles.iconButton}>
-                    <Icon name="history" size={40} color={showHistoricalData ? "midnightblue" : "midnightblue"} />
+                <TouchableOpacity onPress={handleHistoricalToggle} style={styles.iconButton}>
+                    <Icon name="history" size={40} color={showHistoricalMarker ? "maroon" : "midnightblue"} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={updateLocationAndFetchConnections} style={styles.iconButton}>
                     <Icon name="refresh" size={40} color={theme.dark ? "green" : "green"} />
                 </TouchableOpacity>
             </View>
+
+            {/* Instructions */}
+            {showHistoricalMarker && (
+                <View style={styles.instructionContainer}>
+                    <Text style={styles.instructionText}>Drag the pin or tap on the map to move the marker.</Text>
+                    <Text style={styles.instructionText}>Tap the historical icon again to exit historical mode.</Text>
+                </View>
+            )}
+
         </View>
     );
 }
