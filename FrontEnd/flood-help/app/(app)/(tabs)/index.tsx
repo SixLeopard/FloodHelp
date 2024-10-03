@@ -47,80 +47,66 @@ export default function Index() {
 
     const reports = useAPI('/reporting/user/get_all_report_basic');
 
+    const updateLocationAndFetchConnections = async () => {
+        try {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert("Permission to access location was denied");
+                setLoading(false);
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            const { latitude, longitude } = location.coords;
+
+            setRegion({
+                latitude,
+                longitude,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+            });
+
+            const formData = new FormData();
+            formData.append('location', `(${latitude},${longitude})`);
+
+            const locationUpdateResponse = await fetch('http://54.206.190.121:5000/locations/update', {
+                method: 'POST',
+                body: formData,
+            });
+            const locationData = await locationUpdateResponse.json();
+            console.log('Location Update Response:', locationData);
+
+            if (Object.keys(locationData).length > 0) {
+                const locationsArray: ConnectionLocation[] = Object.entries(locationData).map(([uid, loc]) => {
+                    const [latStr, longStr] = (loc as string).replace(/[()]/g, '').split(',');
+                    return {
+                        uid: parseInt(uid),
+                        latitude: parseFloat(latStr),
+                        longitude: parseFloat(longStr),
+                    };
+                });
+                setConnectionLocations(locationsArray);
+            }
+
+            const relationshipsResponse = await fetch('http://54.206.190.121:5000/relationships/get_relationships', {
+                method: 'GET',
+            });
+            const relationshipsData = await relationshipsResponse.json();
+            console.log('Relationships Data:', relationshipsData);
+            setRelationships(Object.values(relationshipsData));
+            setLoading(false);
+        } catch (error) {
+            console.error("Error updating location and fetching connections:", error);
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         console.log("useEffect triggered with user:", user);
-    
-        let didCancel = false;
-
         if (!user) return;
-    
-        const updateLocationAndFetchConnections = async () => {
-            try {
-                let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    Alert.alert("Permission to access location was denied");
-                    setLoading(false);
-                    return;
-                }
-    
-                let location = await Location.getCurrentPositionAsync({});
-                const { latitude, longitude } = location.coords;
-    
-                if (!didCancel) {
-                    setRegion({
-                        latitude,
-                        longitude,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421,
-                    });
-                }
-    
-                const formData = new FormData();
-                formData.append('location', `(${latitude},${longitude})`);
-    
-                const locationUpdateResponse = await fetch('http://54.206.190.121:5000/locations/update', {
-                    method: 'POST',
-                    body: formData,
-                });
-                const locationData = await locationUpdateResponse.json();
-                console.log('Location Update Response:', locationData);
-    
-                if (!didCancel && Object.keys(locationData).length > 0) {
-                    const locationsArray: ConnectionLocation[] = Object.entries(locationData).map(([uid, loc]) => {
-                        const [latStr, longStr] = (loc as string).replace(/[()]/g, '').split(',');
-                        return {
-                            uid: parseInt(uid),
-                            latitude: parseFloat(latStr),
-                            longitude: parseFloat(longStr),
-                        };
-                    });
-                    setConnectionLocations(locationsArray);
-                }
-    
-                const relationshipsResponse = await fetch('http://54.206.190.121:5000/relationships/get_relationships', {
-                    method: 'GET',
-                });
-                const relationshipsData = await relationshipsResponse.json();
-                console.log('Relationships Data:', relationshipsData);
-    
-                if (!didCancel) {
-                    setRelationships(Object.values(relationshipsData));
-                    setLoading(false);
-                }
-            } catch (error) {
-                console.error("Error updating location and fetching connections:", error);
-                if (!didCancel) setLoading(false);
-            }
-        };
-    
+
         updateLocationAndFetchConnections();
-    
-        return () => {
-            didCancel = true;
-        };
     }, [user]);
-    
-    
 
     const handleAddReport = () => {
         navigation.navigate('newreport');
@@ -213,6 +199,9 @@ export default function Index() {
                     style={styles.iconButton}
                 >
                     <Icon name="history" size={40} color={theme.dark ? "midnightblue" : "midnightblue"} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={updateLocationAndFetchConnections} style={styles.iconButton}>
+                    <Icon name="refresh" size={40} color={theme.dark ? "green" : "green"} />
                 </TouchableOpacity>
             </View>
         </View>

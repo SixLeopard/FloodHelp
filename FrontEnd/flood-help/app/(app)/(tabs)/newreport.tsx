@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, TouchableOpacity, Alert, TextInput } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Alert, ScrollView, RefreshControl, Text, View } from 'react-native';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import useStyles from '@/constants/style';
 import { useTheme } from "@/contexts/ThemeContext";
-import FH_Button from "@/components/navigation/FH_Button";
 import { useNavigation } from '@react-navigation/native';
-import { Picker } from '@react-native-picker/picker';
+import NewReportCard from '@/components/NewReportCard';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,6 +17,7 @@ const NewReport = () => {
     const { theme } = useTheme();
     const navigation = useNavigation<NewReportScreenNavigationProp>();
     const { user } = useAuth(); 
+
     const [location, setLocation] = useState('Fetching current location...');
     const [coordinates, setCoordinates] = useState<{ latitude: number, longitude: number } | null>(null);
     const [floodType, setFloodType] = useState('');
@@ -25,9 +25,11 @@ const NewReport = () => {
     const [photos, setPhotos] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
 
+    // Fetch current location when component loads
     useEffect(() => {
-        fetchCurrentLocation(); // Fetch location when the component loads
+        fetchCurrentLocation();
     }, []);
 
     const fetchCurrentLocation = async () => {
@@ -56,6 +58,14 @@ const NewReport = () => {
             setLocation('Error fetching location');
         }
     };
+
+    // Function to handle refresh
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchCurrentLocation().then(() => setRefreshing(false));
+    }, []);
+
+    // Function to handle location selection
     const handleLocationPress = () => {
         navigation.navigate('mapscreen', {
             onLocationSelected: (address: string, selectedCoordinates: { latitude: number, longitude: number }) => {
@@ -65,6 +75,7 @@ const NewReport = () => {
         });
     };
 
+    // Function to pick image from gallery
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -79,6 +90,7 @@ const NewReport = () => {
         }
     };
 
+    // Function to take photo
     const takePhoto = async () => {
         let result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
@@ -92,12 +104,14 @@ const NewReport = () => {
         }
     };
 
+    // Function to remove selected image
     const removeImage = (index: number) => {
         const newPhotos = [...photos];
         newPhotos.splice(index, 1);
         setPhotos(newPhotos);
     };
 
+    // Function to submit the report
     const handleSubmit = async () => {
         if (!coordinates || !location || location === 'Fetching current location...') {
             Alert.alert('Error', 'Location is required.');
@@ -150,69 +164,30 @@ const NewReport = () => {
     };
 
     return (
-        <View style={[styles.page]}>
-            <Text style={[styles.headerText, { color: theme.colors.text }]}>New Report</Text>
-            <View style={styles.formContainer}>
-                <TouchableOpacity onPress={handleLocationPress} style={styles.locationContainer}>
-                    <Text style={[styles.bodyTextBold]}>Location</Text>
-                    <Text style={[styles.bodyTextBold]}>
-                        {location}
-                    </Text>
-                </TouchableOpacity>
+        <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
+            <View style={[styles.page]}>
+                <Text style={[styles.headerText, { color: theme.colors.text }]}>New Report</Text>
 
-                <View style={styles.pickerContainer}>
-                    <Text style={[styles.bodyTextBold]}>Flood Type</Text>
-                    <Picker
-                        selectedValue={floodType}
-                        onValueChange={(itemValue) => setFloodType(itemValue)}
-                        style={[styles.picker]}
-                    >
-                        <Picker.Item label="Please select a flood type" value="" />
-                        <Picker.Item label="Major Flood" value="Major Flood" />
-                        <Picker.Item label="Moderate Flood" value="Moderate Flood" />
-                        <Picker.Item label="Minor Flood" value="Minor Flood" />
-                        <Picker.Item label="No Flood" value="No Flood" />
-                    </Picker>
-                </View>
-
-                <View style={styles.descriptionContainer}>
-                    <Text style={[styles.bodyTextBold]}>Description</Text>
-                    <View style={[styles.descriptionInput]}>
-                        <TextInput
-                            style={[styles.bodyTextBold]}
-                            placeholder="Enter a description"
-                            multiline
-                            value={description}
-                            onChangeText={setDescription}
-                        />
-                    </View>
-                </View>
-
-                <View style={styles.imageContainer}>
-                    {photos.map((photo, index) => (
-                        <View key={index} style={styles.imagePreviewContainer}>
-                            <Text style={styles.imageText}>{photo}</Text>
-                            <TouchableOpacity onPress={() => removeImage(index)} style={styles.removeImageButton}>
-                                <Text style={styles.removeImageText}>X</Text>
-                            </TouchableOpacity>
-                        </View>
-                    ))}
-                </View>
-
-                <View style={styles.imageButtonContainer}>
-                    <TouchableOpacity onPress={takePhoto} style={styles.imageButton}>
-                        <Text style={[styles.imageButtonText]}>Take Photo</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={pickImage} style={styles.imageButton}>
-                        <Text style={[styles.imageButtonText]}>Upload Image</Text>
-                    </TouchableOpacity>
-                </View>
-
-                <FH_Button text="Submit Report" onPress={handleSubmit} route='/(tabs)/index' disabled={loading} />
-                {loading && <Text>Submitting...</Text>}
-                {error && <Text>Error: {error}</Text>}
+            <NewReportCard
+                location={location}
+                onLocationPress={handleLocationPress}
+                floodType={floodType}
+                setFloodType={setFloodType}
+                description={description}
+                setDescription={setDescription}
+                photos={photos}
+                onTakePhoto={takePhoto}
+                onPickImage={pickImage}
+                onRemoveImage={removeImage}
+                onSubmit={handleSubmit}
+                loading={loading}
+                error={error}
+            />
             </View>
-        </View>
+        </ScrollView>
     );
 };
 
