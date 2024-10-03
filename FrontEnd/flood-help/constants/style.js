@@ -45,7 +45,7 @@ const useStyles = () => {
             margin: 10,
         },
         bodyText: {
-            color: colors.text,
+            color: colors.darkText,
             fontFamily: 'Urbanist_400Regular',
             fontSize: 16,
             flexWrap: 'wrap',
@@ -322,9 +322,9 @@ const useStyles = () => {
             width: '90%',
             padding: 15,
             marginVertical: 10,
-            borderWidth: 1,
+            borderWidth: 1.5,
             borderColor: theme.dark ? Colors.custom.borderDark : Colors.custom.borderLight, 
-            borderRadius: 10,
+            borderRadius: 20,
             backgroundColor: colors.card,
         },
         subHeaderText: {
@@ -555,15 +555,12 @@ const useStyles = () => {
         
         // Forgot password page style
         formContainerForgotPassword: {
-            width: '90%',
-            backgroundColor: colors.card, 
+            width: '85%',
             padding: 20,
             borderRadius: 10,
-            borderColor: '#555', 
+            borderColor: '#e9ecef', 
             borderWidth: 1,
             alignItems: 'center',
-            shadowColor: '#000',
-            shadowOpacity: 0.1,
             shadowOffset: { width: 0, height: 2 },
             elevation: 5,
         },
