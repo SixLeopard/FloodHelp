@@ -237,3 +237,6 @@ sudo systemctl restart nginx
 nohup gunicorn -b 0.0.0.0 'server:app' &
 ```
 navigate to http{s}://{public_ip}:5000 to see the intro API response
+
+## Using API
+all routes and there methods can be found by navigating to http{s}://{public_ip}:5000/documentation. this information is also available under /BackeEnd/API/ReadMe.md
