@@ -5,6 +5,7 @@ import UserAvatar from '@/components/UserAvatar';
 import ReportCard from '@/components/ReportCard';
 import FH_Button from '@/components/navigation/FH_Button';
 import useAPI from '@/hooks/useAPI';
+import * as Location from "expo-location";
 
 const ScrollView = Animated.ScrollView;
 
@@ -22,6 +23,19 @@ const Profile = () => {
         setRefreshing(false);
     }, []);
 
+
+    // function reverseGeo(coordinateString: string) {
+    //     const [latStr, longStr] = (coordinateString as string).replace(/[()]/g, '').split(',');
+    //
+    //     let geocode = await Location.reverseGeocodeAsync({latStr, longStr});
+    //     let l;
+    //     if (geocode.length > 0) {
+    //         const address = `${geocode[0].streetNumber || ''} ${geocode[0].street || ''}, ${geocode[0].city || ''}`;
+    //         return (address.trim());
+    //     } else {
+    //         return 'Unable to determine address';
+    //     }
+    // }
 
 
     if (!allReports || !currentUser) {
