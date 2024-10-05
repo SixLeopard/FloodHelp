@@ -1,14 +1,14 @@
-import React, {useMemo} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Text, View, ActivityIndicator } from 'react-native';
 import useStyles from '@/constants/style';
 import { useLocalSearchParams } from 'expo-router';
 import useAPI from '@/hooks/useAPI';
 
 const ReportPage = () => {
-    const { report_id } = useLocalSearchParams<{ report_id: string }>();
+    const { report_id, address } = useLocalSearchParams<{ report_id: string, address: string }>();
     const styles = useStyles();
 
-    // useMemo remembers the formData so it's only created when `report_id` changes (this prevents the issue of repeatedly calling the API)
+    // useMemo to prepare the formData
     const formData = useMemo(() => {
         const data = new FormData();
         data.append('report_id', report_id);
@@ -17,6 +17,7 @@ const ReportPage = () => {
 
     const reportData = useAPI(`/reporting/user/get_report`, formData);
 
+    // Loading state
     if (!reportData) {
         return (
             <View style={styles.page}>
@@ -26,7 +27,8 @@ const ReportPage = () => {
         );
     }
 
-    if (reportData.invalid_account) {
+    // Invalid account handling
+    if (reportData == "invalid_account") {
         return (
             <View style={styles.page}>
                 <Text style={styles.headerText}>Error</Text>
@@ -43,7 +45,7 @@ const ReportPage = () => {
             <View>
                 <Text style={styles.bodyTextBold}>Title: {title || 'No Title Found'}</Text>
                 <Text style={styles.bodyText}>Description: {description || 'No Description Found'}</Text>
-                <Text style={styles.bodyText}>Coordinates: {coordinates || 'No Coordinates Found'}</Text>
+                <Text style={styles.bodyText}>Address: {address || 'No Address Found'}</Text>
                 <Text style={styles.bodyText}>Datetime: {datetime || 'No Date Available Found'}</Text>
             </View>
         </View>
