@@ -215,3 +215,27 @@ def clear_alerts():
             return None
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
+
+@externalData_routes.route("/externalData/get_historical_data", methods = ['GET'])
+def get_historical_data():
+    '''
+        Gives historical data
+        
+        Form Data:
+            None
+
+        Return:
+            if succsessful: list of tuples: [(risk, coordinates, type),]
+            no login: {"invalid_account":1}
+            not using GET: {"invalid_request":1}
+    '''
+    if request.method == 'GET':      
+        if Accounts.verify_user_account(session["username"], session["id"]):
+            try:
+                historical_data =  db.get_historical_data()
+            except Exception as e:
+                return make_response({"internal_error": str(e)})
+
+            return make_response(historical_data)
+        return make_response({"invalid_account":1})
+    return make_response({"invalid_request":1})
