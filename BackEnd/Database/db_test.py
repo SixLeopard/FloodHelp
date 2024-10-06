@@ -25,8 +25,9 @@ def test_create_hazard():
 def test_get_hazard():
     print(db.get_hazard(3))
 
-def test_historical_data():
-    db.insert_historical_data('high', 'river', 'bleh', 'blah', 'bloh')
+def test_historical_data(root):
+    db.add_long_historical_data(root)
+    db.add_short_historical_data(root)
     print(db.get_historical_data())
 
 def test_get_user():
@@ -75,10 +76,8 @@ def test_delete_expired_alerts():
 # test_historical_data()
 # test_get_user()
 
+test_historical_data()
 
 
 
-#test_update_alerts_fake_specific_with_coordinates()
-test_delete_all_alerts()
-test_update_alerts_real()
 
