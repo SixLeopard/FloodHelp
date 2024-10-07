@@ -157,7 +157,7 @@ const useStyles = () => {
             width: '85%',
         },
         formContainer: {
-            width: '90%',
+            width: '100%',
             backgroundColor: colors.white, // Light background for the form
             borderColor: colors.grey, // Subtle border around the form
             borderWidth: 2,
@@ -694,6 +694,18 @@ const useStyles = () => {
             color: colors.white,
             fontSize: 16,
             fontWeight: 'bold',
+        },
+        scrollContainer: {
+            paddingBottom: 20, 
+            paddingHorizontal: 10, 
+        },
+        cardsContainer: {
+            width: '100%', 
+            alignItems: 'center',
+        },
+        cardWrapper: {
+            width: '100%', 
+            marginVertical: 10, 
         },
         successText: colors.text
 
