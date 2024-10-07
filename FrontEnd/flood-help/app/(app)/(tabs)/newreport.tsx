@@ -181,30 +181,39 @@ const NewReport = () => {
     );
 
     return (
-        <ScrollView
-            contentContainerStyle={{ flexGrow: 1 }}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        >
-            <View style={[styles.page]}>
-                <Text style={[styles.headerText, { color: theme.colors.text }]}>New Report</Text>
-
-            <NewReportCard
-                location={location}
-                onLocationPress={handleLocationPress}
-                floodType={floodType}
-                setFloodType={setFloodType}
-                description={description}
-                setDescription={setDescription}
-                photos={photos}
-                onTakePhoto={takePhoto}
-                onPickImage={pickImage}
-                onRemoveImage={removeImage}
-                onSubmit={handleSubmit}
-                loading={loading}
-                error={error}
-            />
-            </View>
-        </ScrollView>
+        <View style={[styles.page]}>
+            {/* Fixed Title */}
+            <Text style={[styles.headerText, { color: theme.colors.text }]}>New Report</Text>
+    
+            {/* Scrollable Content */}
+            <ScrollView
+                contentContainerStyle={{ 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    width: '100%', 
+                }}
+                style={{ width: '100%' }}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            >
+                <View style={{ width: '90%' }}>
+                    <NewReportCard
+                        location={location}
+                        onLocationPress={handleLocationPress}
+                        floodType={floodType}
+                        setFloodType={setFloodType}
+                        description={description}
+                        setDescription={setDescription}
+                        photos={photos}
+                        onTakePhoto={takePhoto}
+                        onPickImage={pickImage}
+                        onRemoveImage={removeImage}
+                        onSubmit={handleSubmit}
+                        loading={loading}
+                        error={error}
+                    />
+                </View>
+            </ScrollView>
+        </View>
     );
 };
 

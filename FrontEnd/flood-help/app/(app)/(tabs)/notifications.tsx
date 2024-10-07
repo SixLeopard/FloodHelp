@@ -74,19 +74,18 @@ const fetchNotifications = async () => {
             method: 'GET',
         });
 
-        const textResponse = await response.text(); // Fetch raw response as text
-        console.log('Raw Notification Response:', textResponse); // Log the raw response
+        // Ensure the response is parsed directly as JSON
+        const data = await response.json();
+        console.log('Parsed Notification Data:', data);
 
-        // Manually add quotes around object keys and convert single quotes to double quotes
-        const fixedTextResponse = textResponse
-            .replace(/([{,]\s*)([a-zA-Z0-9_]+)(\s*:)/g, '$1"$2"$3')  // Add quotes around keys
-            .replace(/'/g, '"');  // Convert single quotes to double quotes
+        // Sanitize the content by replacing single quotes with double quotes
+        const notificationsString = data['current pending notifications'];
+        const sanitizedNotifications = notificationsString.replace(/'/g, '"'); // Replace single quotes with double quotes
 
         try {
-            const data = JSON.parse(fixedTextResponse);
-            console.log('Parsed Notification Data:', data);
+            // Now parse the sanitized string as JSON
+            const notificationsArray = JSON.parse(sanitizedNotifications);
 
-            const notificationsArray = data['current pending notifications'] || [];
             if (notificationsArray.length > 0) {
                 const formattedNotifications = notificationsArray.map((notificationContent: string) => ({
                     type: 'user',
@@ -97,8 +96,8 @@ const fetchNotifications = async () => {
             } else {
                 setNotifications([]);
             }
-        } catch (jsonError) {
-            console.error('Error parsing notification response as JSON:', jsonError);
+        } catch (parseError) {
+            console.error('Error parsing notifications array:', parseError);
         }
     } catch (error) {
         console.error('Error fetching notifications:', error);
@@ -232,74 +231,78 @@ const fetchNotifications = async () => {
     }
 
     return (
-        <ScrollView
-            contentContainerStyle={{ flexGrow: 1 }}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        >
-            <View style={[styles.page]}>
-                <Text style={[styles.headerText, { color: theme.colors.text }]}>Notification</Text>
-                {notifications.length === 0 && floodAlerts.length === 0 && floodReports.length === 0 && checkInStatuses.length === 0 ? (
-                    <Text>No notifications or alerts found</Text>
-                ) : (
-                    <View>
-                        {/* Display User Notifications */}
-                        {notifications.map((notification, index) => (
-                            <View key={index}>
-                                <NotificationCard
-                                    type="user"
-                                    title="Notification"
-                                    body={notification.content}
-                                    timeOfNotification={new Date(notification.timeOfNotification).toLocaleTimeString()}
-                                    onCheckIn={undefined} 
-                                    onViewMap={undefined}
-                                />
-                            </View>
-                        ))}
+        <View style={styles.page}>
+            {/* Fixed Title */}
+            <Text style={[styles.headerText, { color: theme.colors.text }]}>Notification</Text>
 
-                        {/* Display Official Flood Alerts */}
-                        {floodAlerts.map((alert, index) => (
-                            <NotificationCard
-                                key={index}
-                                type="warning"
-                                title={`Official Flood Alert | ${alert.area}`}
-                                body={`Risk: ${alert.riskLevel}, Certainty: ${alert.certainty}`}
-                                timeOfNotification={new Date(alert.effectiveFrom).toLocaleTimeString()}
-                                onCheckIn={undefined} 
-                                onViewMap={undefined}
-                            />
-                        ))}
+            {/* Scrollable Content */}
+            <ScrollView
+                style={{ width: '100%' }}
+                contentContainerStyle={styles.scrollContainer} // Added to ensure proper alignment
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            >
+                <View style={styles.cardsContainer}>
+                    {notifications.length === 0 && floodAlerts.length === 0 && floodReports.length === 0 && checkInStatuses.length === 0 ? (
+                        <Text>No notifications or alerts found</Text>
+                    ) : (
+                        <>
+                            {notifications.map((notification, index) => (
+                                <View key={index} style={styles.cardWrapper}>
+                                    <NotificationCard
+                                        type="user"
+                                        title="Notification"
+                                        body={notification.content}
+                                        timeOfNotification={new Date(notification.timeOfNotification).toLocaleTimeString()}
+                                        onCheckIn={undefined}
+                                        onViewMap={undefined}
+                                    />
+                                </View>
+                            ))}
 
-                        {/* Display Reported Floods */}
-                        {floodReports.map((report, index) => (
-                            <NotificationCard
-                                key={index}
-                                type="warning"
-                                title={`Reported Flood | ${report.title || "Unknown"}`}
-                                body={`Description: ${report.description || "No description provided"}`}
-                                timeOfNotification={report.datetime}
-                                onCheckIn={undefined} 
-                                onViewMap={undefined}
-                            />
-                        ))}
+                            {floodAlerts.map((alert, index) => (
+                                <View key={index} style={styles.cardWrapper}>
+                                    <NotificationCard
+                                        type="warning"
+                                        title={`Official Flood Alert | ${alert.area}`}
+                                        body={`Risk: ${alert.riskLevel}, Certainty: ${alert.certainty}`}
+                                        timeOfNotification={new Date(alert.effectiveFrom).toLocaleTimeString()}
+                                        onCheckIn={undefined}
+                                        onViewMap={undefined}
+                                    />
+                                </View>
+                            ))}
 
-                        {/* Display Check-In Statuses */}
-                        {checkInStatuses.map((status, index) => (
-                            <NotificationCard
-                                key={index}
-                                type="user"
-                                title={`Check-In Status | ${status.name}`}
-                                body={`Status: ${status.status}`}
-                                timeOfNotification={new Date(status.updateTime).toLocaleTimeString()}
-                                onCheckIn={() => handleCheckIn(String(status.uid))}
-                                onViewMap={() => navigation.navigate('index')}
-                            />
-                        ))}
-                    </View>
-                )}
-            </View>
-        </ScrollView>
+                            {floodReports.map((report, index) => (
+                                <View key={index} style={styles.cardWrapper}>
+                                    <NotificationCard
+                                        type="warning"
+                                        title={`Reported Flood | ${report.title || "Unknown"}`}
+                                        body={`Description: ${report.description || "No description provided"}`}
+                                        timeOfNotification={report.datetime}
+                                        onCheckIn={undefined}
+                                        onViewMap={undefined}
+                                    />
+                                </View>
+                            ))}
+
+                            {checkInStatuses.map((status, index) => (
+                                <View key={index} style={styles.cardWrapper}>
+                                    <NotificationCard
+                                        type="user"
+                                        title={`Check-In Status | ${status.name}`}
+                                        body={`Status: ${status.status}`}
+                                        timeOfNotification={new Date(status.updateTime).toLocaleTimeString()}
+                                        onCheckIn={() => {}}
+                                        onViewMap={() => navigation.navigate('index')}
+                                    />
+                                </View>
+                            ))}
+                        </>
+                    )}
+                </View>
+            </ScrollView>
+        </View>
     );
 };
 
 export default Notifications;
-
