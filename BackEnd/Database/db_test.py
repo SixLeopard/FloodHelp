@@ -76,7 +76,7 @@ def test_delete_expired_alerts():
 # test_historical_data()
 # test_get_user()
 
-test_historical_data()
+test_historical_data("/home/ec2-user/long_coordinates.json", "/home/ec2-user/short_coordinates.json")
 
 
 
