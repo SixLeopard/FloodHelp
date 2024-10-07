@@ -37,9 +37,21 @@ interface Relationship {
 }
 
 interface CheckInStatus {
-    email: string;
+    uid: number;
+    name: string;
     status: string;
     updateTime: string;
+}
+
+interface OfficialAlert {
+    id: number;
+    description: string;
+    area: string;
+    riskLevel: string;
+    certainty: string;
+    effectiveFrom: string;
+    effectiveUntil: string;
+    coordinates: string;
 }
 
 export default function Index() {
@@ -49,10 +61,12 @@ export default function Index() {
     const [connectionLocations, setConnectionLocations] = useState<ConnectionLocation[]>([]);
     const [relationships, setRelationships] = useState<Relationship[]>([]);
     const [reports, setReports] = useState<{ [key: string]: Report }>({});
+    const [officialAlerts, setOfficialAlerts] = useState<OfficialAlert[]>([]);  
     const [loading, setLoading] = useState(true);
     const [showAlertModal, setShowAlertModal] = useState(false);
     const [selectedReport, setSelectedReport] = useState<Report | null>(null);
     const [selectedConnection, setSelectedConnection] = useState<CheckInStatus | null>(null);
+    const [selectedOfficialAlert, setSelectedOfficialAlert] = useState<OfficialAlert | null>(null); 
     const [showHistoricalMarker, setShowHistoricalMarker] = useState(false);
     const [historicalMarkerCoords, setHistoricalMarkerCoords] = useState<{
         latitude: number;
@@ -72,6 +86,33 @@ export default function Index() {
         } catch (error) {
             console.error('Error fetching flood reports:', error);
             setReports({});
+        }
+    };
+
+    const fetchOfficialAlerts = async () => {
+        try {
+            const response = await fetch('http://54.206.190.121:5000/externalData/get_alerts', {
+                method: 'GET',
+            });
+            const alertsData = await response.json();
+    
+            // Map the array format into OfficialAlert objects
+            const mappedAlerts = alertsData.map((alert: any[]): OfficialAlert => ({
+                id: alert[0], 
+                description: alert[1],
+                area: alert[2],
+                riskLevel: alert[3],
+                certainty: alert[4],
+                effectiveFrom: alert[5],
+                effectiveUntil: alert[6],
+                coordinates: alert[7],
+            }));
+    
+            setOfficialAlerts(mappedAlerts); 
+            console.log('Fetched Official Alerts:', mappedAlerts);
+        } catch (error) {
+            console.error('Error fetching official alerts:', error);
+            setOfficialAlerts([]);
         }
     };
 
@@ -124,6 +165,7 @@ export default function Index() {
             setRelationships(Object.values(relationshipsData));
 
             await fetchReports();
+            await fetchOfficialAlerts();
 
             setLoading(false);
         } catch (error) {
@@ -141,6 +183,26 @@ export default function Index() {
 
     const handleAddReport = () => {
         navigation.navigate('newreport');
+    };
+
+    const handleCheckIn = async (uid: number) => {
+        try {
+            // Create a new FormData instance
+            const formData = new FormData();
+            formData.append('notification', 'Are you safe?');
+            formData.append('receiver', String(uid));
+    
+            // Send a check-in notification to the selected user
+            await fetch('http://54.206.190.121:5000/notifications/add', {
+                method: 'POST',
+                body: formData, 
+            });
+    
+            Alert.alert('Check-In Sent', 'Check-in notification sent successfully.');
+        } catch (error) {
+            console.error('Error sending check-in notification:', error);
+            Alert.alert('Error', 'Failed to send check-in notification.');
+        }
     };
 
     const getAddressFromCoordinates = async (coordinates: string): Promise<string> => {
@@ -191,10 +253,14 @@ export default function Index() {
         }
     };
 
+    const handleOfficialAlertPress = (alert: OfficialAlert) => {
+        setSelectedOfficialAlert(alert);  
+        setShowAlertModal(true);
+    };
+
     // Modal for connection markers
     const handleConnectionPress = async (connection: ConnectionLocation) => {
         try {
-            // Fetch the check-in status for the selected connection
             const response = await fetch('http://54.206.190.121:5000/check_in/get_checkins', {
                 method: 'GET',
             });
@@ -212,20 +278,19 @@ export default function Index() {
             );
 
             const connectionName = relationship?.requestee_uid === connection.uid
-                ? relationship.requestee_name
-                : relationship?.requester_name;
+                ? relationship?.requestee_name || 'Unknown'
+                : relationship?.requester_name || 'Unknown';
 
-            // Extract the check-in status and time from the data
-            const [status, updateTime] = checkinsData[`${connectionName}@floodhelp.com`] || ["Unknown", "Unknown time"];
+            const [status, updateTime] = checkinsData[`${connection.uid}`][0] || ["Unknown", "Unknown time"];
 
-            // Set the connection info for the modal
             setSelectedConnection({
-                email: `${connectionName}@floodhelp.com`,
+                uid: connection.uid,
+                name: connectionName,
                 status,
                 updateTime,
             });
 
-            setShowAlertModal(true); // Show modal for connection marker
+            setShowAlertModal(true);
         } catch (error) {
             console.error("Error fetching connection status:", error);
         }
@@ -235,6 +300,7 @@ export default function Index() {
         setShowAlertModal(false);
         setSelectedReport(null);
         setSelectedConnection(null);
+        setSelectedOfficialAlert(null);
     };
 
     // Toggle historical data marker
@@ -360,6 +426,33 @@ export default function Index() {
                         );
                     })}
 
+                    {/* Render Official Alert Markers */}
+                    {officialAlerts.map((alert, index) => {
+                        // Ensure coordinates are a string and process them safely
+                        const coordinates = alert.coordinates || ''; 
+
+                        // Only process coordinates if they're available
+                        const [latitudeStr, longitudeStr] = coordinates.replace(/[{}]/g, '').split(',');
+
+                        // Parse the latitude and longitude strings into floats
+                        const latitude = parseFloat(latitudeStr);
+                        const longitude = parseFloat(longitudeStr);
+
+                        // If parsing failed, skip rendering this marker
+                        if (isNaN(latitude) || isNaN(longitude)) return null;
+
+                        return (
+                            <Marker
+                                key={index}
+                                coordinate={{ latitude, longitude }}
+                                title={"Official Flood Alert"} 
+                                onPress={() => handleOfficialAlertPress(alert)}
+                            >
+                                <FontAwesome name="exclamation-triangle" size={50} color="maroon" />
+                            </Marker>
+                        );
+                    })}
+
                     {/* Render Historical Marker (Draggable) */}
                     {showHistoricalMarker && historicalMarkerCoords && (
                         <Marker
@@ -381,7 +474,6 @@ export default function Index() {
                             ? relationship.requestee_name
                             : relationship?.requester_name;
 
-                        // Check if the connection is in a flood area
                         const isInFloodArea = isConnectionInFloodArea(connection);
 
                         return (
@@ -403,36 +495,75 @@ export default function Index() {
             )}
             {/* Flood Report Modal */}
             {selectedReport && (
-            <Modal
-                transparent={true}
-                visible={showAlertModal}
-                animationType="slide"
-                onRequestClose={closeModal}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.alertModal}>
-                        <View style={styles.alertContent}>
-                            {/* Row for Warning Icon and Title */}
-                            <View style={styles.alertHeader}>
-                                <FontAwesome name="exclamation-circle" size={30} color={getFloodColor(selectedReport.title)} />
-                                <Text style={styles.alertTitle}>
-                                    Flood Alert | {formatTime(selectedReport.datetime)}
+                <Modal
+                    transparent={true}
+                    visible={showAlertModal}
+                    animationType="slide"
+                    onRequestClose={closeModal} // Closing modal on back press for Android
+                >
+                    <Pressable
+                        style={styles.modalOverlay}
+                        onPress={closeModal} // Close modal when pressing outside
+                    >
+                        <View style={styles.alertModal}>
+                            <View style={styles.alertContent}>
+                                {/* Row for Warning Icon and Title */}
+                                <View style={styles.alertHeader}>
+                                    <FontAwesome name="exclamation-circle" size={30} color={getFloodColor(selectedReport.title)} />
+                                    <Text style={styles.alertTitle}>
+                                        Flood Alert | {formatTime(selectedReport.datetime)}
+                                    </Text>
+                                </View>
+    
+                                {/* Report Details */}
+                                <Text style={styles.alertDescription}>
+                                    {selectedReport.title} was reported at {selectedReport.location || 'Unknown Location'} on {selectedReport.datetime}.
                                 </Text>
+    
+                                {/* Got it Button */}
+                                <Pressable style={styles.alertButton} onPress={closeModal}>
+                                    <Text style={styles.alertButtonText}>Got it!</Text>
+                                </Pressable>
                             </View>
-            
-                            {/* Report Details */}
-                            <Text style={styles.alertDescription}>
-                                {selectedReport.title} was reported at {selectedReport.location || 'Unknown Location'} on {selectedReport.datetime}.
-                            </Text>
-            
-                            {/* Got it Button */}
-                            <Pressable style={styles.alertButton} onPress={closeModal}>
-                                <Text style={styles.alertButtonText}>Got it!</Text>
-                            </Pressable>
                         </View>
-                    </View>
-                </View>
-            </Modal>
+                    </Pressable>
+                </Modal>
+            )}
+            {/* Official Alert Modal */}
+            {selectedOfficialAlert && (
+                <Modal
+                    transparent={true}
+                    visible={showAlertModal}
+                    animationType="slide"
+                    onRequestClose={closeModal}  // Close modal on back press for Android
+                >
+                    <Pressable
+                        style={styles.modalOverlay}
+                        onPress={closeModal}  // Close modal when pressing outside
+                    >
+                        <View style={styles.alertModal}>
+                            <View style={styles.alertContent}>
+                                {/* Row for Warning Icon and Title */}
+                                <View style={styles.alertHeader}>
+                                    <FontAwesome name="warning" size={30} color="maroon" />
+                                    <Text style={styles.alertTitle}>
+                                        Flood Alert | {formatTime(selectedOfficialAlert.effectiveFrom)}
+                                    </Text>
+                                </View>
+
+                                {/* Official Alert Details */}
+                                <Text style={styles.alertDescription}>
+                                    Official flood alert at {selectedOfficialAlert.area} received on {new Date(selectedOfficialAlert.effectiveFrom).toLocaleString()}.
+                                </Text>
+
+                                {/* Got it Button */}
+                                <Pressable style={styles.alertButton} onPress={closeModal}>
+                                    <Text style={styles.alertButtonText}>Got it!</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </Pressable>
+                </Modal>
             )}
             {/* Connection Modal */}
             {selectedConnection && (
@@ -440,30 +571,30 @@ export default function Index() {
                     transparent={true}
                     visible={showAlertModal}
                     animationType="slide"
-                    onRequestClose={closeModal}
+                    onRequestClose={closeModal} // Closing modal on back press for Android
                 >
-                    <View style={styles.modalOverlay}>
+                    <Pressable
+                        style={styles.modalOverlay}
+                        onPress={closeModal} // Close modal when pressing outside
+                    >
                         <View style={styles.alertModal}>
                             <View style={styles.alertContent}>
-                                {/* Row for Connection Icon and Name */}
                                 <View style={styles.alertHeader}>
                                     <Image
                                         source={require('@/assets/images/connection.png')}
                                         style={{ width: 30, height: 30 }}
                                     />
                                     <Text style={styles.alertTitle}>
-                                    {selectedConnection.email.split('@')[0]} | {formatTime(selectedConnection.updateTime)}
+                                        {selectedConnection.name} | {formatTime(selectedConnection.updateTime)}
                                     </Text>
                                 </View>
 
-                                {/* Status and Time */}
                                 <Text style={styles.alertDescription}>
                                     Last status: "{selectedConnection.status}" updated on {selectedConnection.updateTime}.
                                 </Text>
 
-                                {/* Buttons */}
                                 <View style={styles.buttonContainer}>
-                                    <Pressable style={styles.checkInButton} onPress={() => console.log("Check In pressed")}>
+                                    <Pressable style={styles.checkInButton} onPress={() => handleCheckIn(selectedConnection.uid)}>
                                         <Text style={styles.alertButtonText}>Check In</Text>
                                     </Pressable>
                                     <Pressable style={styles.viewNotificationButton} onPress={() => navigation.navigate('notifications')}>
@@ -472,7 +603,7 @@ export default function Index() {
                                 </View>
                             </View>
                         </View>
-                    </View>
+                    </Pressable>
                 </Modal>
             )}
 
