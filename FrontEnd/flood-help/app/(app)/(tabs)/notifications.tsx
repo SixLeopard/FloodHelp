@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator, Image } from 'react-native';
 import useStyles from "@/constants/style";
 import { useTheme } from "@/contexts/ThemeContext";
 import NotificationCard from "@/components/NotificationCard";
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { FontAwesome } from '@expo/vector-icons';
 
 type RootStackParamList = {
     index: undefined;
@@ -12,16 +13,26 @@ type RootStackParamList = {
 
 type Notification = {
     type: string;
-    title: string;
-    body: string;
+    content: string;
     timeOfNotification: string;
     receiverUid?: string;
 };
+
+interface AlertData {
+    headline: string;
+    location: string;
+    risk: string;
+    certainty: string;
+    start: string;
+    end: string;
+    coordinates: string;
+}
 
 const Notifications = () => {
     const styles = useStyles();
     const { theme } = useTheme();
     const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [floodAlerts, setFloodAlerts] = useState<AlertData[]>([]);
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
@@ -31,8 +42,29 @@ const Notifications = () => {
             const response = await fetch('http://54.206.190.121:5000/notifications/get', {
                 method: 'GET',
             });
-            const notificationsData = await response.json();
-            setNotifications(notificationsData);
+    
+            const data = await response.json();
+            
+            // Log the response to ensure we're receiving the correct data
+            console.log('Notifications Data:', data);
+    
+            // Extract the array of pending notifications
+            const notificationsArray = data['current pending notifications'] || [];
+    
+            // If there are notifications, map them into a format that can be displayed
+            if (notificationsArray.length > 0) {
+                const formattedNotifications = notificationsArray.map((notificationContent: string) => ({
+                    type: 'user', 
+                    content: notificationContent,
+                    timeOfNotification: new Date().toISOString(), // Add current time as the notification time
+                }));
+    
+                setNotifications(formattedNotifications);
+            } else {
+                // If no notifications, set the notifications state as empty
+                setNotifications([]);
+            }
+    
         } catch (error) {
             console.error('Error fetching notifications:', error);
         } finally {
@@ -40,8 +72,22 @@ const Notifications = () => {
         }
     };
 
+    // Fetch official flood alerts
+    const fetchFloodAlerts = async () => {
+        try {
+            const response = await fetch('http://54.206.190.121:5000/externalData/get_alerts', {
+                method: 'GET',
+            });
+            const floodAlertsData = await response.json();
+            setFloodAlerts(floodAlertsData);
+        } catch (error) {
+            console.error('Error fetching flood alerts:', error);
+        }
+    };
+
     useEffect(() => {
         fetchNotifications();
+        fetchFloodAlerts();
     }, []);
 
     const handleCheckIn = (receiverUid: string) => {
@@ -71,47 +117,49 @@ const Notifications = () => {
         );
     }
 
+
     return (
         <View style={styles.page}>
-            <Text style={styles.headerText}>Notifications Page</Text>
+            <Text style={styles.headerText}>Notifications</Text>
 
-            {notifications.length === 0 ? (
-                <Text>No notifications found</Text>
+            {notifications.length === 0 && floodAlerts.length === 0 ? (
+                <Text>No notifications or alerts found</Text>
             ) : (
-                notifications.map((notification, index) => {
-                    if (notification.type === 'flood_alert') {
-                        return (
+                <View>
+                    {/* Display User Notifications */}
+                    {notifications.map((notification, index) => (
+                        <View key={index}>
                             <NotificationCard
-                                key={index}
-                                type="warning"
-                                title={notification.title}
-                                body={notification.body}
-                                timeOfNotification={notification.timeOfNotification}
+                                type={notification.type === 'check_in' ? 'user' : 'warning'}
+                                title={notification.type === 'check_in' ? "You received a Check-in request" : "Flood Alert"}
+                                body={notification.content}
+                                timeOfNotification={new Date(notification.timeOfNotification).toLocaleTimeString()}
                             />
-                        );
-                    } else if (notification.type === 'check_in') {
-                        return (
-                            <View key={index} style={{ marginBottom: 20 }}>
-                                <NotificationCard
-                                    type="user"
-                                    title={notification.title}
-                                    body={notification.body}
-                                    timeOfNotification={notification.timeOfNotification}
-                                />
-                                {/* Buttons below the NotificationCard */}
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                                    <TouchableOpacity onPress={() => handleCheckIn(notification.receiverUid!)}>
-                                        <Text style={styles.buttonText}>Check In</Text>
+                            {/* Buttons below the NotificationCard for Check In */}
+                            {notification.receiverUid && (
+                                <View style={styles.buttonContainer}>
+                                    <TouchableOpacity style={styles.alertButton} onPress={() => handleCheckIn(notification.receiverUid!)}>
+                                        <Text style={styles.alertButtonText}>Check In</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => navigation.navigate('index')}>
-                                        <Text style={styles.buttonText}>View on Map</Text>
+                                    <TouchableOpacity style={styles.alertButton} onPress={() => navigation.navigate('index')}>
+                                        <Text style={styles.alertButtonText}>View on Map</Text>
                                     </TouchableOpacity>
                                 </View>
-                            </View>
-                        );
-                    }
-                    return null;
-                })
+                            )}
+                        </View>
+                    ))}
+
+                    {/* Display Official Flood Alerts */}
+                    {floodAlerts.map((alert, index) => (
+                        <NotificationCard
+                            key={index}
+                            type="warning"
+                            title={alert.headline}
+                            body={`Risk: ${alert.risk}, Certainty: ${alert.certainty}, Location: ${alert.location}`}
+                            timeOfNotification={new Date(alert.start).toLocaleTimeString()}
+                        />
+                    ))}
+                </View>
             )}
         </View>
     );

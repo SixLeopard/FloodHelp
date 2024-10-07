@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Alert, TouchableOpacity, ActivityIndicator, Text, Image } from "react-native";
+import { View, Alert, TouchableOpacity, ActivityIndicator, Text, Image, Modal, Pressable } from "react-native";
 import useStyles from "@/constants/style";
 import MapView, { Marker, Region } from "react-native-maps";
 import { mapLightTheme, mapDarkTheme } from "@/constants/Themes";
@@ -20,6 +20,7 @@ interface Report {
     datetime: string;
     title: string;
     coordinates: string;
+    location?: string;
 }
 
 interface ConnectionLocation {
@@ -35,6 +36,12 @@ interface Relationship {
     requester_uid: number;
 }
 
+interface CheckInStatus {
+    email: string;
+    status: string;
+    updateTime: string;
+}
+
 export default function Index() {
     const styles = useStyles();
     const { theme } = useTheme();
@@ -43,6 +50,9 @@ export default function Index() {
     const [relationships, setRelationships] = useState<Relationship[]>([]);
     const [reports, setReports] = useState<{ [key: string]: Report }>({});
     const [loading, setLoading] = useState(true);
+    const [showAlertModal, setShowAlertModal] = useState(false);
+    const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+    const [selectedConnection, setSelectedConnection] = useState<CheckInStatus | null>(null);
     const [showHistoricalMarker, setShowHistoricalMarker] = useState(false);
     const [historicalMarkerCoords, setHistoricalMarkerCoords] = useState<{
         latitude: number;
@@ -133,6 +143,100 @@ export default function Index() {
         navigation.navigate('newreport');
     };
 
+    const getAddressFromCoordinates = async (coordinates: string): Promise<string> => {
+        try {
+            const [latitude, longitude] = coordinates.replace(/[()]/g, '').split(',');
+            const lat = parseFloat(latitude);
+            const lon = parseFloat(longitude);
+    
+            const addressArray = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lon });
+    
+            if (addressArray.length > 0) {
+                const address = addressArray[0];
+                // Combine street and city if available
+                return `${address.street}, ${address.city}`;
+            } else {
+                return 'Unknown Location';
+            }
+        } catch (error) {
+            console.error("Error getting address from coordinates:", error);
+            return 'Unknown Location';
+        }
+    };
+    // Helper function to format time from a datetime string
+    const formatTime = (datetime: string) => {
+        const date = new Date(datetime);
+        let hours = date.getUTCHours();  // Use getUTCHours for UTC time
+        let minutes: string | number = date.getUTCMinutes();  // Use getUTCMinutes for UTC time
+        const ampm = hours >= 12 ? 'pm' : 'am';
+    
+        hours = hours % 12;
+        hours = hours ? hours : 12; // If hour is 0, set it to 12
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+    
+        const strTime = `${hours}:${minutes} ${ampm}`;
+        return strTime;
+    };
+
+    const handleMarkerPress = async (report: Report) => {
+        try {
+            // Reverse geocode the coordinates to get the location
+            const location = await getAddressFromCoordinates(report.coordinates);
+    
+            // Now set the selected report and include the fetched location
+            setSelectedReport({ ...report, location }); // Add the location to the selected report
+            setShowAlertModal(true);
+        } catch (error) {
+            console.error('Error fetching location for report:', error);
+        }
+    };
+
+    // Modal for connection markers
+    const handleConnectionPress = async (connection: ConnectionLocation) => {
+        try {
+            // Fetch the check-in status for the selected connection
+            const response = await fetch('http://54.206.190.121:5000/check_in/get_checkins', {
+                method: 'GET',
+            });
+
+            if (!response.ok) {
+                console.error('Failed to fetch connection status:', response.status);
+                Alert.alert("Error", "Failed to fetch connection status.");
+                return;
+            }
+
+            const checkinsData = await response.json();
+
+            const relationship = relationships.find(
+                (rel) => (rel.requestee_uid === connection.uid || rel.requester_uid === connection.uid)
+            );
+
+            const connectionName = relationship?.requestee_uid === connection.uid
+                ? relationship.requestee_name
+                : relationship?.requester_name;
+
+            // Extract the check-in status and time from the data
+            const [status, updateTime] = checkinsData[`${connectionName}@floodhelp.com`] || ["Unknown", "Unknown time"];
+
+            // Set the connection info for the modal
+            setSelectedConnection({
+                email: `${connectionName}@floodhelp.com`,
+                status,
+                updateTime,
+            });
+
+            setShowAlertModal(true); // Show modal for connection marker
+        } catch (error) {
+            console.error("Error fetching connection status:", error);
+        }
+    };
+
+    const closeModal = () => {
+        setShowAlertModal(false);
+        setSelectedReport(null);
+        setSelectedConnection(null);
+    };
+
     // Toggle historical data marker
     const handleHistoricalToggle = () => {
         setShowHistoricalMarker(!showHistoricalMarker);
@@ -200,42 +304,6 @@ export default function Index() {
         });
     };
 
-    const handleConnectionPress = async (uid: number) => {
-        try {
-            // Fetch the status of the connection
-            const response = await fetch('http://54.206.190.121:5000/check_in/get_checkins', {
-                method: 'GET',
-            });
-    
-            if (!response.ok) {
-                // If response is not OK, print the status and throw an error
-                console.error('Failed to fetch connection status:', response.status);
-                Alert.alert("Error", "Failed to fetch connection status.");
-                return;
-            }
-    
-            const checkinsData = await response.json();
-    
-            // Find the status for the clicked connection by UID
-            const [connectionStatus, updateTime] = checkinsData[uid] || ["Unknown", "Unknown time"];
-    
-            // Show name, status, and a button to check notifications in the Alert
-            Alert.alert(
-                "Connection Status",
-                `Status: ${connectionStatus} | Update Time: ${updateTime}`,
-                [
-                    {
-                        text: "Check Notifications",
-                        onPress: () => navigation.navigate('notifications'),
-                    },
-                    { text: "OK", onPress: () => {} },
-                ]
-            );
-        } catch (error) {
-            console.error("Error fetching connection status:", error);
-        }
-    };
-
     const getFloodColor = (title: string): string => {
         if (title.includes('Major Flood')) {
             return 'maroon';
@@ -285,7 +353,7 @@ export default function Index() {
                                 key={index}
                                 coordinate={{ latitude, longitude }}
                                 title={`${report.title}`}
-                                description={`Reported on: ${report.datetime}`}
+                                onPress={() => handleMarkerPress(report)}
                             >
                                 <FontAwesome name="exclamation-circle" size={50} color={color} />
                             </Marker>
@@ -321,7 +389,7 @@ export default function Index() {
                                 key={index}
                                 coordinate={{ latitude: connection.latitude, longitude: connection.longitude }}
                                 title={connectionName}
-                                onPress={() => handleConnectionPress(connection.uid)}
+                                onPress={() => handleConnectionPress(connection)}
                             >
                                 <Image
                                     source={isInFloodArea ? require('@/assets/images/map-marker-warning.png') : require('@/assets/images/map-marker-default.png')}
@@ -333,6 +401,81 @@ export default function Index() {
                     })}
                 </MapView>
             )}
+            {/* Flood Report Modal */}
+            {selectedReport && (
+            <Modal
+                transparent={true}
+                visible={showAlertModal}
+                animationType="slide"
+                onRequestClose={closeModal}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.alertModal}>
+                        <View style={styles.alertContent}>
+                            {/* Row for Warning Icon and Title */}
+                            <View style={styles.alertHeader}>
+                                <FontAwesome name="exclamation-circle" size={30} color={getFloodColor(selectedReport.title)} />
+                                <Text style={styles.alertTitle}>
+                                    Flood Alert | {formatTime(selectedReport.datetime)}
+                                </Text>
+                            </View>
+            
+                            {/* Report Details */}
+                            <Text style={styles.alertDescription}>
+                                {selectedReport.title} was reported at {selectedReport.location || 'Unknown Location'} on {selectedReport.datetime}.
+                            </Text>
+            
+                            {/* Got it Button */}
+                            <Pressable style={styles.alertButton} onPress={closeModal}>
+                                <Text style={styles.alertButtonText}>Got it!</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+            )}
+            {/* Connection Modal */}
+            {selectedConnection && (
+                <Modal
+                    transparent={true}
+                    visible={showAlertModal}
+                    animationType="slide"
+                    onRequestClose={closeModal}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.alertModal}>
+                            <View style={styles.alertContent}>
+                                {/* Row for Connection Icon and Name */}
+                                <View style={styles.alertHeader}>
+                                    <Image
+                                        source={require('@/assets/images/connection.png')}
+                                        style={{ width: 30, height: 30 }}
+                                    />
+                                    <Text style={styles.alertTitle}>
+                                    {selectedConnection.email.split('@')[0]} | {formatTime(selectedConnection.updateTime)}
+                                    </Text>
+                                </View>
+
+                                {/* Status and Time */}
+                                <Text style={styles.alertDescription}>
+                                    Last status: "{selectedConnection.status}" updated on {selectedConnection.updateTime}.
+                                </Text>
+
+                                {/* Buttons */}
+                                <View style={styles.buttonContainer}>
+                                    <Pressable style={styles.checkInButton} onPress={() => console.log("Check In pressed")}>
+                                        <Text style={styles.alertButtonText}>Check In</Text>
+                                    </Pressable>
+                                    <Pressable style={styles.viewNotificationButton} onPress={() => navigation.navigate('notifications')}>
+                                        <Text style={styles.alertButtonText}>View Notifications</Text>
+                                    </Pressable>
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+            )}
+
             <View style={styles.iconContainer}>
                 <TouchableOpacity onPress={handleAddReport} style={styles.iconButton}>
                     <Icon name="report" size={40} color={theme.dark ? "maroon" : "maroon"} />
@@ -352,7 +495,6 @@ export default function Index() {
                     <Text style={styles.instructionText}>Tap the historical icon again to exit historical mode.</Text>
                 </View>
             )}
-
         </View>
     );
 }
