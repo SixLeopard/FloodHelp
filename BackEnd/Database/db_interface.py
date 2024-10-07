@@ -757,6 +757,7 @@ class DBInterface():
             data = json.load(file)
 
         for row in data:
+            print(row["flood_risk"])
             query = "INSERT INTO LongHistorical (risk, coordinates, type) VALUES (%s, %s, %s)"
             self.query(query, row["flood_risk"], row["coordinates"], row["type"])
 
