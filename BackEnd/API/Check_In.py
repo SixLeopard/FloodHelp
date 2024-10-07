@@ -48,12 +48,13 @@ def get_checkin_route():
             relationships = database_interface.get_approved_relationships_ids(session["uid"])
             output = {}
             for i in relationships:
-                if statuses[i][1] < Time.datetime.now() - Time.timedelta(hours=3):
-                    statuses[i] = ("Unknown", Time.datetime.now())
-                output[database_interface.get_user_by_uid(int(i))[2]] = statuses[i]
+                if (str(i) in statuses):
+                    if statuses[str(i)][1] < Time.datetime.now() - Time.timedelta(hours=3):
+                        statuses[i] = ("Unknown", Time.datetime.now())
+                    output[database_interface.get_user_by_uid(int(i))[2]] = statuses[str(i)]
             results = make_response(output)
             return results
-        return make_response({"invalid_account":1})
+        return make_response({"invalid_account":
     return make_response({"invalid_request":1})
 
 @checkin_routes.route("/check_in/send_push",  methods = ['POST'])
