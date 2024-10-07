@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Alert, ScrollView, RefreshControl, Text, View } from 'react-native';
+import { Alert, ScrollView, RefreshControl, Text, View, BackHandler } from 'react-native';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import useStyles from '@/constants/style';
 import { useTheme } from "@/contexts/ThemeContext";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import NewReportCard from '@/components/NewReportCard';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
@@ -144,6 +144,7 @@ const NewReport = () => {
             if (response.ok) {
                 Alert.alert('Success', 'Report submitted successfully!');
                 resetForm();
+                navigation.navigate('index');
             } else {
                 setError('Failed to submit report.');
             }
@@ -162,6 +163,22 @@ const NewReport = () => {
         setDescription('');
         setPhotos([]);
     };
+
+    // Handle back button press
+    useFocusEffect(
+        useCallback(() => {
+            const onBackPress = () => {
+                navigation.navigate('index');
+                return true; 
+            };
+
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+            return () => {
+                BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            };
+        }, [navigation])
+    );
 
     return (
         <ScrollView

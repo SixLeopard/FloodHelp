@@ -582,6 +582,8 @@ const useStyles = () => {
             flexDirection: 'row',
             justifyContent: 'space-between',
             width: '100%',
+            marginTop: 10,
+            paddingHorizontal: 3,
         },
         
         cancelButton: {
@@ -669,7 +671,7 @@ const useStyles = () => {
             flex: 1,
             backgroundColor: theme.colors.green,  
             paddingVertical: 12,
-            borderRadius: 5,
+            borderRadius: 7,
             alignItems: 'center',
             marginRight: 10,  
         },
@@ -677,7 +679,7 @@ const useStyles = () => {
             flex: 1,
             backgroundColor: theme.colors.blue,  
             paddingVertical: 12,
-            borderRadius: 5,
+            borderRadius: 7,
             alignItems: 'center',
             marginLeft: 10,
         },
@@ -685,7 +687,7 @@ const useStyles = () => {
             width: '100%',
             paddingVertical: 12,
             backgroundColor: colors.red, 
-            borderRadius: 5,
+            borderRadius: 7,
             alignItems: 'center',
         },
         alertButtonText: {
@@ -693,7 +695,6 @@ const useStyles = () => {
             fontSize: 16,
             fontWeight: 'bold',
         },
-
         successText: colors.text
 
 
