@@ -574,28 +574,6 @@ class DBInterface():
         
         return final
 
-    def insert_historical_data(self, flood_risk: str, flood_type: str, \
-        coordinates: str, datatype: str, geo: str):
-
-        query = "INSERT INTO historical_flood_risk (flood_risk, flood_type, coordinates, datatype, geo) VALUES (%s, %s, %s, %s, %s)"
-        self.query(query, flood_risk, flood_type, coordinates, datatype, geo)
-
-    def get_historical_data(self):
-        query = "SELECT * FROM historical_flood_risk"
-        result = self.query(query)
-
-        results = []
-        for row in result:
-            new_row = []
-            new_row.append(row[0])
-            new_row.append(row[1])
-            new_row.append(row[2])
-            new_row.append(str(row[3].tobytes()))
-            new_row.append(str(row[4].tobytes()))
-            new_row.append(str(row[5].tobytes()))
-            results.append(new_row)
-
-        return results
 
     """
     Insert a new entry into the 'Notifications' table.
@@ -773,6 +751,36 @@ class DBInterface():
     def delete_all_alerts(self):
         query = "DELETE FROM Alerts"
         self.query(query)
+
+    def add_long_historical_data(self, root):
+        with open(root, 'r') as file:
+            data = json.load(file)
+
+        for row in data:
+            query = "INSERT INTO LongHistorical (risk, coordinates, type) VALUES (%s, %s, %s)"
+            self.query(query, row["flood_risk"], row["coordinates"], row["type"])
+
+    def add_short_historical_data(self, root):
+        with open(root, 'r') as file:
+            data = json.load(file)
+
+        for row in data:
+            query = "INSERT INTO ShortHistorical (risk, coordinates, type) VALUES (%s, %s, %s)"
+            self.query(query, row["flood_risk"], row["coordinates"], row["type"])
+
+    
+    def get_historical_data(self):
+        query = "SELECT * FROM LongHistorical"
+        result_long = self.query(query)
+
+        query = "SELECT * FROM ShortHistorical"
+        result_short = self.query(query)
+
+        result_long.extend(result_short)
+        return result_long
+
+
+
 
 
 

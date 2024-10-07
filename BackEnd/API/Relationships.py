@@ -1,6 +1,7 @@
 #flask
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
+import API.Notifications as Notifications
 
 from API.database import database_interface as db
 
@@ -49,6 +50,8 @@ def create_relationship():
             # Create relationship
             try:
                 db.create_relationship(requester_uid, requestee_uid)
+
+                Notifications.add_notification(str(requestee), f'User "{session["username"]}" has requested to follow you')
                 return make_response({"success": 1})
             except Exception as e:
                 return make_response({"internal_error": str(e)})
