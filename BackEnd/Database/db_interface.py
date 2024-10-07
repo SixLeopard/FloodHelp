@@ -757,9 +757,8 @@ class DBInterface():
             data = json.load(file)
 
         for row in data:
-            print(row["flood_risk"])
             query = "INSERT INTO LongHistorical (risk, coordinates, type) VALUES (%s, %s, %s)"
-            self.query(query, row["flood_risk"], row["coordinates"], row["type"])
+            self.query(query, json.dumps(row["flood_risk"]), json.dumps(row["coordinates"]), json.dumps(row["type"]))
 
     def add_short_historical_data(self, root):
         with open(root, 'r') as file:
@@ -767,7 +766,7 @@ class DBInterface():
 
         for row in data:
             query = "INSERT INTO ShortHistorical (risk, coordinates, type) VALUES (%s, %s, %s)"
-            self.query(query, row["flood_risk"], row["coordinates"], row["type"])
+            self.query(query, json.dumps(row["flood_risk"]), json.dumps(row["coordinates"]), json.dumps(row["type"]))
 
     
     def get_historical_data(self):
