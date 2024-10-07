@@ -54,7 +54,7 @@ def get_checkin_route():
                     output[database_interface.get_user_by_uid(int(i))[2]] = statuses[str(i)]
             results = make_response(output)
             return results
-        return make_response({"invalid_account":
+        return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
 @checkin_routes.route("/check_in/send_push",  methods = ['POST'])
