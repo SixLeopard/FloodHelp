@@ -14,6 +14,8 @@ setup the api server
 contains all the api routes, there inputs and there outputs
 #### /FontEnd/flood-help/README.md
 General README for front end
+#### /Dependencies.md
+list of all the dependencies for the entire project
 
 # Project Brief
 ### 12S: Flood Help - Enhanced Flood Preparedness and Response
