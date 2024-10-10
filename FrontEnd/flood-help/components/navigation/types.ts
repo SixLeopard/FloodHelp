@@ -5,6 +5,7 @@ export type RootStackParamList = {
         onLocationSelected: (address: string, selectedCoordinates: { latitude: number, longitude: number }) => void;
     };
     newreport: undefined;
+    notifications: undefined;
 };
 
 export type MapScreenRouteProp = RouteProp<RootStackParamList, 'mapscreen'>;
