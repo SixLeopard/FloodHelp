@@ -18,7 +18,7 @@
     "@expo-google-fonts/urbanist": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",
     "@react-native-community/checkbox": "^0.5.17",
-    "@react-native-picker/picker": "^2.8.0",
+    "@react-native-picker/picker": "^2.8.1",
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/stack": "^6.4.1",
     "ajv-formats": "^3.0.1",

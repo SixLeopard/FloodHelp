@@ -14,41 +14,17 @@ setup the api server
 contains all the api routes, there inputs and there outputs
 #### /FontEnd/flood-help/README.md
 General README for front end
+#### /Dependencies.md
+list of all the dependencies for the entire project
 
-# Project Brief
-### 12S: Flood Help - Enhanced Flood Preparedness and Response
+# Project description
+“Flood Help” is a mobile application designed for use during flooding events in the greater Brisbane region. Flood Help provides users the ability to view a real-time picture of potential hazards during flooding events and the status of their loved ones.
 
-Assistive Technology
+The 2022 floods in Brisbane had devastating effects on the community with some 20,000 homes flooded, numerous public services not available, and 13 people losing their lives as a result of the flooding. In a critical situation such as this, when safety is at stake, real time and reliable information is key. People must be able to make informed choices about safe routes to take, when to stay home, or even when it is time to evacuate. This need for information revealed a glaring problem with the current flood information systems in Brisbane, namely that there are almost no sources where users can go to find specific and fine grained information. Our user surveys revealed that residents struggled to obtain accurate and timely reports of hazards such as flooded roads or rising flood waters, often relying on questionable social media posts to attempt to find the information they need. Reports from services such as BOM were too broad or simply not available, and reliable information was scattered. 
 
-Geographical Information Sharing
-Real-time API Data Retrieval
-Accessible for Vulnerable Groups
+Flood Help resolves this issue by providing an easy way for Brisbane residents to access a robust and centralised source of reliable information regarding ongoing or possible floods. Our app distinguishes itself from other current options by centralising information from official channels including Brisbane City Council and other reliable third party data sources, together with on the ground user reports where users can post photos and information about specific flood related hazards which others could use to take the necessary precautions.
 
-#### Project brief
+Flood Help places an emphasis on presenting users reliable information. Users are provided a trustworthiness rating for each report which is calculated by corroborating them with other reports made nearby. If a large number of similar reports are made close to a report, then the report trustworthiness is increased. The use of images for reports additionally serves to help users gain a clear picture of the hazard. Information from official channels is also available, with the app providing real time weather warnings issued by the BOM, real time measurements of the height of various rivers, lakes and waterways in the region, and access to a map showing the historical risk of flooding in each area.
 
-FloodHelp is a mobile app that combines map functionality, API information acquisition, and user information sharing. It will provide users with comprehensive and timely local information support, enabling them to more effectively find the resources they need in emergency situations and ensure the safety of their families and communities. Efficient information acquisition, easy-to-understand presentation of information, and easy-to-use features must be considered.
+Another feature which makes Flood Help stand out is that it connects family members and friends, giving them the ability to see each other's location and track their safety status which is periodically updated. Users can also request another user to update their status. Our user interviews reveal that residents found it difficult to stay connected. In the chaos, people often missed phone calls from loved ones, or were not able to contact them. Flood Help provides real-time location tracking and status updates to address this.
 
-#### Problem space
-
-As global warming intensifies, Australia may experience more frequent extreme weather events, such as heavy rainfall and river flooding. Enhancing flood risk management is therefore crucial. The 2022 floods exposed major issues, including low community awareness and preparedness for flood risks, and delays in official information reaching affected residents. Although residents often turn to social media for emergency updates, the reliability of this information is not always assured. Additionally, there are concerns about the accessibility of these platforms for elderly users and people with disabilities.
-
-#### Success criteria
-
-A mobile application that must provide users with timely updates about flood conditions that could impact them or their families at their current or future locations.
-
-#### This project MUST have
-
-A geolocation feature with high accuracy and fast information loading speed.
-A function that accurately updates the locations of the user's family members in real-time and is able to send notifications to them.
-An information-sharing feature that provides timely and accurate updates on the map, supported by a robust information verification mechanism.
-
-#### This project COULD have
-
-Users can customise alerts and notifications based on their preferences.
-Basic functionality available offline, including downloaded maps and saved locations.
-
-### Expected skills to have or develop
-
-Proficiency in Swift (for iOS development) or Kotlin (for Android development), or using cross-platform frameworks such as Flutter or React Native.
-Understanding how to integrate and use third-party APIs (such as weather APIs and flood warning APIs) in conjunction with maps.
-High-level UI/UX design skills to create responsive and intuitive user interfaces, while also considering the needs of vulnerable groups.
