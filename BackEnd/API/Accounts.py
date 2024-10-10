@@ -135,7 +135,7 @@ def create_route():
 
         name, email, passkey, salt = create_account(name, username, password)
         if name != None or email != None or passkey != None or salt != None:
-            return make_response({"created":"True","username":f"{username}","passkey":f"{passkey}"})
+            return make_response({"created":"True","username":f"{username}"})
         else:
             return make_response({"created":"False"})
         
