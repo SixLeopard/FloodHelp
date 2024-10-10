@@ -376,7 +376,9 @@ class DBInterface():
     """
     def create_hazard(self, type: str, img_b64: str, reporting_user: int, \
             coordinates: tuple[float], description:str = None, area_name: str = None, title: str = None) -> int:
+
         query = 'INSERT INTO hazards (type, image, reporting_user, area, coordinates, description, title) VALUES (%s, %s, %s, %s, %s, %s, %s)'
+
 
         self.query(query, title, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]), description, title)
 
