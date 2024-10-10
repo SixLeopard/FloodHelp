@@ -21,6 +21,7 @@ const NewReport = () => {
     const [location, setLocation] = useState('Fetching current location...');
     const [coordinates, setCoordinates] = useState<{ latitude: number, longitude: number } | null>(null);
     const [floodType, setFloodType] = useState('');
+    const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [photos, setPhotos] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
@@ -129,7 +130,8 @@ const NewReport = () => {
     
             const body = new FormData();
             body.append('location', locationForBackend);
-            body.append('type', floodType);
+            body.append('hazard_type', floodType);
+            body.append('title', title);
             body.append('description', description);
             if (photos.length > 0) {
                 body.append('image', photos[0]);
@@ -159,6 +161,7 @@ const NewReport = () => {
         setLocation('Fetching current location...');
         setCoordinates(null); // Reset coordinates
         setFloodType('');
+        setTitle('');
         setDescription('');
         setPhotos([]);
     };
@@ -176,6 +179,8 @@ const NewReport = () => {
                 onLocationPress={handleLocationPress}
                 floodType={floodType}
                 setFloodType={setFloodType}
+                title={title}
+                setTitle={setTitle}
                 description={description}
                 setDescription={setDescription}
                 photos={photos}
@@ -183,7 +188,7 @@ const NewReport = () => {
                 onPickImage={pickImage}
                 onRemoveImage={removeImage}
                 onSubmit={handleSubmit}
-                loading={loading}
+                loading={loading}r
                 error={error}
             />
             </View>

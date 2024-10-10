@@ -4,10 +4,13 @@ import useStyles from '@/constants/style';
 import { useTheme } from '@/contexts/ThemeContext';
 import { router } from 'expo-router';
 import { handleReverseGeo } from '@/services/reverseGeo';
+import {formatDateTime} from "@/services/datetimeFromatter";
 
 const ReportCard = ({ reportID, report }) => {
     const styles = useStyles();
-    const { hazard_id, title, coordinates, datetime } = report;
+    console.log(report);
+    let { hazard_id, title, coordinates, datetime } = report;
+    datetime = formatDateTime(datetime)
     const [address, setAddress] = useState('Loading address...');
 
     useEffect(() => {

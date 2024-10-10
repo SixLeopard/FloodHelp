@@ -236,12 +236,16 @@ export default function Index() {
         }
     };
 
-    const getFloodColor = (title: string): string => {
-        if (title.includes('Major Flood')) {
+    const getFloodColor = (type: string): string => {
+        if (type == null) {
+            return 'blue'
+        }
+
+        if (type.includes('Major Flood')) {
             return 'maroon';
-        } else if (title.includes('Moderate Flood')) {
+        } else if (type.includes('Moderate Flood')) {
             return 'darkorange';
-        } else if (title.includes('Minor Flood')) {
+        } else if (type.includes('Minor Flood')) {
             return 'goldenrod';
         } else {
             return 'maroon';
@@ -276,7 +280,7 @@ export default function Index() {
                         const [latitudeStr, longitudeStr] = report.coordinates.replace(/[()]/g, '').split(',');
                         const latitude = parseFloat(latitudeStr);
                         const longitude = parseFloat(longitudeStr);
-                        const color = getFloodColor(report.title);
+                        const color = getFloodColor(report.type);
 
                         if (isNaN(latitude) || isNaN(longitude)) return null;
 

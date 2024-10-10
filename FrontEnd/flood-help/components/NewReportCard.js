@@ -9,6 +9,8 @@ const NewReportCard = ({
     onLocationPress,
     floodType,
     setFloodType,
+    title,
+    setTitle,
     description,
     setDescription,
     photos,
@@ -23,6 +25,21 @@ const NewReportCard = ({
 
     return (
         <View style={styles.formContainer}>
+
+            {/* Title Input */}
+            <View style={styles.descriptionContainer}>
+                <Text style={styles.bodyTextBold}>Title</Text>
+                <View style={styles.titleInput}>
+                    <TextInput
+                        style={styles.bodyTextBold}
+                        placeholder="Enter a Title"
+                        multiline
+                        value={title}
+                        onChangeText={setTitle}
+                    />
+                </View>
+            </View>
+
             {/* Location Picker */}
             <TouchableOpacity onPress={onLocationPress} style={styles.locationContainer}>
                 <Text style={styles.bodyTextBold}>Location</Text>
@@ -44,6 +61,7 @@ const NewReportCard = ({
                     <Picker.Item label="No Flood" value="No Flood" />
                 </Picker>
             </View>
+
 
             {/* Description Input */}
             <View style={styles.descriptionContainer}>

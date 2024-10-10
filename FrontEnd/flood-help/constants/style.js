@@ -228,7 +228,6 @@ const useStyles = () => {
         },
 
         locationContainer: {
-            marginTop: 40,
             marginBottom: 20,
             padding: 10,
             borderWidth: 2,
@@ -349,6 +348,16 @@ const useStyles = () => {
             color: '#FFF',
             fontSize: 16,
             fontWeight: 'bold',
+        },
+
+
+        titleInput: {
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 5,
+            padding: 8,
+            minHeight: 20,
+            textAlignVertical: 'top',
         },
 
         descriptionContainer: {

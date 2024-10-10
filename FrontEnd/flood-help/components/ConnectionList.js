@@ -4,6 +4,7 @@ import UserCard from './UserCard';
 
 const ConnectionList = ({ relationships, currentUser }) => {
     const renderItem = ({ item }) => (
+
         <UserCard
             username={item.username}
             userID={item.userID}
