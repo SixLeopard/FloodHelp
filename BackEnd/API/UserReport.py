@@ -107,8 +107,8 @@ def hazard_maintenance():
             - datetime.strptime(hazard['datetime'], '%d/%m/%y %H:%M:%S')) \
             > timedelta(hours=HAZARD_EXPIRY_HOURS):
             # Generate notification to tell reporting user that their report expire
-            reporting_uid = hazard[3]
-            hazard_title = hazard[1]
+            reporting_uid = hazard['hazard_id']
+            hazard_title = hazard['title']
             Notifcations.add_notification(str(reporting_uid), f'Your report "{hazard_title}" has expired')
 
             # Delete from database
