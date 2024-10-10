@@ -55,7 +55,7 @@ scheduler.start()
 def get_user_report(id):
     return db.get_hazard(id)
     
-def create_user_report(uid : int, location : str, type : str, description: str, img_str: str = None, title: str = None):
+def create_user_report(uid : int, location : str, type : str, description: str, img_str: str = None):
     '''
         create user report
         location is a string in the form "{LAT},{LONG}"

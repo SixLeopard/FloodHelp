@@ -378,7 +378,7 @@ class DBInterface():
             coordinates: tuple[float], description:str = None, area_name: str = None, title: str = None) -> int:
         query = 'INSERT INTO hazards (type, image, reporting_user, area, coordinates, description, title) VALUES (%s, %s, %s, %s, %s, %s, %s)'
 
-        self.query(query, title, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]), description, title)
+        self.query(query, title, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]), description)
 
         # Get id of newly created hazard. Auto incremented by database
         query = 'SELECT MAX(hazard_id) FROM Hazards'

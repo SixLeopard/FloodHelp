@@ -8,6 +8,8 @@ checkin_routes = Blueprint("checkin_routes", __name__)
 
 statuses = {}
 
+status_timeout_hours = 3
+
 @checkin_routes.route("/check_in/send",  methods = ['POST'])
 def send_checkin_route():
     '''
@@ -49,7 +51,7 @@ def get_checkin_route():
             output = {}
             for i in relationships:
                 if (str(i) in statuses):
-                    if statuses[str(i)][1] < Time.datetime.now() - Time.timedelta(hours=3):
+                    if statuses[str(i)][1] < Time.datetime.now() - Time.timedelta(hours=status_timeout_hours):
                         statuses[i] = ("Unknown", Time.datetime.now())
                     output[str(i)] = (statuses[str(i)], database_interface.get_user_by_uid(int(i))[1])
             results = make_response(output)
