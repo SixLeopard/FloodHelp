@@ -51,6 +51,8 @@ def create_relationship():
             try:
                 db.create_relationship(requester_uid, requestee_uid)
 
+                Notifications.add_notification(str(requestee), f'User "{session['username']}" has requested to follow you')
+
                 Notifications.add_notification(str(requestee), f'User "{session["username"]}" has requested to follow you')
                 return make_response({"success": 1})
             except Exception as e:

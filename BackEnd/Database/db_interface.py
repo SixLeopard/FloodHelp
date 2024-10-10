@@ -374,11 +374,11 @@ class DBInterface():
     Returns
         int: The hazard_id of the newly created hazard
     """
-    def create_hazard(self, title: str, img_b64: str, reporting_user: int, \
-            coordinates: tuple[float], description:str = None, area_name: str = None) -> int:
-        query = 'INSERT INTO hazards (title, image, reporting_user, area, coordinates, description) VALUES (%s, %s, %s, %s, %s, %s)'
+    def create_hazard(self, type: str, img_b64: str, reporting_user: int, \
+            coordinates: tuple[float], description:str = None, area_name: str = None, title: str = None) -> int:
+        query = 'INSERT INTO hazards (type, image, reporting_user, area, coordinates, description, title) VALUES (%s, %s, %s, %s, %s, %s)'
 
-        self.query(query, title, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]), description)
+        self.query(query, title, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]), description, title)
 
         # Get id of newly created hazard. Auto incremented by database
         query = 'SELECT MAX(hazard_id) FROM Hazards'
@@ -412,12 +412,13 @@ class DBInterface():
 
     Returns a dictionary containing:
         hazard_id (int): The unique ID of the hazard
-        title (str): The name of the hazard
+        type (str): The type of the hazard
         datetime (str): The time at which the hazard was created in the format "DD/MM/YY HH:MM:SS"
         reporting_user_id (int): The UID of the user who reported the hazard
         area_name (str): The name of the area in which the hazard was reported
         coordinates (str): The coordinates at which the hazard was reported in the form "(x, y)"
         image (str): The string encoded representation of the image    
+        title (str): The title of the hazard
     """
     def get_hazard(self, hazard_id: int):
         query = 'SELECT * FROM Hazards WHERE hazard_id = (%s)'
@@ -428,7 +429,7 @@ class DBInterface():
             img = None if result[6] is None else str(result[6].tobytes())[2:]
             hazard = {
                 'hazard_id': result[0],
-                'title': result[1],
+                'type': result[1],
                 'datetime': result[2].strftime('%d/%m/%y %H:%M:%S'),
                 'reporting_user_id': result[3],
                 'area_name': result[4],
@@ -436,7 +437,8 @@ class DBInterface():
                 'img': img,
                 'description': result[7],
                 'img': img,
-                'description': result[7]
+                'description': result[7],
+                'title': result[8]
             }
             return hazard
         
@@ -507,16 +509,17 @@ class DBInterface():
     Retrieve all hazards with all corresponding details to that hazard. Returns
     a list of dictionaries in the form:
 
-        [{hazard_id, title, datetime, reporting_user, area, coordinates, image, description}, ...]
+        [{hazard_id, type, datetime, reporting_user, area, coordinates, image, description, title}, ...]
 
     Where:
         hazard_id (int): The numerical unique ID of the hazard
-        title (str): the name or type of hazard
+        type (str): the name or type of hazard
         datetime (str): The date and time when the hazard was reported in the form "DD/MM/YYY HH:MM:SS"
         reporting_user (int): The uid of the user who reported the hazard
         area (str): The area in which the report was made. Usually None since we chose not to use
         coordinates (string): The coordinates where the report was made (latt, long)
         img (str): The string encoded representation of the image
+        title (str): The title of the hazard
     """
     def get_all_hazard_details(self):
         query = "SELECT * FROM Hazards"
@@ -526,13 +529,14 @@ class DBInterface():
         for result in results:
             hazard = {
                 'hazard_id': result[0],
-                'title': result[1],
+                'type': result[1],
                 'datetime': result[2].strftime('%d/%m/%y %H:%M:%S'),
                 'reporting_user_id': result[3],
                 'area_name': result[4],
                 'coordinates': result[5],
                 'img': None if result[6] is None else str(result[6].tobytes())[2:],
-                'description': result[7]
+                'description': result[7],
+                'title': result[8]
             }
             final[result[0]] = hazard
         
@@ -546,12 +550,13 @@ class DBInterface():
 
     Where:
         hazard_id (int): The numerical unique ID of the hazard
-        title (str): the name or type of hazard
+        type (str): the name or type of hazard
         datetime (str): The date and time when the hazard was reported in the form "DD/MM/YYY HH:MM:SS"
         reporting_user (int): The uid of the user who reported the hazard
         area (str): The area in which the report was made. Usually None since we chose not to use
         coordinates (string): The coordinates where the report was made (latt, long)
         img (str): The string encoded representation of the image
+        title (str): The title of the hazard
     """
     def get_all_reports_by_user(self, uid:int) -> dict:
         query = "SELECT * FROM Hazards WHERE reporting_user = %s"
@@ -562,13 +567,14 @@ class DBInterface():
         for result in results:
             hazard = {
                 'hazard_id': result[0],
-                'title': result[1],
+                'type': result[1],
                 'datetime': result[2].strftime('%d/%m/%y %H:%M:%S'),
                 'reporting_user_id': result[3],
                 'area_name': result[4],
                 'coordinates': result[5],
                 'img': None if result[6] is None else str(result[6].tobytes())[2:],
-                'description': result[7]
+                'description': result[7],
+                'title': result[8]
             }
             final[result[0]] = hazard
         
@@ -758,7 +764,7 @@ class DBInterface():
 
         for row in data:
             query = "INSERT INTO LongHistorical (risk, coordinates, type) VALUES (%s, %s, %s)"
-            self.query(query, row["flood_risk"], row["coordinates"], row["type"])
+            self.query(query, json.dumps(row["flood_risk"]), json.dumps(row["coordinates"]), json.dumps(row["type"]))
 
     def add_short_historical_data(self, root):
         with open(root, 'r') as file:
@@ -766,7 +772,7 @@ class DBInterface():
 
         for row in data:
             query = "INSERT INTO ShortHistorical (risk, coordinates, type) VALUES (%s, %s, %s)"
-            self.query(query, row["flood_risk"], row["coordinates"], row["type"])
+            self.query(query, json.dumps(row["flood_risk"]), json.dumps(row["coordinates"]), json.dumps(row["type"]))
 
     
     def get_historical_data(self):
