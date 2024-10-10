@@ -63,16 +63,14 @@ def create_user_report(uid : int, location : str, type : str, description: str, 
     # Extract coordinates from location
     lat, long = map(float, re.findall(r"[-+]?\d*\.\d+|\d+", location))
 
-    try:
-        hazard_id = db.create_hazard(type, img_str, session['uid'], (lat, long), description, title=title)
-        region = GenerateRegion.generate_region((lat, long))
-        if region in hazard_count_per_region.keys():
-            hazard_count_per_region[region] += 1
-        else:
-            hazard_count_per_region[region] = 1
-        return hazard_id
-    except Exception as e:
-        return make_response({'internal_error': str(e)})
+    # Exceptions caught in calling funciton
+    hazard_id = db.create_hazard(type, img_str, session['uid'], (lat, long), description, title=title)
+    region = GenerateRegion.generate_region((lat, long))
+    if region in hazard_count_per_region.keys():
+        hazard_count_per_region[region] += 1
+    else:
+        hazard_count_per_region[region] = 1
+    return hazard_id
 
 def delete_user_report(id):
     '''
