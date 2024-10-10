@@ -380,7 +380,7 @@ class DBInterface():
         query = 'INSERT INTO hazards (type, image, reporting_user, area, coordinates, description, title) VALUES (%s, %s, %s, %s, %s, %s, %s)'
 
 
-        self.query(query, title, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]), description)
+        self.query(query, type, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]), description, title)
 
         # Get id of newly created hazard. Auto incremented by database
         query = 'SELECT MAX(hazard_id) FROM Hazards'
