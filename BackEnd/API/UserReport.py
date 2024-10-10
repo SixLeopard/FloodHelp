@@ -55,7 +55,7 @@ scheduler.start()
 def get_user_report(id):
     return db.get_hazard(id)
     
-def create_user_report(uid : int, location : str, type : str, description: str, img_str: str = None, title: str = None):
+def create_user_report(uid : int, location : str, type : str, description: str, img_str: str = None, title:str = None):
     '''
         create user report
         location is a string in the form "{LAT},{LONG}"
@@ -159,6 +159,7 @@ def add_user_report_route():
             hazard_type -> The type or name of the hazard
             description -> textual description of the hazard
             image -> An image assosciated with the hazard
+            title -> title of the hazard
 
         Returns:
             if successful: {hazard_id, hazard_type, datetime, reporting_uid, area_name, coordinates, img, title}
