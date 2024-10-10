@@ -25,9 +25,9 @@ def test_create_hazard():
 def test_get_hazard():
     print(db.get_hazard(3))
 
-def test_historical_data(root):
-    db.add_long_historical_data(root)
-    db.add_short_historical_data(root)
+def test_historical_data(long_root, short_root):
+    db.add_long_historical_data(long_root)
+    db.add_short_historical_data(short_root)
     print(db.get_historical_data())
 
 def test_get_user():
@@ -75,8 +75,6 @@ def test_delete_expired_alerts():
 # test_get_hazard()
 # test_historical_data()
 # test_get_user()
-
-test_historical_data()
 
 
 

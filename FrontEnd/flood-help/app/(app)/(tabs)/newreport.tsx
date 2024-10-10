@@ -163,7 +163,6 @@ const NewReport = () => {
         setDescription('');
         setPhotos([]);
     };
-
     // Handle back button press
     useFocusEffect(
         useCallback(() => {
