@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Alert, ScrollView, RefreshControl, Text, View, BackHandler } from 'react-native';
+import { Alert, ScrollView, RefreshControl, Text, View } from 'react-native';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import useStyles from '@/constants/style';
 import { useTheme } from "@/contexts/ThemeContext";
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import NewReportCard from '@/components/NewReportCard';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
@@ -16,11 +16,12 @@ const NewReport = () => {
     const styles = useStyles();
     const { theme } = useTheme();
     const navigation = useNavigation<NewReportScreenNavigationProp>();
-    const { user } = useAuth(); 
+    const { user } = useAuth();
 
     const [location, setLocation] = useState('Fetching current location...');
     const [coordinates, setCoordinates] = useState<{ latitude: number, longitude: number } | null>(null);
     const [floodType, setFloodType] = useState('');
+    const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [photos, setPhotos] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
@@ -117,24 +118,25 @@ const NewReport = () => {
             Alert.alert('Error', 'Location is required.');
             return;
         }
-    
+
         if (!user?.token) {
             Alert.alert('Error', 'You must be logged in to submit a report.');
             return;
         }
-    
+
         try {
             const locationForBackend = `${coordinates.latitude},${coordinates.longitude}`;
             setLoading(true);
-    
+
             const body = new FormData();
             body.append('location', locationForBackend);
-            body.append('type', floodType);
+            body.append('hazard_type', floodType);
+            body.append('title', title);
             body.append('description', description);
             if (photos.length > 0) {
                 body.append('image', photos[0]);
             }
-    
+
             // Submit the form data using a standard fetch call
             const response = await fetch('http://54.206.190.121:5000/reporting/user/add_report', {
                 method: 'POST',
@@ -144,7 +146,6 @@ const NewReport = () => {
             if (response.ok) {
                 Alert.alert('Success', 'Report submitted successfully!');
                 resetForm();
-                navigation.navigate('index');
             } else {
                 setError('Failed to submit report.');
             }
@@ -160,59 +161,38 @@ const NewReport = () => {
         setLocation('Fetching current location...');
         setCoordinates(null); // Reset coordinates
         setFloodType('');
+        setTitle('');
         setDescription('');
         setPhotos([]);
     };
-    // Handle back button press
-    useFocusEffect(
-        useCallback(() => {
-            const onBackPress = () => {
-                navigation.navigate('index');
-                return true; 
-            };
-
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-
-            return () => {
-                BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-            };
-        }, [navigation])
-    );
 
     return (
-        <View style={[styles.page]}>
-            {/* Fixed Title */}
-            <Text style={[styles.headerText, { color: theme.colors.text }]}>New Report</Text>
-    
-            {/* Scrollable Content */}
-            <ScrollView
-                contentContainerStyle={{ 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    width: '100%', 
-                }}
-                style={{ width: '100%' }}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-            >
-                <View style={{ width: '90%' }}>
-                    <NewReportCard
-                        location={location}
-                        onLocationPress={handleLocationPress}
-                        floodType={floodType}
-                        setFloodType={setFloodType}
-                        description={description}
-                        setDescription={setDescription}
-                        photos={photos}
-                        onTakePhoto={takePhoto}
-                        onPickImage={pickImage}
-                        onRemoveImage={removeImage}
-                        onSubmit={handleSubmit}
-                        loading={loading}
-                        error={error}
-                    />
-                </View>
-            </ScrollView>
-        </View>
+        <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
+            <View style={[styles.page]}>
+                <Text style={[styles.headerText, { color: theme.colors.text }]}>New Report</Text>
+
+                <NewReportCard
+                    location={location}
+                    onLocationPress={handleLocationPress}
+                    floodType={floodType}
+                    setFloodType={setFloodType}
+                    title={title}
+                    setTitle={setTitle}
+                    description={description}
+                    setDescription={setDescription}
+                    photos={photos}
+                    onTakePhoto={takePhoto}
+                    onPickImage={pickImage}
+                    onRemoveImage={removeImage}
+                    onSubmit={handleSubmit}
+                    loading={loading}r
+                    error={error}
+                />
+            </View>
+        </ScrollView>
     );
 };
 
