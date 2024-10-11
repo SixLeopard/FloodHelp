@@ -10,6 +10,7 @@ documention of all the routes and there data inputs and request type
    * [/accounts/login](#accountslogin)
    * [/accounts/test](#accountstest)
    * [/documentation](#documentation)
+   * [/externalData/get\_historical\_data](#externaldataget_historical_data)
    * [/externalData/get\_river\_conditions](#externaldataget_river_conditions)
    * [/externalData/get\_alerts](#externaldataget_alerts)
    * [/externalData/clear\_alerts](#externaldataclear_alerts)
@@ -550,6 +551,26 @@ documention of all the routes and there data inputs and request type
             if succsessful: None
             no login: {"invalid_account":1}
             not using GET: {"invalid_request":1}
+
+<!-- TOC --><a name="externalDataget_historical_data"></a>
+## /externalData/get\_historical\_data
+---------------------------------
+
+[*   GET](/externalData/get\_historical\_data)
+
+  
+        Gives historical data
+        
+        Form Data:
+            None
+
+        Return:
+            if succsessful: list of tuples: [(risk, coordinates, type), ...]
+            no login: {"invalid_account":1}
+            not using GET: {"invalid_request":1}
+
+
+
 
 <!-- TOC --><a name="test"></a>
 ## /test

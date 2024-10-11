@@ -55,7 +55,7 @@ scheduler.start()
 def get_user_report(id):
     return db.get_hazard(id)
     
-def create_user_report(uid : int, location : str, type : str, description: str, img_str: str = None):
+def create_user_report(uid : int, location : str, type : str, description: str, img_str: str = None, title:str = None):
     '''
         create user report
         location is a string in the form "{LAT},{LONG}"
@@ -63,16 +63,14 @@ def create_user_report(uid : int, location : str, type : str, description: str, 
     # Extract coordinates from location
     lat, long = map(float, re.findall(r"[-+]?\d*\.\d+|\d+", location))
 
-    try:
-        hazard_id = db.create_hazard(type, img_str, session['uid'], (lat, long), description)
-        region = GenerateRegion.generate_region((lat, long))
-        if region in hazard_count_per_region.keys():
-            hazard_count_per_region[region] += 1
-        else:
-            hazard_count_per_region[region] = 1
-        return hazard_id
-    except Exception as e:
-        return make_response({'internal_error': str(e)})
+    # Exceptions caught in calling funciton
+    hazard_id = db.create_hazard(type, img_str, session['uid'], (lat, long), description, title=title)
+    region = GenerateRegion.generate_region((lat, long))
+    if region in hazard_count_per_region.keys():
+        hazard_count_per_region[region] += 1
+    else:
+        hazard_count_per_region[region] = 1
+    return hazard_id
 
 def delete_user_report(id):
     '''
@@ -107,8 +105,8 @@ def hazard_maintenance():
             - datetime.strptime(hazard['datetime'], '%d/%m/%y %H:%M:%S')) \
             > timedelta(hours=HAZARD_EXPIRY_HOURS):
             # Generate notification to tell reporting user that their report expire
-            reporting_uid = hazard[3]
-            hazard_title = hazard[1]
+            reporting_uid = hazard['hazard_id']
+            hazard_title = hazard['title']
             Notifcations.add_notification(str(reporting_uid), f'Your report "{hazard_title}" has expired')
 
             # Delete from database
@@ -161,28 +159,30 @@ def add_user_report_route():
             hazard_type -> The type or name of the hazard
             description -> textual description of the hazard
             image -> An image assosciated with the hazard
+            title -> title of the hazard
 
         Returns:
-            if successful: {hazard_id, hazard_type, datetime, reporting_uid, area_name, coordinates, img}
+            if successful: {hazard_id, hazard_type, datetime, reporting_uid, area_name, coordinates, img, title}
             error 1: {'internal_error': error_description}
             no login: {"invalid_account":1}
             not using POST: {"invalid_request":1}
     '''
     if request.method == 'POST':
+        title = request.form.get('title')
         location = request.form.get('location')
         hazard_type = request.form.get('type')
         description = request.form.get('description')
         img = request.form.get('image')
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
-                report_id = create_user_report(session["uid"],location,hazard_type,description, img)
+                report_id = create_user_report(session["uid"],location,hazard_type,description, img, title)
                 return make_response(get_user_report(report_id))
             except Exception as e:
                 return make_response({'internal_error': str(e)})
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@userreport_routes.route("/reporting/user/get_report", methods = ['POST'])
+@userreport_routes.route("/reporting/user/get_report", methods = ['GET'])
 def get_user_report_route():
     '''
     Retrieve the report with the ID specified in the report_id field of the request body
@@ -191,12 +191,12 @@ def get_user_report_route():
         report_id: The numerical ID of the report to retrieve
 
     Returns:
-        if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
+        if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img, title}, ...}
         error 1: {'internal_error': error_description}
         no login: {"invalid_account":1}
         not using POST: {"invalid_request":1}
     '''
-    if request.method == 'POST':
+    if request.method == 'GET':
         report_id = request.form.get('report_id')
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
@@ -218,7 +218,7 @@ def get_all_report_details_route():
         None
 
     Returns:
-        if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
+        if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img, title}, ...}
         error 1: {'internal_error': error_description}
         no login: {"invalid_account":1}
         not using POST: {"invalid_request":1}
@@ -239,14 +239,15 @@ def get_all_report_coordinates_route():
     Details included are:
         - hazard_id
         - datetime
-        - title
+        - type
         - coordinates
+        - title
 
     Form data:
         None
 
     Returns:
-        if successful: {hazard_id, hazard_type, datetime, coordinates}
+        if successful: {hazard_id, hazard_type, datetime, coordinates, title}
         error 1: {'internal_error': error_description}
         no login: {"invalid_account":1}
         not using POST: {"invalid_request":1}
@@ -271,7 +272,7 @@ def get_all_reports_by_user():
         None
 
     Returns:
-        if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img}, ...}
+        if successful: {hazard_id: {hazard_type, datetime, reporting_uid, area_name, coordinates, img, title}, ...}
         error 1: {'internal_error': error_description}
         no login: {"invalid_account":1}
         not using POST: {"invalid_request":1}
