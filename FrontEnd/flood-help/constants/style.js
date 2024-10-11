@@ -228,7 +228,6 @@ const useStyles = () => {
         },
 
         locationContainer: {
-            marginTop: 40,
             marginBottom: 20,
             padding: 10,
             borderWidth: 2,
