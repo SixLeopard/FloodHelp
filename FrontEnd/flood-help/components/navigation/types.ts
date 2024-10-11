@@ -6,6 +6,7 @@ export type RootStackParamList = {
     };
     newreport: undefined;
     notifications: undefined;
+    index: undefined;
 };
 
 export type MapScreenRouteProp = RouteProp<RootStackParamList, 'mapscreen'>;
