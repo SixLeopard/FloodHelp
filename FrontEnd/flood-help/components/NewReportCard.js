@@ -19,7 +19,7 @@ const NewReportCard = ({
     loading,
     error,
 }) => {
-    const styles = useStyles(); // Use the styles from styles.js
+    const styles = useStyles();
 
     return (
         <View style={styles.formContainer}>
