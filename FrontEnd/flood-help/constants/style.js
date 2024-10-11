@@ -314,6 +314,38 @@ const useStyles = () => {
             flexWrap: 'wrap',
             padding: 2,
         },
+        titleContainer: {
+            marginBottom: 20,
+            padding: 10,
+            borderWidth: 2,
+            borderColor: colors.border,
+            borderRadius: 5,
+            backgroundColor: colors.card,
+        },
+        inputBox: {
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: 5,
+            padding: 8,
+            height: 40,  
+            textAlignVertical: 'center',
+        },
+        descriptionContainer: {
+            marginBottom: 20,
+            padding: 10,
+            borderWidth: 2,
+            borderColor: colors.border,
+            borderRadius: 5,
+            backgroundColor: colors.card,
+        },
+        descriptionInput: {
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: 5,
+            padding: 8,
+            minHeight: 100,
+            textAlignVertical: 'top',
+        },
         boxContainer: {
             width: '90%',
             padding: 15,
@@ -349,24 +381,6 @@ const useStyles = () => {
             color: '#FFF',
             fontSize: 16,
             fontWeight: 'bold',
-        },
-
-        descriptionContainer: {
-            marginBottom: 20,
-            padding: 10,
-            borderWidth: 2,
-            borderColor: colors.border,
-            borderRadius: 5,
-            backgroundColor: colors.card,
-        },
-        
-        descriptionInput: {
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 5,
-            padding: 8,
-            minHeight: 100,
-            textAlignVertical: 'top',
         },
 
         instructionContainer: {
