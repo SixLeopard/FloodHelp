@@ -18,6 +18,7 @@ type RootStackParamList = {
 
 interface Report {
     datetime: string;
+    type: string;
     title: string;
     coordinates: string;
     location?: string;
@@ -370,15 +371,15 @@ export default function Index() {
         });
     };
 
-    const getFloodColor = (title: string): string => {
-       if (title == null) {
-           return 'blue';
-       }
-        if (title.includes('Major Flood')) {
+    const getFloodColor = (type: string): string => {
+        if (type == null) {
+            return 'midnightblue';
+        }
+        if (type.includes('Major Flood')) {
             return 'maroon';
-        } else if (title.includes('Moderate Flood')) {
+        } else if (type.includes('Moderate Flood')) {
             return 'darkorange';
-        } else if (title.includes('Minor Flood')) {
+        } else if (type.includes('Minor Flood')) {
             return 'goldenrod';
         } else {
             return 'maroon';
@@ -515,13 +516,13 @@ export default function Index() {
                                 <View style={styles.alertHeader}>
                                     <FontAwesome name="exclamation-circle" size={30} color={getFloodColor(selectedReport.title)} />
                                     <Text style={styles.alertTitle}>
-                                        Flood Alert | {formatTime(selectedReport.datetime)}
+                                    {selectedReport.title} | {formatTime(selectedReport.datetime)}
                                     </Text>
                                 </View>
     
                                 {/* Report Details */}
                                 <Text style={styles.alertDescription}>
-                                    {selectedReport.title} was reported at {selectedReport.location || 'Unknown Location'} on {selectedReport.datetime}.
+                                    {selectedReport.type} was reported at {selectedReport.location || 'Unknown Location'} on {selectedReport.datetime}.
                                 </Text>
     
                                 {/* Got it Button */}

@@ -62,7 +62,6 @@ const NewReportCard = ({
                 </Picker>
             </View>
 
-
             {/* Description Input */}
             <View style={styles.descriptionContainer}>
                 <Text style={styles.bodyTextBold}>Description</Text>
