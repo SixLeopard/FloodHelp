@@ -8,6 +8,8 @@ checkin_routes = Blueprint("checkin_routes", __name__)
 
 statuses = {}
 
+status_timeout_hours = 3
+
 @checkin_routes.route("/check_in/send",  methods = ['POST'])
 def send_checkin_route():
     '''
@@ -48,9 +50,10 @@ def get_checkin_route():
             relationships = database_interface.get_approved_relationships_ids(session["uid"])
             output = {}
             for i in relationships:
-                if statuses[i][1] < Time.datetime.now() - Time.timedelta(hours=3):
-                    statuses[i] = ("Unknown", Time.datetime.now())
-                output[database_interface.get_user_by_uid(int(i))[2]] = statuses[i]
+                if (str(i) in statuses):
+                    if statuses[str(i)][1] < Time.datetime.now() - Time.timedelta(hours=status_timeout_hours):
+                        statuses[i] = ("Unknown", Time.datetime.now())
+                    output[str(i)] = (statuses[str(i)], database_interface.get_user_by_uid(int(i))[1])
             results = make_response(output)
             return results
         return make_response({"invalid_account":1})
@@ -71,8 +74,8 @@ def send_checkin_push_route():
         reciever = request.form.get('reciever')
         if Accounts.verify_user_account(session["username"], session["id"]):
 
-            add_notification(reciever, f"{session['uid']} as requested you to update your status")
-            return make_response({"added piush notfication to":reciever, "from":session["uid"]},200)
+            add_notification(reciever, f"{session['uid']} has requested you to update your status")
+            return make_response({"added push notfication to":reciever, "from":session["uid"]},200)
         
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
