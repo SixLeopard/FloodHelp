@@ -37,9 +37,10 @@ def create_account(name: str, email: str, password: str):
 
     #generate the passkey by encoding the password
     passkey = base64.urlsafe_b64encode(kdf.derive(password.encode()))
-
+    print(name,email,password,passkey,salt)
     if database_interface.create_user(name, email, passkey, salt):
         return name, email, passkey, salt
+    print("broke")
     return(None,None,None,None)
 
 def login(email: str, password):
