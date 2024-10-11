@@ -371,6 +371,9 @@ export default function Index() {
     };
 
     const getFloodColor = (title: string): string => {
+       if (title == null) {
+           return 'blue';
+       }
         if (title.includes('Major Flood')) {
             return 'maroon';
         } else if (title.includes('Moderate Flood')) {
