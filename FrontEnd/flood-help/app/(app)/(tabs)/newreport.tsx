@@ -130,7 +130,7 @@ const NewReport = () => {
 
             const body = new FormData();
             body.append('location', locationForBackend);
-            body.append('hazard_type', floodType);
+            body.append('type', floodType);
             body.append('title', title);
             body.append('description', description);
             if (photos.length > 0) {
