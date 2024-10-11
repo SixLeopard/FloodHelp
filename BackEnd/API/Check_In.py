@@ -74,8 +74,8 @@ def send_checkin_push_route():
         reciever = request.form.get('reciever')
         if Accounts.verify_user_account(session["username"], session["id"]):
 
-            add_notification(reciever, f"{session['uid']} as requested you to update your status")
-            return make_response({"added piush notfication to":reciever, "from":session["uid"]},200)
+            add_notification(reciever, f"{session['uid']} has requested you to update your status")
+            return make_response({"added push notfication to":reciever, "from":session["uid"]},200)
         
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
