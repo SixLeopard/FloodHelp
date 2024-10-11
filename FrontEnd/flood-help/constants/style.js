@@ -157,7 +157,7 @@ const useStyles = () => {
             width: '85%',
         },
         formContainer: {
-            width: '90%',
+            width: '100%',
             backgroundColor: colors.white, // Light background for the form
             borderColor: colors.grey, // Subtle border around the form
             borderWidth: 2,
@@ -582,6 +582,8 @@ const useStyles = () => {
             flexDirection: 'row',
             justifyContent: 'space-between',
             width: '100%',
+            marginTop: 10,
+            paddingHorizontal: 3,
         },
         
         cancelButton: {
@@ -626,6 +628,85 @@ const useStyles = () => {
             backgroundColor: '#cccccc', 
         },
 
+        modalOverlay: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        alertModal: {
+            width: '90%',
+            padding: 20,
+            backgroundColor: colors.background,
+            borderRadius: 10,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 4,
+            elevation: 5,
+        },
+        alertContent: {
+            alignItems: 'center',
+        },
+        alertHeader: {
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            width: '100%',
+            marginBottom: 10,
+        },
+        alertTitle: {
+            fontSize: 20,
+            fontWeight: 'bold',
+            textAlign: 'center',
+            color: theme.colors.text,  
+            marginLeft: 10,  
+        },
+        alertDescription: {
+            fontSize: 16,
+            textAlign: 'center',
+            color: colors.text,
+            marginBottom: 20,
+        },
+        checkInButton: {
+            flex: 1,
+            backgroundColor: theme.colors.green,  
+            paddingVertical: 12,
+            borderRadius: 7,
+            alignItems: 'center',
+            marginRight: 10,  
+        },
+        viewNotificationButton: {
+            flex: 1,
+            backgroundColor: theme.colors.blue,  
+            paddingVertical: 12,
+            borderRadius: 7,
+            alignItems: 'center',
+            marginLeft: 10,
+        },
+        alertButton: {
+            width: '100%',
+            paddingVertical: 12,
+            backgroundColor: colors.red, 
+            borderRadius: 7,
+            alignItems: 'center',
+        },
+        alertButtonText: {
+            color: colors.white,
+            fontSize: 16,
+            fontWeight: 'bold',
+        },
+        scrollContainer: {
+            paddingBottom: 20, 
+            paddingHorizontal: 10, 
+        },
+        cardsContainer: {
+            width: '100%', 
+            alignItems: 'center',
+        },
+        cardWrapper: {
+            width: '100%', 
+            marginVertical: 10, 
+        },
         successText: colors.text
 
 
