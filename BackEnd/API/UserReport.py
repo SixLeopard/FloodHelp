@@ -91,11 +91,17 @@ def hazard_maintenance():
     after a certain interval of time (HAZARD_EXPIRY_HOURS). This function 
     also decrements the hazard_count_by_region for an deleted hazards.
 
+    Additionally updates the data in db from external sources. Included here
+    for simplicity to avoid spawning another background worker.
+
     Possible feature:
         Send a notification to the user who created the hazard when it is about
         to expire. Provide them the update to renew the report (Set report 
         timestamp to now).
     '''
+    # update data from external sources
+    db.update_alerts_real()
+
     hazards = db.get_all_hazard_details()
 
     for hazard_id in hazards.keys():
