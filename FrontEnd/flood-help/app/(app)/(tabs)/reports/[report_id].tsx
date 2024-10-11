@@ -22,6 +22,8 @@ const ReportPage = () => {
 
     const reportData = useAPI(`/reporting/user/get_report`, formData);
 
+    console.log(reportData);
+
     // Loading state
     if (!reportData) {
         return (
