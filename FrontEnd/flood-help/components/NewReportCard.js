@@ -9,6 +9,8 @@ const NewReportCard = ({
     onLocationPress,
     floodType,
     setFloodType,
+    title,               
+    setTitle,
     description,
     setDescription,
     photos,
@@ -43,6 +45,17 @@ const NewReportCard = ({
                     <Picker.Item label="Minor Flood" value="Minor Flood" />
                     <Picker.Item label="No Flood" value="No Flood" />
                 </Picker>
+            </View>
+
+            {/* Title Input */}
+            <View style={styles.titleContainer}>
+                <Text style={styles.bodyTextBold}>Report Title</Text>
+                <TextInput
+                    style={styles.inputBox}  
+                    placeholder="Enter a report title"
+                    value={title}
+                    onChangeText={setTitle}
+                />
             </View>
 
             {/* Description Input */}
