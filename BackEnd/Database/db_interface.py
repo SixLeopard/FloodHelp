@@ -119,7 +119,7 @@ class DBInterface():
         # Check if user exists
         query = "SELECT * FROM Users WHERE email = %s"
         result = self.query(query, email)
-        if result is not None:
+        if result != []:
             return False
         
         # Create user
