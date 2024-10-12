@@ -48,11 +48,13 @@ const ReportCard = ({ reportID, report }) => {
                 }
             >
                 <View style={styles.reportCardBody}>
-                    <Text style={styles.bodyTextBold}>#{reportID} | {title}</Text>
+                    <Text style={styles.bodyTextBold}>{title || "title not found"}</Text>
                     <Text style={styles.bodyTextDark}>{datetime}</Text>
                     <Text style={styles.bodyTextDark}>{address}</Text>
                 </View>
-                <FontAwesome name="exclamation-circle" size={50} color={iconColour} />
+
+                    <FontAwesome name="exclamation-circle" size={50} color={iconColour} />
+
             </Pressable>
         </View>
     );
