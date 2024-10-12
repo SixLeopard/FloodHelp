@@ -95,7 +95,7 @@ const useStyles = () => {
         },
         userCard: {
             height: 70,
-            width: '85%',
+            width: '90%',
             backgroundColor: colors.card,
             flexDirection: "row",
             justifyContent: "space-between",
