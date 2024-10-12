@@ -4,11 +4,11 @@ then all code for accsessing and managing data in data the databse under /Databa
 the code for accsessing and interfacing with the external apis under External_API
 
 ## Setup
-getting setup to run, test and develop the backend
+getting setup to run, test and develop the backend. This is intended to be run on linux, modifcations to some of the setup will need to be modified if you want to run it on windows.
 
 ### Setting up Postgres Database
 setup a postgres database, either self hosting or using a service like amazon rds
-for out usage we have used amazon rds with the following configuration
+for our usage we have used amazon rds with the following configuration
 ```
 Master username: postgres
 		Master password: **************
@@ -230,6 +230,19 @@ source .venv/bin/activate
 pip install -r ./requirements.txt
 ```
 
+## updating database credentials
+Enter the database credntials from the database setup setup steps into line 49 under the connection function in /BackEnd/Database/db_interface.py. Our demo databse credentials are included in the script however this won't be still be live after the second half of 2025 due there being cost incurred after 1 year of running the database on aws 
+```python
+def connect(self):
+	self.conn = psycopg2.connect(
+		dbname="{DB_NAME}", \
+		user="{USER}", \
+		password="{PASSWORD}", 
+		host="{HOST}", \
+		port="{HOST}")
+
+	self.cur = self.conn.cursor()
+``
 ## Running API Server
 getting the api server running and accepting API calls
 ```bash
