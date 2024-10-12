@@ -1,14 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Text, View, ActivityIndicator } from 'react-native';
-import useStyles from '@/constants/style';
+import React, { useEffect, useMemo } from 'react';
+import { Text, View, ActivityIndicator, Image, StyleSheet, Dimensions } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import useAPI from '@/hooks/useAPI';
+import MapView, { Marker } from 'react-native-maps';
+import useStyles from '@/constants/style';
 
-/**
- * Report page displays a retrieved report using the /reporting/user/get_report API call.
- * With details from the database.
- * @constructor
- */
 const ReportPage = () => {
     const { report_id, address } = useLocalSearchParams<{ report_id: string, address: string }>();
     const styles = useStyles();
@@ -21,8 +17,6 @@ const ReportPage = () => {
     }, [report_id]);
 
     const reportData = useAPI(`/reporting/user/get_report`, formData);
-
-    console.log(reportData);
 
     // Loading state
     if (!reportData) {
@@ -43,8 +37,11 @@ const ReportPage = () => {
             </View>
         );
     }
+        const {title, description, coordinates, datetime, area_name, imageUrl} = reportData;
 
-    const { title, description, coordinates, datetime, area_name } = reportData;
+        const [latitudeStr, longitudeStr] = reportData.coordinates.replace(/[()]/g, '').split(',');
+        const latitude = parseFloat(latitudeStr);
+        const longitude = parseFloat(longitudeStr);
 
     return (
         <View style={styles.page}>
@@ -53,10 +50,51 @@ const ReportPage = () => {
                 <Text style={styles.bodyTextBold}>Title: {title || 'No Title Found'}</Text>
                 <Text style={styles.bodyText}>Description: {description || 'No Description Found'}</Text>
                 <Text style={styles.bodyText}>Address: {address || 'No Address Found'}</Text>
-                <Text style={styles.bodyText}>Datetime: {datetime || 'No Date Available Found'}</Text>
+                <Text style={styles.bodyText}>Datetime: {datetime || 'No Date Available'}</Text>
+
+                {/* Display Image if available */}
+                {imageUrl && (
+                    <Image
+                        source={{ uri: imageUrl }}
+                        style={styles.image}
+                        resizeMode="cover"
+                    />
+                )}
+
+                {/* Map View */}
+                {latitude && longitude ? (
+                    <MapView
+                        style={styles.map}
+                        initialRegion={{
+                            latitude,
+                            longitude,
+                            latitudeDelta: 0.01,
+                            longitudeDelta: 0.01,
+                        }}
+                    >
+                        <Marker coordinate={{ latitude, longitude }} />
+                    </MapView>
+                ) : (
+                    <Text style={styles.bodyText}>Location not available.</Text>
+                )}
             </View>
         </View>
     );
 };
+
+const mapWidth = Dimensions.get('window').width * 0.9; // Adjust map width dynamically
+
+const styles = StyleSheet.create({
+    image: {
+        width: '100%',
+        height: 200,
+        marginVertical: 10,
+    },
+    map: {
+        width: mapWidth,
+        height: 300,
+        marginVertical: 10,
+    },
+});
 
 export default ReportPage;
