@@ -156,11 +156,13 @@ const useStyles = () => {
         },
         reportCardsContainer: {
             alignItems: "center",
+            padding: 5,
 
         },
         reportCardBody: {
-            width: '85%',
+            width: '80%',
         },
+
         formContainer: {
             width: '100%',
             backgroundColor: colors.white, // Light background for the form
