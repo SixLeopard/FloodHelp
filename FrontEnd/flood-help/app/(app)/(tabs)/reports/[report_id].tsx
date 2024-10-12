@@ -1,25 +1,54 @@
-import React, { useEffect, useMemo } from 'react';
-import { Text, View, ActivityIndicator, Image, StyleSheet, Dimensions } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import useAPI from '@/hooks/useAPI';
-import MapView, { Marker } from 'react-native-maps';
+import React, { useEffect, useState } from 'react';
+import { Text, View, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import useStyles from '@/constants/style';
+import { useLocalSearchParams } from 'expo-router';
+import MapView from "react-native-maps";
+import { formatDateTime } from "@/services/DateTimeFormatter";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const ReportPage = () => {
     const { report_id, address } = useLocalSearchParams<{ report_id: string, address: string }>();
     const styles = useStyles();
+    const theme = useTheme();
 
-    // useMemo to prepare the formData
-    const formData = useMemo(() => {
-        const data = new FormData();
-        data.append('report_id', report_id);
-        return data;
-    }, [report_id]);
+    const [reportData, setReportData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
-    const reportData = useAPI(`/reporting/user/get_report`, formData);
+    const fetchReportData = async () => {
+        setRefreshing(true);
+        setLoading(true);
+
+        const formData = new FormData();
+        formData.append('report_id', report_id);
+
+        try {
+            const response = await fetch(`http://54.206.190.121:5000/reporting/user/get_report`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            console.log(data);
+            setReportData(data);
+        } catch (error) {
+            console.error("Error fetching report data:", error);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchReportData();
+    }, []);
 
     // Loading state
-    if (!reportData) {
+    if (loading) {
         return (
             <View style={styles.page}>
                 <ActivityIndicator size="large" color="#0000ff" />
@@ -29,7 +58,7 @@ const ReportPage = () => {
     }
 
     // Invalid account handling
-    if (reportData == "invalid_account") {
+    if (reportData === "invalid_account") {
         return (
             <View style={styles.page}>
                 <Text style={styles.headerText}>Error</Text>
@@ -37,64 +66,38 @@ const ReportPage = () => {
             </View>
         );
     }
-        const {title, description, coordinates, datetime, area_name, imageUrl} = reportData;
 
-        const [latitudeStr, longitudeStr] = reportData.coordinates.replace(/[()]/g, '').split(',');
-        const latitude = parseFloat(latitudeStr);
-        const longitude = parseFloat(longitudeStr);
-
+    const { title, type, description, coordinates, datetime, area_name } = reportData;
+    const [latStr, longStr] = (coordinates as string).replace(/[()]/g, '').split(',');
     return (
-        <View style={styles.page}>
-            <Text style={styles.headerText}>Report {report_id}'s Page</Text>
+        <ScrollView
+            contentContainerStyle={styles.page}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={fetchReportData}
+                />
+            }
+        >
+            <Text style={styles.headerText}>{title || 'No Title Found'}</Text>
             <View>
-                <Text style={styles.bodyTextBold}>Title: {title || 'No Title Found'}</Text>
+                <Text style={styles.bodyTextBold}> {type} reported {formatDateTime(datetime) || 'No date/time Found'}</Text>
                 <Text style={styles.bodyText}>Description: {description || 'No Description Found'}</Text>
                 <Text style={styles.bodyText}>Address: {address || 'No Address Found'}</Text>
-                <Text style={styles.bodyText}>Datetime: {datetime || 'No Date Available'}</Text>
 
-                {/* Display Image if available */}
-                {imageUrl && (
-                    <Image
-                        source={{ uri: imageUrl }}
-                        style={styles.image}
-                        resizeMode="cover"
-                    />
-                )}
-
-                {/* Map View */}
-                {latitude && longitude ? (
-                    <MapView
-                        style={styles.map}
-                        initialRegion={{
-                            latitude,
-                            longitude,
-                            latitudeDelta: 0.01,
-                            longitudeDelta: 0.01,
-                        }}
-                    >
-                        <Marker coordinate={{ latitude, longitude }} />
-                    </MapView>
-                ) : (
-                    <Text style={styles.bodyText}>Location not available.</Text>
-                )}
+                <MapView
+                    style={styles.reportMap}
+                    //specify our coordinates.
+                    initialRegion={{
+                        latitude: parseFloat(latStr)|| 37.78825, // Fallback
+                        longitude: parseFloat(longStr) || -122.4324, // Fallback
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }}
+                />
             </View>
-        </View>
+        </ScrollView>
     );
 };
-
-const mapWidth = Dimensions.get('window').width * 0.9; // Adjust map width dynamically
-
-const styles = StyleSheet.create({
-    image: {
-        width: '100%',
-        height: 200,
-        marginVertical: 10,
-    },
-    map: {
-        width: mapWidth,
-        height: 300,
-        marginVertical: 10,
-    },
-});
 
 export default ReportPage;

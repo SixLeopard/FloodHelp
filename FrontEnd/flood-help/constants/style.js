@@ -78,6 +78,11 @@ const useStyles = () => {
             flexWrap: 'wrap',
             padding: 2,
         },
+        reportMap: {
+            width: '50%',
+            height: 40,
+            flex: 1,
+        },
         map: {
             width: '100%',
             height: '100%',
