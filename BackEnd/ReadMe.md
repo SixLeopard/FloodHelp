@@ -242,7 +242,7 @@ def connect(self):
 		port="{HOST}")
 
 	self.cur = self.conn.cursor()
-``
+```
 ## Running API Server
 getting the api server running and accepting API calls
 ```bash
