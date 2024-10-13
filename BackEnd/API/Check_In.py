@@ -60,7 +60,7 @@ def get_checkin_route():
     return make_response({"invalid_request":1})
 
 @checkin_routes.route("/check_in/get_my_status", methods = ['GET'])
-def get_checkin_route():
+def get_my_checkin_route():
     '''
         get your current status
 
