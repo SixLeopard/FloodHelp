@@ -96,16 +96,6 @@ CREATE TABLE Warnings (
 
 ALTER TABLE Warnings ADD CONSTRAINT fk_warnings_area FOREIGN KEY (area) REFERENCES Area(name) ON DELETE SET NULL;
 
-CREATE TABLE historical_flood_risk (
-  id SERIAL PRIMARY KEY,
-  flood_risk VARCHAR(100),
-  flood_type VARCHAR(100),
-  coordinates bytea,
-  datatype bytea,
-  geo bytea
-);
-
-
 CREATE TABLE Alerts (
   id SERIAL PRIMARY KEY,
   headline VARCHAR(256),
@@ -117,7 +107,19 @@ CREATE TABLE Alerts (
   coordinates VARCHAR(50)
 );
   
+CREATE TABLE ShortHistorical (
+  id SERIAL PRIMARY KEY,
+  risk VARCHAR(50),
+  coordinates TEXT,
+  type VARCHAR(50)
+);
 
+CREATE TABLE LongHistorical (
+  id SERIAL PRIMARY KEY,
+  risk VARCHAR(50),
+  coordinates TEXT,
+  type VARCHAR(50)
+);
 
 CREATE OR REPLACE FUNCTION init_user_settings()
 RETURNS TRIGGER AS $$
