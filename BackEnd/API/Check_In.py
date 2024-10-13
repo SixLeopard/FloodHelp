@@ -79,7 +79,8 @@ def get_my_checkin_route():
             if (str(i) in statuses):
                 if statuses[str(i)][1] < Time.datetime.now() - Time.timedelta(hours=status_timeout_hours):
                     statuses[i] = ("Unknown", Time.datetime.now())
-                output["my_status"] = statuses[str(i)]
+                output["status"] = statuses[str(i)][0]
+                output["time"] = statuses[str(i)][1]
             else:
                 return make_response({"you have not given a status yet":1})
             results = make_response(output)
