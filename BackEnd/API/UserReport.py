@@ -188,7 +188,7 @@ def add_user_report_route():
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@userreport_routes.route("/reporting/user/get_report", methods = ['POST'])
+@userreport_routes.route("/reporting/user/get_report", methods = ['GET'])
 def get_user_report_route():
     '''
     Retrieve the report with the ID specified in the report_id field of the request body
@@ -202,7 +202,7 @@ def get_user_report_route():
         no login: {"invalid_account":1}
         not using POST: {"invalid_request":1}
     '''
-    if request.method == 'POST':
+    if request.method == 'GET':
         report_id = request.form.get('report_id')
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
