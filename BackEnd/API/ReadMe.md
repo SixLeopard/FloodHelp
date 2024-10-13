@@ -380,7 +380,7 @@ documention of all the routes and there data inputs and request type
   
         Returns:  
             {report\_id:score} where score gives the score number then a list of  
-            of all the hazrd ids that contributeed to that score  
+            of all the hazrd ids that contributeed to that score, , and also a list of all nearby official alerts  
     
 
 <!-- TOC --><a name="sessionget"></a>
