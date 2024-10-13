@@ -4,11 +4,29 @@ import useStyles from '@/constants/style';
 import { useTheme } from '@/contexts/ThemeContext';
 import { router } from 'expo-router';
 import { handleReverseGeo } from '@/services/reverseGeo';
+import {formatDateTime} from "@/services/DateTimeFormatter";
+import {FontAwesome, MaterialCommunityIcons} from "@expo/vector-icons";
 
 const ReportCard = ({ reportID, report }) => {
     const styles = useStyles();
-    const { hazard_id, title, coordinates, datetime } = report;
+    let { hazard_id, title, coordinates, datetime, type } = report;
     const [address, setAddress] = useState('Loading address...');
+    datetime = formatDateTime(datetime);
+
+    let iconColour;
+
+    if (type == null) {
+        iconColour = "blue"
+    } else if (type.includes('Major Flood')) {
+        iconColour = 'maroon';
+    } else if (type.includes('Moderate Flood')) {
+        iconColour =  'darkorange';
+    } else if (type.includes('Minor Flood')) {
+        iconColour =  'goldenrod';
+    } else {
+        iconColour =  'maroon';
+    }
+
 
     useEffect(() => {
         const fetchAddress = async () => {
@@ -30,10 +48,13 @@ const ReportCard = ({ reportID, report }) => {
                 }
             >
                 <View style={styles.reportCardBody}>
-                    <Text style={styles.bodyTextBold}>#{reportID} | {title}</Text>
+                    <Text style={styles.bodyTextBold}>{title || "title not found"}</Text>
                     <Text style={styles.bodyTextDark}>{datetime}</Text>
                     <Text style={styles.bodyTextDark}>{address}</Text>
                 </View>
+
+                    <FontAwesome name="exclamation-circle" size={50} color={iconColour} />
+
             </Pressable>
         </View>
     );

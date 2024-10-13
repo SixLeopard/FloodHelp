@@ -24,20 +24,6 @@ const Profile = () => {
     }, []);
 
 
-    // function reverseGeo(coordinateString: string) {
-    //     const [latStr, longStr] = (coordinateString as string).replace(/[()]/g, '').split(',');
-    //
-    //     let geocode = await Location.reverseGeocodeAsync({latStr, longStr});
-    //     let l;
-    //     if (geocode.length > 0) {
-    //         const address = `${geocode[0].streetNumber || ''} ${geocode[0].street || ''}, ${geocode[0].city || ''}`;
-    //         return (address.trim());
-    //     } else {
-    //         return 'Unable to determine address';
-    //     }
-    // }
-
-
     if (!allReports || !currentUser) {
         return <Text>Loading...</Text>;
     }
@@ -48,7 +34,7 @@ const Profile = () => {
             <Text style={styles.headerText}>Profile Page</Text>
             <UserAvatar size={100} imageLink={''} />
             <Text style={styles.nameText}>{currentUser.name}</Text>
-            <Text style={styles.bodyTextBold}>Reporting History</Text>
+            <Text style={styles.bodyTextBold}>My Reporting History</Text>
 
             <ScrollView
                 style={{ height: '50%', width: '100%' }}
@@ -66,8 +52,9 @@ const Profile = () => {
                     ))}
                 </View>
             </ScrollView>
-
+<Text/>
             <FH_Button route='/(tabs)/newreport' text={'Create New Hazard Report'} />
+            <Text></Text>
         </View>
     );
 };
