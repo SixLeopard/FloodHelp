@@ -3,6 +3,7 @@ import { FlatList, View, StyleSheet } from 'react-native';
 import UserCard from './UserCard';
 
 const ConnectionList = ({ relationships, currentUser }) => {
+    console.log(item.status)
     const renderItem = ({ item }) => (
         <UserCard
             username={item.username}
