@@ -31,13 +31,18 @@ const UserCard = ({ username, userID, relationshipID, userAction, status }) => {
                 }
             };
             fetchCheckInData();
+            getStatus();
         }
     }, [userAction]); // Fetch data only when userAction changes
 
     const handlePress = async (actionType) => {
         let endpoint = "http://54.206.190.121:5000";
         const formData = new FormData();
-        formData.append('relationship_id', relationshipID);
+        if (actionType === 'check-status') {
+            formData.append('uid', userID);
+        } else {
+            formData.append('relationship_id', relationshipID);
+        }
 
         switch (actionType) {
             case 'accept':
@@ -50,7 +55,7 @@ const UserCard = ({ username, userID, relationshipID, userAction, status }) => {
                 endpoint += "/relationships/create";
                 break;
             case 'check-status':
-                endpoint += `/check_in/get_checkins`;
+                endpoint += `/check_in/send_push`;
                 break;
             default:
                 return;
@@ -73,28 +78,34 @@ const UserCard = ({ username, userID, relationshipID, userAction, status }) => {
     };
 
     const getStatus = async async => {
-
+        let result;
         setLoading(true);
 
         try {
             const response = await fetch("http://54.206.190.121:5000/check_in/get_checkins");
-            const result = await response.json();
-
-            setCheckInData(result); // Store the result of the API call
+            result = await response.json();
+            setCheckInData(result[userID][0][0]);
         } catch (error) {
-            console.error("Error with API call:", error);
+            if (error.toString().includes("TypeError")) {
+                setCheckInData("unknown")
+            } else {
+            console.error("Error with API call:", error);}
         } finally {
             setLoading(false);
         }
-
-        console.log(result[relationshipID][0][0])
+        //
+        // console.log(result);
+        //
+        // console.log(userID);
+        //
+        // console.log(result[userID][0][0])
     };
 
     const renderIcon = () => {
         if (userAction === "approvedRequest") {
-            getStatus()
-            const statusIcon = status === "safe" ? "shield-check" : "shield-alert";
-            const statusColor = status === "safe" ? colors.green : colors.red;
+            console.log(checkInData)
+            const statusIcon = checkInData === "Safe" ? "shield-check" : (checkInData === "unknown" ?  "map-marker-question":"shield-alert");
+            const statusColor = checkInData === "Safe" ? colors.green : colors.red;
 
             return (
                 <TouchableOpacity onPress={() => handlePress('check-status')}>
