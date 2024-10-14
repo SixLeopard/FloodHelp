@@ -101,10 +101,10 @@ const Profile = () => {
                     <View style={modalstyle.modalContent}>
                         <Text style={modalstyle.modalHeader}>Update Your Status</Text>
                         <TouchableOpacity onPress={() => handleChangeStatus('Safe')}>
-                            <Text style={modalstyle.modalButton}>I'm Safe</Text>
+                            <Text style={modalstyle.modalButton}>Mark Safe</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => handleChangeStatus('Unsafe')}>
-                            <Text style={modalstyle.modalButton}>I'm Unsafe</Text>
+                            <Text style={modalstyle.modalButton}>Mark Unsafe</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setModalVisible(false)}>
                             <Text style={modalstyle.modalCancel}>Cancel</Text>
