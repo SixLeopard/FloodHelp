@@ -10,6 +10,7 @@ documention of all the routes and there data inputs and request type
    * [/accounts/login](#accountslogin)
    * [/accounts/test](#accountstest)
    * [/documentation](#documentation)
+   * [/externalData/get\_polygon](#externaldataget_polygon)
    * [/externalData/get\_historical\_data](#externaldataget_historical_data)
    * [/externalData/get\_river\_conditions](#externaldataget_river_conditions)
    * [/externalData/get\_alerts](#externaldataget_alerts)
@@ -433,6 +434,27 @@ documention of all the routes and there data inputs and request type
         Return:  
             Combiend Json of all the information needed for an update  
     
+
+
+<!-- TOC --><a name="externalDataget_polygon"></a>
+## /externalData/get\_polygon
+---------------------------------
+
+[*   GET](/externalData/get\_polygon)
+
+  
+        Gets the corresponding polygon that a coordinate is in (from the historical data).
+        
+        Form Data:
+            Coordinate (example: (153.016861, -27.499547))
+
+        Return:
+            if succsessful: Returns the database row (tuple) where the point is contained within the polygon or multipolygon. 
+            Returns `None` if the point is not found within any polygon or multipolygon.
+            no login: {"invalid_account":1}
+            not using GET: {"invalid_request":1}
+
+
 
 <!-- TOC --><a name="externalDataget_alerts"></a>
 ## /externalData/get\_alerts
