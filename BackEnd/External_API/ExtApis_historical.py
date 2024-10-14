@@ -57,10 +57,10 @@ def check_point(point: tuple):
 
     for row in historical:
         coords = row[2]
-        type = row[3]
+        geo_type = row[3]
 
         coords = coords[1:-1]
-        type = type[1:-1]
+        geo_type = geo_type[1:-1]
 
 
         # Attempt to parse
@@ -69,7 +69,7 @@ def check_point(point: tuple):
             print(type(coords))
             print(type(coords[0]))
             break
-            if (is_point_in_polygon_or_multipolygon(type, coords, point)):
+            if (is_point_in_polygon_or_multipolygon(geo_type, coords, point)):
                 return row
         except SyntaxError as e:
             k = 0
