@@ -59,11 +59,9 @@ def check_point(point: tuple):
     for row in historical:
         coords = row[2]
         geo_type = row[3]
-        print(coords)
+        print(type(coords))
         # Attempt to parse
         try:
-            coords = coords[1:-1]
-            geo_type = geo_type[1:-1]
             coords = ast.literal_eval(coords)
             coords = list(coords)
             if (i == 1):
