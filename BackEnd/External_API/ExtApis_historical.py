@@ -13,7 +13,7 @@ from shapely.geometry import shape, Polygon, MultiPolygon, LineString
 import ast
 import sys
 import os
-#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from External_API.database import database_interface as db
 # Sample method to check if a point is inside a polygon or multipolygon
 def is_point_in_polygon_or_multipolygon(geometry_type, geometry_coords, point):
