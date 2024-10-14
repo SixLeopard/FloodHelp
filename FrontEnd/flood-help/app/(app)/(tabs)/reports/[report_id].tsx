@@ -6,6 +6,11 @@ import MapView from "react-native-maps";
 import { formatDateTime } from "@/services/DateTimeFormatter";
 import { useTheme } from "@/contexts/ThemeContext";
 
+/**
+ * Report page displays a retrieved report using the /reporting/user/get_report API call.
+ * With details from the database.
+ * @constructor
+ */
 const ReportPage = () => {
     const { report_id, address } = useLocalSearchParams<{ report_id: string, address: string }>();
     const styles = useStyles();
