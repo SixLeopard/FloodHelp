@@ -68,8 +68,9 @@ def check_point(point: tuple):
             print(type(coords[0]))
             print(type(coords[0][0]))
             print(type(coords[0][0][0]))
+            print(coords[0][0][0])
             print(type(coords[0][0][0][0]))
-            print(type(coords[0][0][0][0][0]))
+            print(geo_type)
             if (is_point_in_polygon_or_multipolygon(geo_type, coords[0], point)):
                 return row
         except SyntaxError as e:
