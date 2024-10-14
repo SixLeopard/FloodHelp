@@ -59,7 +59,7 @@ def check_point(point: tuple):
     for row in historical:
         coords = row[2]
         geo_type = row[3]
-
+        print(coords)
         # Attempt to parse
         try:
             coords = coords[1:-1]
@@ -67,8 +67,6 @@ def check_point(point: tuple):
             coords = ast.literal_eval(coords)
             coords = list(coords)
             if (i == 1):
-                print(coords)
-                print(geo_type)
                 i = i + 1
             if (is_point_in_polygon_or_multipolygon(geo_type, coords, point)):
                 return row
