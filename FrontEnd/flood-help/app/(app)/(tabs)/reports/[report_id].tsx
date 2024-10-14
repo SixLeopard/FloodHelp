@@ -26,7 +26,6 @@ const ReportPage = () => {
 
         const formData = new FormData();
         formData.append('report_id', report_id);
-        console.log(report_id);
 
         try {
             const response = await fetch(`http://54.206.190.121:5000/reporting/user/get_report`, {
@@ -35,7 +34,6 @@ const ReportPage = () => {
             });
 
             if (!response.ok) {
-                console.log(response.json())
                 throw new Error('Network response was not ok');
             }
 
@@ -74,8 +72,7 @@ const ReportPage = () => {
         );
     }
 
-
-    const {description, coordinates, datetime, area_name, title, type} = reportData;
+    const { title, type, description, coordinates, datetime, area_name } = reportData;
     const [latStr, longStr] = (coordinates as string).replace(/[()]/g, '').split(',');
     return (
         <ScrollView
