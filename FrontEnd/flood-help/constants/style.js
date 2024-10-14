@@ -78,6 +78,11 @@ const useStyles = () => {
             flexWrap: 'wrap',
             padding: 2,
         },
+        reportMap: {
+            width: '50%',
+            height: 40,
+            flex: 1,
+        },
         map: {
             width: '100%',
             height: '100%',
@@ -91,7 +96,7 @@ const useStyles = () => {
         },
         userCard: {
             height: 70,
-            width: '85%',
+            width: '90%',
             backgroundColor: colors.card,
             flexDirection: "row",
             justifyContent: "space-between",
@@ -152,11 +157,13 @@ const useStyles = () => {
         },
         reportCardsContainer: {
             alignItems: "center",
+            padding: 5,
 
         },
         reportCardBody: {
-            width: '85%',
+            width: '80%',
         },
+
         formContainer: {
             width: '100%',
             backgroundColor: colors.white, // Light background for the form
@@ -231,7 +238,6 @@ const useStyles = () => {
         },
 
         locationContainer: {
-            marginTop: 40,
             marginBottom: 20,
             padding: 10,
             borderWidth: 2,
