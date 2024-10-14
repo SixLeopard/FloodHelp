@@ -482,7 +482,7 @@ export default function Index() {
                         const [latitudeStr, longitudeStr] = report.coordinates.replace(/[()]/g, '').split(',');
                         const latitude = parseFloat(latitudeStr);
                         const longitude = parseFloat(longitudeStr);
-                        const color = getFloodColor(report.title);
+                        const color = getFloodColor(report.type);
 
                         if (isNaN(latitude) || isNaN(longitude)) return null;
 
