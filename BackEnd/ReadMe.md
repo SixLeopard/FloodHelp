@@ -6,6 +6,9 @@ the code for accsessing and interfacing with the external apis under External_AP
 ## Setup
 getting setup to run, test and develop the backend. This is intended to be run on linux, modifcations to some of the setup will need to be modified if you want to run it on windows.
 
+## if you just want to run the app
+if you just want to try out the app the setup od the backend isnt nesscary as there is a instance of it already running at http://54.206.190.121:5000/ and the app will just atomatically connect to that without having to do any other setup onthe beackend or front end
+
 ### Setting up Postgres Database
 setup a postgres database, either self hosting or using a service like amazon rds
 for our usage we have used amazon rds with the following configuration
@@ -233,8 +236,7 @@ pip install -r ./requirements.txt
 ```
 
 ## updating database credentials
-Enter the database credntials from the database setup setup steps into line 49 under the connection function in /BackEnd/Database/db_interface.py. Our demo databse credentials are included in the script however this won't be still be live after the second half of 2025 due there being cost incurred after 1 year of running the database on aws 
-```python
+Enter the database credntials from the database setup setup steps into line 49 under the connection function in /BackEnd/Database/db_interface.py.
 def connect(self):
 	self.conn = psycopg2.connect(
 		dbname="{DB_NAME}", \
