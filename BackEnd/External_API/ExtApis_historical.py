@@ -53,7 +53,17 @@ def is_point_in_polygon_or_multipolygon(geometry_type, geometry_coords, point):
 
 
 def check_point(point: tuple):
-    i = 1
+    """
+    Check if a given point is inside any polygon or multipolygon in the historical data.
+
+    Parameters:
+    - point (tuple): A tuple representing the point to be checked, in the format (longitude, latitude).
+
+    Returns:
+    - tuple or None: Returns the database row (tuple) where the point is contained within the polygon or multipolygon. 
+      Returns `None` if the point is not found within any polygon or multipolygon.
+
+    """
     historical = db.get_historical_data()
 
     for row in historical:
@@ -64,8 +74,7 @@ def check_point(point: tuple):
         try:
             coords = ast.literal_eval(coords)
             coords = list(coords)
-            if (i == 1):
-                i = i + 1
+
             if (is_point_in_polygon_or_multipolygon(geo_type, coords, point)):
                 return row
         except SyntaxError as e:
@@ -76,71 +85,3 @@ def check_point(point: tuple):
 
 
 
-
-def check_point_test(point: tuple):
-    with open("C:/Users/msi/Desktop/filtered_data.json", 'r') as file:
-        data = json.load(file)
-
-    for row in data:
-        coords = str(row["coordinates"])
-        type = str(row["type"])
-
-        coords = "'" + str(coords) + "'"
-        type = "'" + str(type) + "'"
-
-        coords = coords[1:-1]
-        type = type[1:-1]
-        # Attempt to parse
-        try:
-            coords = ast.literal_eval(coords)
-            print(coords)
-            print(type)
-            break
-            if (is_point_in_polygon_or_multipolygon(type, coords, point)):
-                return row
-        except SyntaxError as e:
-            k = 0
-    return None
-
-
-
-
-
-
-
-
-
-
-#-27.499547, 153.016861
-
-
-#(153.016861, -27.499547)
-# Example point
-#point = (153.016861, -27.499547)
-
-#print(check_point_test(point))
-
-# Test for polygon
-#print(is_point_in_polygon_or_multipolygon('polygon', polygon_coords, point))
-
-# Test for multipolygon
-#print(is_point_in_polygon_or_multipolygon('multipolygon', multipolygon_coords, point))
-
-
-# Define your polygon coordinates (as per your example)
-
-
-#polygon_coords = [[[152.9945376605, -27.3697088519], [152.9945174357, -27.3697088511], [152.9945174366, -27.3696907948], [152.9945376613, -27.3696907956], [152.9945376605, -27.3697088519]]]
-
-# Create the polygon with Shapely
-#polygon = Polygon(polygon_coords[0])
-#print("Polygon created:", polygon)
-
-# Test point
-#test_point = (152.99452, -27.36970)  # Adjust as needed for testing
-#point = Point(test_point)
-#print("Point created:", point)
-
-# Check if the point is inside the polygon
-#is_contained = polygon.contains(point)
-#print("Is the point inside the polygon?", is_contained)
