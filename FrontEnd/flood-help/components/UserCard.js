@@ -105,7 +105,7 @@ const UserCard = ({ username, userID, relationshipID, userAction, status }) => {
         if (userAction === "approvedRequest") {
             console.log(checkInData)
             const statusIcon = checkInData === "Safe" ? "shield-check" : (checkInData === "unknown" ?  "map-marker-question":"shield-alert");
-            const statusColor = checkInData === "Safe" ? colors.green : colors.red;
+            const statusColor = checkInData === "Safe" ? colors.green : (checkInData === "unknown" ? colors.yellow : colors.red);
 
             return (
                 <TouchableOpacity onPress={() => handlePress('check-status')}>
