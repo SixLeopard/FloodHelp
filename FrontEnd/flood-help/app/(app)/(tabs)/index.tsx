@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Alert, TouchableOpacity, ActivityIndicator, Text, Image, Modal, Pressable } from "react-native";
 import useStyles from "@/constants/style";
-import MapView, { Marker, Region } from "react-native-maps";
+import MapView, { Marker, Region, Polygon } from "react-native-maps";
 import { mapLightTheme, mapDarkTheme } from "@/constants/Themes";
 import { useTheme } from "@/contexts/ThemeContext";
 import * as Location from 'expo-location';
@@ -55,6 +55,7 @@ interface OfficialAlert {
     coordinates: string;
 }
 
+
 export default function Index() {
     const styles = useStyles();
     const { theme } = useTheme();
@@ -65,6 +66,7 @@ export default function Index() {
     const [officialAlerts, setOfficialAlerts] = useState<OfficialAlert[]>([]);  
     const [loading, setLoading] = useState(true);
     const [showAlertModal, setShowAlertModal] = useState(false);
+    const [isUserInFloodArea, setIsUserInFloodArea] = useState(false);
     const [selectedReport, setSelectedReport] = useState<Report | null>(null);
     const [selectedConnection, setSelectedConnection] = useState<CheckInStatus | null>(null);
     const [selectedOfficialAlert, setSelectedOfficialAlert] = useState<OfficialAlert | null>(null); 
@@ -96,7 +98,6 @@ export default function Index() {
                 method: 'GET',
             });
             const alertsData = await response.json();
-    
             // Map the array format into OfficialAlert objects
             const mappedAlerts = alertsData.map((alert: any[]): OfficialAlert => ({
                 id: alert[0], 
@@ -108,7 +109,6 @@ export default function Index() {
                 effectiveUntil: alert[6],
                 coordinates: alert[7],
             }));
-    
             setOfficialAlerts(mappedAlerts); 
             console.log('Fetched Official Alerts:', mappedAlerts);
         } catch (error) {
@@ -116,7 +116,7 @@ export default function Index() {
             setOfficialAlerts([]);
         }
     };
-
+    
     const updateLocationAndFetchConnections = async () => {
         try {
             let { status } = await Location.requestForegroundPermissionsAsync();
@@ -135,6 +135,27 @@ export default function Index() {
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
             });
+
+            // Check if user is in a flood area
+            const userIsInFloodArea = Object.values(reports).some((report) => {
+                if (!report.coordinates) return false;
+                const [reportLatStr, reportLonStr] = report.coordinates.replace(/[()]/g, '').split(',');
+                const reportLat = parseFloat(reportLatStr);
+                const reportLon = parseFloat(reportLonStr);
+
+                if (isNaN(reportLat) || isNaN(reportLon)) return false;
+
+                const distance = calculateDistance(latitude, longitude, reportLat, reportLon);
+                return distance <= 1; // Proximity threshold in km
+            });
+
+            // Update the state based on the user's proximity to the flood area
+            setIsUserInFloodArea(userIsInFloodArea);
+
+            // If user is too close to a flood zone, change status to "Unsafe"
+            if (userIsInFloodArea) {
+                await sendUnsafeStatus();
+            }
 
             const formData = new FormData();
             formData.append('location', `(${latitude},${longitude})`);
@@ -182,30 +203,60 @@ export default function Index() {
         updateLocationAndFetchConnections();
     }, [user]);
 
-    const handleAddReport = () => {
-        navigation.navigate('newreport');
+    // Function to send "Unsafe" status
+    const sendUnsafeStatus = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('status', 'Unsafe');
+
+            const response = await fetch('http://54.206.190.121:5000/check_in/send', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                console.error('Failed to send Unsafe status:', response.status);
+            } else {
+                console.log('Unsafe status sent successfully.');
+            }
+        } catch (error) {
+            console.error('Error sending Unsafe status:', error);
+        }
     };
 
     const handleCheckIn = async (uid: number) => {
         try {
-            // Create a new FormData instance
-            const formData = new FormData();
-            formData.append('notification', 'Are you safe?');
-            formData.append('receiver', String(uid));
+            // Look up the user's name based on the uid
+            const relationship = relationships.find(
+                (rel) => rel.requestee_uid === uid || rel.requester_uid === uid
+            );
     
-            // Send a check-in notification to the selected user
-            await fetch('http://54.206.190.121:5000/notifications/add', {
+            const userName = relationship?.requestee_uid === uid
+                ? relationship?.requestee_name
+                : relationship?.requester_name;
+    
+            const formData = new FormData();
+            formData.append('reciever', String(uid));
+    
+            // Send the check-in notification using the updated API endpoint
+            const response = await fetch('http://54.206.190.121:5000/check_in/send_push', {
                 method: 'POST',
-                body: formData, 
+                body: formData,
             });
     
-            Alert.alert('Check-In Sent', 'Check-in notification sent successfully.');
+            if (response.ok) {
+                Alert.alert('Check-In Sent', `Check-in notification sent to ${userName || 'Unknown User'}.`);
+            } else {
+                console.error('Failed to send check-in notification:', response.status);
+                Alert.alert('Error', 'Failed to send check-in notification.');
+            }
         } catch (error) {
             console.error('Error sending check-in notification:', error);
             Alert.alert('Error', 'Failed to send check-in notification.');
         }
     };
-
+    
+    
     const getAddressFromCoordinates = async (coordinates: string): Promise<string> => {
         try {
             const [latitude, longitude] = coordinates.replace(/[()]/g, '').split(',');
@@ -304,41 +355,6 @@ export default function Index() {
         setSelectedOfficialAlert(null);
     };
 
-    // Toggle historical data marker
-    const handleHistoricalToggle = () => {
-        setShowHistoricalMarker(!showHistoricalMarker);
-        if (!showHistoricalMarker) {
-            // Set marker in the center of the map
-            setHistoricalMarkerCoords({
-                latitude: region?.latitude || 0,
-                longitude: region?.longitude || 0,
-            });
-        } else {
-            // Remove the marker
-            setHistoricalMarkerCoords(null);
-        }
-    };
-
-    // Function to handle marker drag event
-    const onMarkerDragEnd = (e: any) => {
-        const { latitude, longitude } = e.nativeEvent.coordinate;
-        setHistoricalMarkerCoords({ latitude, longitude });
-        displayCoordinatesAlert(latitude, longitude);
-    };
-
-    // Handle user tap on the map to move the marker
-    const onMapPress = (e: any) => {
-        const { latitude, longitude } = e.nativeEvent.coordinate;
-        setHistoricalMarkerCoords({ latitude, longitude });
-        displayCoordinatesAlert(latitude, longitude);
-    };
-
-    // Helper function to display alert with coordinates
-    const displayCoordinatesAlert = (latitude: number, longitude: number) => {
-        console.log("Marker moved/tapped to:", latitude, longitude);
-        Alert.alert("Coordinates Selected", `Lat: ${latitude}, Long: ${longitude}`);
-    };
-
     // Helper function to calculate proximity between two points
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
         const R = 6371; // Radius of the Earth in km
@@ -369,6 +385,45 @@ export default function Index() {
             const distance = calculateDistance(connection.latitude, connection.longitude, reportLatitude, reportLongitude);
             return distance <= proximityThreshold;
         });
+    };
+
+    // Function to handle marker drag event
+    const onMarkerDragEnd = (e: any) => {
+        const { latitude, longitude } = e.nativeEvent.coordinate;
+        setHistoricalMarkerCoords({ latitude, longitude });
+        displayCoordinatesAlert(latitude, longitude);
+    };
+
+    // Handle user tap on the map to move the marker
+    const onMapPress = (e: any) => {
+        const { latitude, longitude } = e.nativeEvent.coordinate;
+        setHistoricalMarkerCoords({ latitude, longitude });
+        displayCoordinatesAlert(latitude, longitude);
+    };
+
+    // Helper function to display alert with coordinates
+    const displayCoordinatesAlert = (latitude: number, longitude: number) => {
+        console.log("Marker moved/tapped to:", latitude, longitude);
+        Alert.alert("Coordinates Selected", `Lat: ${latitude}, Long: ${longitude}`);
+    };
+
+    const handleAddReport = () => {
+        navigation.navigate('newreport');
+    };
+
+    // Toggle historical data marker
+    const handleHistoricalToggle = () => {
+        setShowHistoricalMarker(!showHistoricalMarker);
+        if (!showHistoricalMarker) {
+            // Set marker in the center of the map
+            setHistoricalMarkerCoords({
+                latitude: region?.latitude || 0,
+                longitude: region?.longitude || 0,
+            });
+        } else {
+            // Remove the marker
+            setHistoricalMarkerCoords(null);
+        }
     };
 
     const getFloodColor = (type: string): string => {
@@ -403,10 +458,23 @@ export default function Index() {
                     style={styles.map}
                     customMapStyle={theme.dark ? mapDarkTheme : mapLightTheme}
                     initialRegion={region}
-                    showsUserLocation={true}
+                    showsUserLocation={false}
                     showsMyLocationButton={true}
                     onPress={showHistoricalMarker ? onMapPress : undefined}  // Only allow tap to place marker if historical mode is active
                 >
+                    {/* Render User's Current Location Marker with Custom Circle */}
+                    {region && (
+                        <Marker
+                            coordinate={{ latitude: region.latitude, longitude: region.longitude }}
+                            title={"Your Location"}
+                        >
+                            <View style={[
+                                styles.circleMarker,
+                                { backgroundColor: isUserInFloodArea ? "maroon" : "green" }
+                                ]} />
+                        </Marker>
+                    )}
+                    
                     {/* Render Flood Report Markers */}
                     {reports && Object.entries(reports).map(([key, report]: [string, any], index) => {
                         if (!report.coordinates) return null;
@@ -414,7 +482,7 @@ export default function Index() {
                         const [latitudeStr, longitudeStr] = report.coordinates.replace(/[()]/g, '').split(',');
                         const latitude = parseFloat(latitudeStr);
                         const longitude = parseFloat(longitudeStr);
-                        const color = getFloodColor(report.title);
+                        const color = getFloodColor(report.type);
 
                         if (isNaN(latitude) || isNaN(longitude)) return null;
 
@@ -465,10 +533,9 @@ export default function Index() {
                             onDragEnd={onMarkerDragEnd}
                             title="Move me to select coordinates"
                         >
-                            <FontAwesome name="map-marker" size={50} color="maroon" />
+                            <FontAwesome name="map-marker" size={50} color="midnightblue" />
                         </Marker>
                     )}
-
                     {/* Render Connections' Locations with custom pin image */}
                     {connectionLocations.map((connection, index) => {
                         const relationship = relationships.find(
@@ -488,11 +555,18 @@ export default function Index() {
 
                                 onPress={() => handleConnectionPress(connection)}
                             >
-                                <Image
-                                    source={isInFloodArea ? require('@/assets/images/map-marker-warning.png') : require('@/assets/images/map-marker-default.png')}
-                                    style={{ width: 40, height: 40 }}
-                                    resizeMode="contain"
-                                />
+                                <View style={{
+                                    width: 60, 
+                                    height: 60,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                    <Image
+                                        source={isInFloodArea ? require('@/assets/images/map-marker-warning.png') : require('@/assets/images/map-marker-default.png')}
+                                        style={{ width: 50, height: 50 }}
+                                        resizeMode="contain"
+                                    />
+                                </View>
                             </Marker>
                         );
                     })}
@@ -514,7 +588,7 @@ export default function Index() {
                             <View style={styles.alertContent}>
                                 {/* Row for Warning Icon and Title */}
                                 <View style={styles.alertHeader}>
-                                    <FontAwesome name="exclamation-circle" size={30} color={getFloodColor(selectedReport.title)} />
+                                    <FontAwesome name="exclamation-circle" size={30} color={getFloodColor(selectedReport.type)} />
                                     <Text style={styles.alertTitle}>
                                     {selectedReport.title} | {formatTime(selectedReport.datetime)}
                                     </Text>
@@ -631,6 +705,7 @@ export default function Index() {
                     <Text style={styles.instructionText}>Tap the historical icon again to exit historical mode.</Text>
                 </View>
             )}
+
         </View>
     );
 }
