@@ -2,7 +2,7 @@ from db_interface import DBInterface
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
+from External_API import ExtApis_historical
 db = DBInterface()
 
 
@@ -67,7 +67,7 @@ def test_delete_expired_alerts():
 
 
 
-
+print(ExtApis_historical.check_point((-27.499547,153.016861)))
 # test_create_user()
 # test_relationships()
 # test_select()
