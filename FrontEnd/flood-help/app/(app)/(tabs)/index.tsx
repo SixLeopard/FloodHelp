@@ -57,27 +57,29 @@ interface OfficialAlert {
 
 
 export default function Index() {
+    // Accessing theme styles and context
     const styles = useStyles();
     const { theme } = useTheme();
-    const [region, setRegion] = useState<Region | null>(null);
-    const [connectionLocations, setConnectionLocations] = useState<ConnectionLocation[]>([]);
-    const [relationships, setRelationships] = useState<Relationship[]>([]);
-    const [reports, setReports] = useState<{ [key: string]: Report }>({});
-    const [officialAlerts, setOfficialAlerts] = useState<OfficialAlert[]>([]);  
-    const [loading, setLoading] = useState(true);
-    const [showAlertModal, setShowAlertModal] = useState(false);
-    const [isUserInFloodArea, setIsUserInFloodArea] = useState(false);
-    const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-    const [selectedConnection, setSelectedConnection] = useState<CheckInStatus | null>(null);
-    const [selectedOfficialAlert, setSelectedOfficialAlert] = useState<OfficialAlert | null>(null); 
-    const [showHistoricalMarker, setShowHistoricalMarker] = useState(false);
-    const [historicalMarkerCoords, setHistoricalMarkerCoords] = useState<{
-        latitude: number;
-        longitude: number;
-    } | null>(null);
-    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-    const { user } = useAuth();
+    
+    // State variables
+    const [region, setRegion] = useState<Region | null>(null); // To track user's current location
+    const [connectionLocations, setConnectionLocations] = useState<ConnectionLocation[]>([]); // For connection data
+    const [relationships, setRelationships] = useState<Relationship[]>([]); // For relationship data
+    const [reports, setReports] = useState<{ [key: string]: Report }>({}); // Flood reports data
+    const [officialAlerts, setOfficialAlerts] = useState<OfficialAlert[]>([]);  // Official flood alerts
+    const [loading, setLoading] = useState(true); // Loading state
+    const [showAlertModal, setShowAlertModal] = useState(false); // Modal visibility state
+    const [isUserInFloodArea, setIsUserInFloodArea] = useState(false); // Whether the user is in a flood zone
+    const [selectedReport, setSelectedReport] = useState<Report | null>(null); // Selected flood report for modal
+    const [selectedConnection, setSelectedConnection] = useState<CheckInStatus | null>(null); // Selected connection
+    const [selectedOfficialAlert, setSelectedOfficialAlert] = useState<OfficialAlert | null>(null); // Selected alert
+    const [showHistoricalMarker, setShowHistoricalMarker] = useState(false); // Toggle for historical marker
+    const [historicalMarkerCoords, setHistoricalMarkerCoords] = useState<{ latitude: number; longitude: number; } | null>(null); // Coordinates for historical marker
 
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+    const { user } = useAuth(); // Authentication context to get the current user
+
+    // Function to fetch all reports from the server
     const fetchReports = async () => {
         try {
             const response = await fetch('http://54.206.190.121:5000/reporting/user/get_all_report_basic', {
@@ -92,6 +94,7 @@ export default function Index() {
         }
     };
 
+    // Function to fetch official alerts from the server
     const fetchOfficialAlerts = async () => {
         try {
             const response = await fetch('http://54.206.190.121:5000/externalData/get_alerts', {
@@ -117,8 +120,10 @@ export default function Index() {
         }
     };
     
+    // Function to update the user's location and fetch connection data
     const updateLocationAndFetchConnections = async () => {
         try {
+            // Request location permission
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
                 Alert.alert("Permission to access location was denied");
@@ -126,6 +131,7 @@ export default function Index() {
                 return;
             }
 
+            // Get user's current location
             let location = await Location.getCurrentPositionAsync({});
             const { latitude, longitude } = location.coords;
 
@@ -152,14 +158,14 @@ export default function Index() {
             // Update the state based on the user's proximity to the flood area
             setIsUserInFloodArea(userIsInFloodArea);
 
-            // If user is too close to a flood zone, change status to "Unsafe"
+            // If user is in a flood area, change status to "Unsafe"
             if (userIsInFloodArea) {
                 await sendUnsafeStatus();
             }
 
+            // Update the user's location on the server
             const formData = new FormData();
             formData.append('location', `(${latitude},${longitude})`);
-
             const locationUpdateResponse = await fetch('http://54.206.190.121:5000/locations/update', {
                 method: 'POST',
                 body: formData,
@@ -167,6 +173,7 @@ export default function Index() {
             const locationData = await locationUpdateResponse.json();
             console.log('Location Update Response:', locationData);
 
+            // Process location data into ConnectionLocation objects
             if (Object.keys(locationData).length > 0) {
                 const locationsArray: ConnectionLocation[] = Object.entries(locationData).map(([uid, loc]) => {
                     const [latStr, longStr] = (loc as string).replace(/[()]/g, '').split(',');
@@ -179,6 +186,7 @@ export default function Index() {
                 setConnectionLocations(locationsArray);
             }
 
+            // Fetch relationships data
             const relationshipsResponse = await fetch('http://54.206.190.121:5000/relationships/get_relationships', {
                 method: 'GET',
             });
@@ -196,6 +204,7 @@ export default function Index() {
         }
     };
 
+    // useEffect hook to trigger location and data fetching when user logs in
     useEffect(() => {
         console.log("useEffect triggered with user:", user);
         if (!user) return;
@@ -203,7 +212,7 @@ export default function Index() {
         updateLocationAndFetchConnections();
     }, [user]);
 
-    // Function to send "Unsafe" status
+    // Function to send "Unsafe" status if user is near a flood zone
     const sendUnsafeStatus = async () => {
         try {
             const formData = new FormData();
@@ -224,6 +233,7 @@ export default function Index() {
         }
     };
 
+    // Function to handle a check-in notification for a connection
     const handleCheckIn = async (uid: number) => {
         try {
             // Look up the user's name based on the uid
@@ -238,7 +248,7 @@ export default function Index() {
             const formData = new FormData();
             formData.append('reciever', String(uid));
     
-            // Send the check-in notification using the updated API endpoint
+            // Send the check-in notification
             const response = await fetch('http://54.206.190.121:5000/check_in/send_push', {
                 method: 'POST',
                 body: formData,
@@ -256,7 +266,7 @@ export default function Index() {
         }
     };
     
-    
+    // Function to fetch the address from coordinates
     const getAddressFromCoordinates = async (coordinates: string): Promise<string> => {
         try {
             const [latitude, longitude] = coordinates.replace(/[()]/g, '').split(',');
@@ -267,7 +277,6 @@ export default function Index() {
     
             if (addressArray.length > 0) {
                 const address = addressArray[0];
-                // Combine street and city if available
                 return `${address.street}, ${address.city}`;
             } else {
                 return 'Unknown Location';
@@ -277,34 +286,33 @@ export default function Index() {
             return 'Unknown Location';
         }
     };
+
     // Helper function to format time from a datetime string
     const formatTime = (datetime: string) => {
         const date = new Date(datetime);
-        let hours = date.getUTCHours();  // Use getUTCHours for UTC time
-        let minutes: string | number = date.getUTCMinutes();  // Use getUTCMinutes for UTC time
+        let hours = date.getUTCHours(); 
+        let minutes: string | number = date.getUTCMinutes(); 
         const ampm = hours >= 12 ? 'pm' : 'am';
     
         hours = hours % 12;
-        hours = hours ? hours : 12; // If hour is 0, set it to 12
+        hours = hours ? hours : 12; 
         minutes = minutes < 10 ? '0' + minutes : minutes;
     
-        const strTime = `${hours}:${minutes} ${ampm}`;
-        return strTime;
+        return `${hours}:${minutes} ${ampm}`;
     };
 
+    // Function to handle when a flood report marker is pressed
     const handleMarkerPress = async (report: Report) => {
         try {
-            // Reverse geocode the coordinates to get the location
             const location = await getAddressFromCoordinates(report.coordinates);
-    
-            // Now set the selected report and include the fetched location
-            setSelectedReport({ ...report, location }); // Add the location to the selected report
+            setSelectedReport({ ...report, location }); // Include the fetched location
             setShowAlertModal(true);
         } catch (error) {
             console.error('Error fetching location for report:', error);
         }
     };
 
+    // Function to handle when an official alert marker is pressed
     const handleOfficialAlertPress = (alert: OfficialAlert) => {
         setSelectedOfficialAlert(alert);  
         setShowAlertModal(true);
@@ -348,6 +356,7 @@ export default function Index() {
         }
     };
 
+    // Close modal function
     const closeModal = () => {
         setShowAlertModal(false);
         setSelectedReport(null);
@@ -407,6 +416,7 @@ export default function Index() {
         Alert.alert("Coordinates Selected", `Lat: ${latitude}, Long: ${longitude}`);
     };
 
+    // Function to navigate to the 'newreport' screen
     const handleAddReport = () => {
         navigation.navigate('newreport');
     };
@@ -426,6 +436,7 @@ export default function Index() {
         }
     };
 
+    // Helper function to determine flood severity color based on type
     const getFloodColor = (type: string): string => {
         if (type == null) {
             return 'midnightblue';
@@ -441,6 +452,7 @@ export default function Index() {
         }
     };
 
+    // Render loading spinner while data is being fetched
     if (loading) {
         return (
             <View style={styles.page}>
@@ -449,7 +461,6 @@ export default function Index() {
             </View>
         );
     }
-
 
     return (
         <View style={styles.page}>
@@ -500,17 +511,10 @@ export default function Index() {
 
                     {/* Render Official Alert Markers */}
                     {officialAlerts.map((alert, index) => {
-                        // Ensure coordinates are a string and process them safely
                         const coordinates = alert.coordinates || ''; 
-
-                        // Only process coordinates if they're available
                         const [latitudeStr, longitudeStr] = coordinates.replace(/[{}]/g, '').split(',');
-
-                        // Parse the latitude and longitude strings into floats
                         const latitude = parseFloat(latitudeStr);
                         const longitude = parseFloat(longitudeStr);
-
-                        // If parsing failed, skip rendering this marker
                         if (isNaN(latitude) || isNaN(longitude)) return null;
 
                         return (

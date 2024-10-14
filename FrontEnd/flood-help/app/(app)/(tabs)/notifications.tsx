@@ -79,9 +79,11 @@ const Notifications = () => {
 
             const notificationsString = data['current pending notifications'];
             const sanitizedNotifications = notificationsString.replace(/'/g, '"');
+            console.log('Sanitized Notifications:', sanitizedNotifications);
 
             try {
                 const notificationsArray = JSON.parse(sanitizedNotifications);
+                console.log('Notifications Array:', notificationsArray);
 
                 if (notificationsArray.length > 0) {
                     const formattedNotifications = notificationsArray.map((notificationContent: string) => {
