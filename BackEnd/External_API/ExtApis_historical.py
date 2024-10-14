@@ -51,8 +51,9 @@ def is_point_in_polygon_or_multipolygon(geometry_type, geometry_coords, point):
     else:
         raise ValueError("Invalid geometry type: must be 'polygon' or 'multipolygon'")
 
-i = 1
+
 def check_point(point: tuple):
+    i = 1
     historical = db.get_historical_data()
 
     for row in historical:
