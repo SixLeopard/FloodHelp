@@ -1,89 +1,56 @@
 import json
 import pandas as pd
 import geopandas as gpd
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import Point, Polygon, MultiPolygon
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.patches as mpatches
+import os
+import json
+import pandas as pd
+import os
+from shapely.geometry import shape, Polygon, MultiPolygon, LineString
+import ast
+from Tools import CoordString_to_Tuple
 
-def get_historical_data(file_name: str) -> str:
+from External_API.database import database_interface as db
+# Sample method to check if a point is inside a polygon or multipolygon
+def is_point_in_polygon_or_multipolygon(type, geometry_coords, point_coord):
+
+    # Determine if we have a MultiPolygon or a Polygon based on the input structure
+    if (type == "MultiPolygon") :  # Checks if we have multiple polygons (MultiPolygon)
+        # Create a MultiPolygon object
+        polygons = [Polygon(coords) for coords in geometry_coords]
+        geometry = MultiPolygon(polygons)
+    else:
+        # Create a Polygon object if it's a simple Polygon
+        geometry = Polygon(geometry_coords)
     
-    """
-    Processes historical flood data from a JSON file and outputs it in a structured JSON format.
+    point = Point(point_coord)
     
-    This function reads historical flood data (from the Brisbane City Council) in JSON format from the specified file,
-    and extracts relevant information for each flood event, including:
-        - 'flood_risk': The flood risk level (e.g., High, Medium, Low).
-        - 'flood_type': The type of flood (e.g., river, flash).
-        - 'coordinates': Geographical coordinates defining the flood region.
-        - 'type': The type of geometry representing the flood area (Polygon or MultiPolygon).
+    # Check if the point is within the polygon or multipolygon
+    return geometry.contains(point)
 
-    The function does not generate actual geometry objects but extracts and formats the coordinates and geometry type for further use.
 
-    Args:
-        file_name (str): The path to the JSON file containing historical flood data.
+def check_point(point: tuple):
+    historical = db.get_historical_data()
 
-    Returns:
-        str: A JSON string containing the processed flood data, structured as a list of dictionaries where each entry
-        contains the flood risk, type, and coordinates of the flood area.
-    """
+    for row in historical:
+        coords = row[2]
+        type = row[3]
 
-    #Turns coordinates into geometry objects based on type of geometry (polygon/multipolygon)
-    def create_geometry(row):
-        try:
-            coords = row[0]
-            geom_type = row[1]
-            if not coords:
-                return None
-            if geom_type == 'Polygon':
-                return Polygon(coords[0])
-            elif geom_type == 'MultiPolygon':
-                return MultiPolygon([Polygon(poly[0]) for poly in coords])
-            else:
-                return None
-        except (ValueError, SyntaxError):
-            print(f"Error processing row: {row}")
-            return None
-        
-    with open(file_name, 'r') as file:
-        data = json.load(file)
+        coords = coords[1:-1]
+        type = type[1:-1]
+        coords = ast.literal_eval(coords)
 
-    extracted_data = []
-    #extracts data
-    for item in data:
-        geo_shape = item.get('geo_shape') or {}
-        geometry = geo_shape.get('geometry') or {}
-        
-        row = {
-            'flood_risk': item.get('flood_risk', ''),
-            'flood_type': item.get('flood_type', ''),
-            'coordinates': geometry.get('coordinates', ''),
-            'type': geometry.get('type', ''),
-            #'geo': create_geometry([geometry.get('coordinates', ''), geometry.get('type', '')])
-        }
-        extracted_data.append(row)
-    df = pd.DataFrame(extracted_data)
-    data_in_json = df.to_json()
-    return data_in_json
+        if (is_point_in_polygon_or_multipolygon(type, coords, point)):
+            return row
+    
+    return None
 
-#optional function just to plot the data
-def plot_df(df):
-    gdf = gpd.GeoDataFrame(df, geometry='geo')
-    gdf = gdf.dropna(subset=['geo'])
 
- 
-    risk_categories = ['Very Low', 'Low', 'Medium', 'High', 'Very High']
-    color_map = plt.colormaps['YlOrRd']  
-    norm = colors.BoundaryNorm(range(len(risk_categories) + 1), color_map.N)
-    fig, ax = plt.subplots(figsize=(15, 16)) 
-    gdf.plot(ax=ax, column='flood_risk', cmap=color_map, norm=norm, legend=False)
-    legend_patches = [mpatches.Patch(color=color_map(norm(i)), label=cat) 
-                      for i, cat in enumerate(risk_categories)]
-    ax.legend(handles=legend_patches, loc='upper center', bbox_to_anchor=(0.5, -0.05),
-              ncol=5, title="Flood Risk")
 
-    plt.axis('off')
-    plt.tight_layout()
-    plt.subplots_adjust(bottom=0.1) 
-    plt.show()
+#-27.499547, 153.016861
+
+
 
