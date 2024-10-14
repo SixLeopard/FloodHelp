@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Alert, TouchableOpacity, ActivityIndicator, Text, Image, Modal, Pressable } from "react-native";
 import useStyles from "@/constants/style";
-import MapView, { Marker, Region } from "react-native-maps";
+import MapView, { Marker, Region, Polygon } from "react-native-maps";
 import { mapLightTheme, mapDarkTheme } from "@/constants/Themes";
 import { useTheme } from "@/contexts/ThemeContext";
 import * as Location from 'expo-location';
@@ -55,24 +55,40 @@ interface OfficialAlert {
     coordinates: string;
 }
 
+interface HistoricalEntry {
+    id: number;
+    risk: string;
+    coordinates: string;
+    type: string;
+}
+
+interface HistoricalData {
+    id: number;
+    risk: string;
+    coordinates: Array<{ latitude: number; longitude: number }> | null;
+    type: string;
+}
+
+
+
+
 export default function Index() {
     const styles = useStyles();
     const { theme } = useTheme();
     const [region, setRegion] = useState<Region | null>(null);
+    const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
     const [connectionLocations, setConnectionLocations] = useState<ConnectionLocation[]>([]);
     const [relationships, setRelationships] = useState<Relationship[]>([]);
     const [reports, setReports] = useState<{ [key: string]: Report }>({});
     const [officialAlerts, setOfficialAlerts] = useState<OfficialAlert[]>([]);  
     const [loading, setLoading] = useState(true);
     const [showAlertModal, setShowAlertModal] = useState(false);
+    const [isUserInFloodArea, setIsUserInFloodArea] = useState(false);
     const [selectedReport, setSelectedReport] = useState<Report | null>(null);
     const [selectedConnection, setSelectedConnection] = useState<CheckInStatus | null>(null);
     const [selectedOfficialAlert, setSelectedOfficialAlert] = useState<OfficialAlert | null>(null); 
-    const [showHistoricalMarker, setShowHistoricalMarker] = useState(false);
-    const [historicalMarkerCoords, setHistoricalMarkerCoords] = useState<{
-        latitude: number;
-        longitude: number;
-    } | null>(null);
+    const [selectedPolygonRisk, setSelectedPolygonRisk] = useState<string | null>(null);
+    const [isHistoricalModeActive, setIsHistoricalModeActive] = useState(false);
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { user } = useAuth();
 
@@ -117,6 +133,89 @@ export default function Index() {
         }
     };
 
+    // Fetch historical data
+    const fetchHistoricalData = async () => {
+        try {
+            console.log('Fetching historical data...');
+            const response = await fetch('http://54.206.190.121:5000/externalData/get_historical_data', {
+                method: 'GET',
+            });
+        
+            const data: HistoricalEntry[] = await response.json();
+            console.log('Raw data fetched:', data); // Log the fetched data
+        
+            const parsedHistoricalData = data.map((entry: any, index: number) => {
+                let coordinates: Array<{ latitude: number; longitude: number }> = [];
+    
+                const id = typeof entry[0] === 'number' ? entry[0] : 91 + index;
+    
+                try {
+                    if (!entry[2] || entry[2].trim() === "") {
+                        return null; // Silently skip entries with missing coordinates
+                    }
+    
+                    const sanitizedCoordinates = entry[2].replace(/\\/g, ''); // Remove extra backslashes
+                    const parsedCoordinates = JSON.parse(sanitizedCoordinates);
+    
+                    const type = entry[3] ? entry[3].replace(/['"]/g, '') : null;
+                    if (!type) {
+                        return null; // Silently skip entries with missing type
+                    }
+    
+                    // Handle Polygon and MultiPolygon types
+                    if (type === 'Polygon' || type === 'MultiPolygon') {
+                        if (Array.isArray(parsedCoordinates)) {
+                            if (type === 'Polygon' && parsedCoordinates.length > 0 && Array.isArray(parsedCoordinates[0])) {
+                                coordinates = parsedCoordinates[0].map((coord: any) => {
+                                    if (Array.isArray(coord) && coord.length === 2) {
+                                        const [lon, lat] = coord;
+                                        if (typeof lat === 'number' && typeof lon === 'number') {
+                                            return { latitude: lat, longitude: lon };
+                                        }
+                                    }
+                                    return null;
+                                }).filter((coord) => coord !== null);
+                            } else if (type === 'MultiPolygon') {
+                                parsedCoordinates.forEach((polygon: any) => {
+                                    if (Array.isArray(polygon[0])) {
+                                        const polygonCoordinates = polygon[0].map((coord: any) => {
+                                            if (Array.isArray(coord) && coord.length === 2) {
+                                                const [lon, lat] = coord;
+                                                if (typeof lat === 'number' && typeof lon === 'number') {
+                                                    return { latitude: lat, longitude: lon };
+                                                }
+                                            }
+                                            return null;
+                                        }).filter((coord) => coord !== null);
+                                        coordinates = coordinates.concat(polygonCoordinates); // Concatenate multiple polygons
+                                    }
+                                });
+                            }
+                        } else {
+                            console.error(`Invalid coordinates format for entry with id ${id}:`, parsedCoordinates);
+                        }
+                    } else {
+                        return null; // Silently skip unknown types
+                    }
+                } catch (parseError) {
+                    console.error(`Error parsing coordinates for entry with id ${id}:`, parseError);
+                }
+    
+                return {
+                    id: id,
+                    risk: entry[1] ? entry[1].replace(/['"]/g, '') : 'Unknown', 
+                    coordinates: coordinates.length > 0 ? coordinates : null, 
+                    type: entry[3] ? entry[3].replace(/['"]/g, '') : 'Unknown', 
+                };
+            }).filter((entry) => entry !== null);
+        
+            console.log('Parsed historical data:', parsedHistoricalData);
+            setHistoricalData(parsedHistoricalData); // Set parsed data
+        } catch (error) {
+            console.error('Error fetching historical data:', error);
+        }
+    };
+    
     const updateLocationAndFetchConnections = async () => {
         try {
             let { status } = await Location.requestForegroundPermissionsAsync();
@@ -135,6 +234,27 @@ export default function Index() {
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
             });
+
+            // Check if user is in a flood area
+            const userIsInFloodArea = Object.values(reports).some((report) => {
+                if (!report.coordinates) return false;
+                const [reportLatStr, reportLonStr] = report.coordinates.replace(/[()]/g, '').split(',');
+                const reportLat = parseFloat(reportLatStr);
+                const reportLon = parseFloat(reportLonStr);
+
+                if (isNaN(reportLat) || isNaN(reportLon)) return false;
+
+                const distance = calculateDistance(latitude, longitude, reportLat, reportLon);
+                return distance <= 1; // Proximity threshold in km
+            });
+
+            // Update the state based on the user's proximity to the flood area
+            setIsUserInFloodArea(userIsInFloodArea);
+
+            // If user is too close to a flood zone, change status to "Unsafe"
+            if (userIsInFloodArea) {
+                await sendUnsafeStatus();
+            }
 
             const formData = new FormData();
             formData.append('location', `(${latitude},${longitude})`);
@@ -186,25 +306,92 @@ export default function Index() {
         navigation.navigate('newreport');
     };
 
+    // Get color based on risk level
+    const getPolygonColor = (risk: string): string => {
+        switch (risk.toLowerCase()) {
+            case 'high':
+                return 'rgba(255, 0, 0, 0.5)'; // Red for high risk
+            case 'medium':
+                return 'rgba(255, 165, 0, 0.5)'; // Orange for medium risk
+            case 'low':
+                return 'rgba(255, 255, 0, 0.5)'; // Yellow for low risk
+            default:
+                return 'rgba(0, 0, 255, 0.5)'; // Blue for unknown risk
+        }
+    };
+
+    // Toggle historical data mode
+    const handleHistoricalToggle = () => {
+        if (isHistoricalModeActive) {
+            console.log('Exiting historical mode...');
+            setIsHistoricalModeActive(false);
+            setHistoricalData([]); // Clear historical data when exiting
+        } else {
+            console.log('Entering historical mode...');
+            fetchHistoricalData();
+            setIsHistoricalModeActive(true);
+        }
+    };
+
+    // Display a modal when a polygon is pressed
+    const handlePolygonPress = (risk: string) => {
+        setSelectedPolygonRisk(risk);
+    };
+
+    // Function to send "Unsafe" status
+    const sendUnsafeStatus = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('status', 'Unsafe');
+
+            const response = await fetch('http://54.206.190.121:5000/check_in/send', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                console.error('Failed to send Unsafe status:', response.status);
+            } else {
+                console.log('Unsafe status sent successfully.');
+            }
+        } catch (error) {
+            console.error('Error sending Unsafe status:', error);
+        }
+    };
+
     const handleCheckIn = async (uid: number) => {
         try {
-            // Create a new FormData instance
-            const formData = new FormData();
-            formData.append('notification', 'Are you safe?');
-            formData.append('receiver', String(uid));
+            // Look up the user's name based on the uid
+            const relationship = relationships.find(
+                (rel) => rel.requestee_uid === uid || rel.requester_uid === uid
+            );
     
-            // Send a check-in notification to the selected user
-            await fetch('http://54.206.190.121:5000/notifications/add', {
+            const userName = relationship?.requestee_uid === uid
+                ? relationship?.requestee_name
+                : relationship?.requester_name;
+    
+            const formData = new FormData();
+            formData.append('reciever', String(uid));
+    
+            // Send the check-in notification using the updated API endpoint
+            const response = await fetch('http://54.206.190.121:5000/check_in/send_push', {
                 method: 'POST',
-                body: formData, 
+                body: formData,
             });
     
-            Alert.alert('Check-In Sent', 'Check-in notification sent successfully.');
+            if (response.ok) {
+                Alert.alert('Check-In Sent', `Check-in notification sent to ${userName || 'Unknown User'}.`);
+            } else {
+                console.error('Failed to send check-in notification:', response.status);
+                Alert.alert('Error', 'Failed to send check-in notification.');
+            }
         } catch (error) {
             console.error('Error sending check-in notification:', error);
             Alert.alert('Error', 'Failed to send check-in notification.');
         }
     };
+    
+    
 
     const getAddressFromCoordinates = async (coordinates: string): Promise<string> => {
         try {
@@ -302,41 +489,7 @@ export default function Index() {
         setSelectedReport(null);
         setSelectedConnection(null);
         setSelectedOfficialAlert(null);
-    };
-
-    // Toggle historical data marker
-    const handleHistoricalToggle = () => {
-        setShowHistoricalMarker(!showHistoricalMarker);
-        if (!showHistoricalMarker) {
-            // Set marker in the center of the map
-            setHistoricalMarkerCoords({
-                latitude: region?.latitude || 0,
-                longitude: region?.longitude || 0,
-            });
-        } else {
-            // Remove the marker
-            setHistoricalMarkerCoords(null);
-        }
-    };
-
-    // Function to handle marker drag event
-    const onMarkerDragEnd = (e: any) => {
-        const { latitude, longitude } = e.nativeEvent.coordinate;
-        setHistoricalMarkerCoords({ latitude, longitude });
-        displayCoordinatesAlert(latitude, longitude);
-    };
-
-    // Handle user tap on the map to move the marker
-    const onMapPress = (e: any) => {
-        const { latitude, longitude } = e.nativeEvent.coordinate;
-        setHistoricalMarkerCoords({ latitude, longitude });
-        displayCoordinatesAlert(latitude, longitude);
-    };
-
-    // Helper function to display alert with coordinates
-    const displayCoordinatesAlert = (latitude: number, longitude: number) => {
-        console.log("Marker moved/tapped to:", latitude, longitude);
-        Alert.alert("Coordinates Selected", `Lat: ${latitude}, Long: ${longitude}`);
+        setSelectedPolygonRisk(null);
     };
 
     // Helper function to calculate proximity between two points
@@ -403,10 +556,22 @@ export default function Index() {
                     style={styles.map}
                     customMapStyle={theme.dark ? mapDarkTheme : mapLightTheme}
                     initialRegion={region}
-                    showsUserLocation={true}
+                    showsUserLocation={false}
                     showsMyLocationButton={true}
-                    onPress={showHistoricalMarker ? onMapPress : undefined}  // Only allow tap to place marker if historical mode is active
                 >
+                    {/* Render User's Current Location Marker with Custom Circle */}
+                    {region && (
+                        <Marker
+                            coordinate={{ latitude: region.latitude, longitude: region.longitude }}
+                            title={"Your Location"}
+                        >
+                            <View style={[
+                                styles.circleMarker,
+                                { backgroundColor: isUserInFloodArea ? "maroon" : "green" }
+                                ]} />
+                        </Marker>
+                    )}
+                    
                     {/* Render Flood Report Markers */}
                     {reports && Object.entries(reports).map(([key, report]: [string, any], index) => {
                         if (!report.coordinates) return null;
@@ -457,17 +622,26 @@ export default function Index() {
                         );
                     })}
 
-                    {/* Render Historical Marker (Draggable) */}
-                    {showHistoricalMarker && historicalMarkerCoords && (
-                        <Marker
-                            coordinate={historicalMarkerCoords}
-                            draggable
-                            onDragEnd={onMarkerDragEnd}
-                            title="Move me to select coordinates"
-                        >
-                            <FontAwesome name="map-marker" size={50} color="maroon" />
-                        </Marker>
-                    )}
+                    {/* Render Historical Data as Polygons */}
+                    {historicalData.map((data, index) => {
+                        // Ensure coordinates are not null before rendering the Polygon
+                        if (!data.coordinates) return null;
+
+                        return (
+                            <Polygon
+                                key={index}
+                                coordinates={data.coordinates.map(coord => ({
+                                    latitude: coord.latitude, // Access latitude directly
+                                    longitude: coord.longitude, // Access longitude directly
+                                }))}
+                                strokeColor="rgba(0,0,0,0.5)" // Border color
+                                fillColor={getPolygonColor(data.risk)} // Fill color based on risk
+                                tappable
+                                onPress={() => handlePolygonPress(data.risk)} // Show risk on tap
+                            />
+                        );
+                    })}
+
 
                     {/* Render Connections' Locations with custom pin image */}
                     {connectionLocations.map((connection, index) => {
@@ -488,11 +662,18 @@ export default function Index() {
 
                                 onPress={() => handleConnectionPress(connection)}
                             >
-                                <Image
-                                    source={isInFloodArea ? require('@/assets/images/map-marker-warning.png') : require('@/assets/images/map-marker-default.png')}
-                                    style={{ width: 40, height: 40 }}
-                                    resizeMode="contain"
-                                />
+                                <View style={{
+                                    width: 60, 
+                                    height: 60,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                    <Image
+                                        source={isInFloodArea ? require('@/assets/images/map-marker-warning.png') : require('@/assets/images/map-marker-default.png')}
+                                        style={{ width: 50, height: 50 }}
+                                        resizeMode="contain"
+                                    />
+                                </View>
                             </Marker>
                         );
                     })}
@@ -514,7 +695,7 @@ export default function Index() {
                             <View style={styles.alertContent}>
                                 {/* Row for Warning Icon and Title */}
                                 <View style={styles.alertHeader}>
-                                    <FontAwesome name="exclamation-circle" size={30} color={getFloodColor(selectedReport.title)} />
+                                    <FontAwesome name="exclamation-circle" size={30} color={getFloodColor(selectedReport.type)} />
                                     <Text style={styles.alertTitle}>
                                     {selectedReport.title} | {formatTime(selectedReport.datetime)}
                                     </Text>
@@ -570,6 +751,26 @@ export default function Index() {
                     </Pressable>
                 </Modal>
             )}
+            {/* Modal for showing polygon risk */}
+            {selectedPolygonRisk && (
+                <Modal
+                    transparent={true}
+                    visible={!!selectedPolygonRisk}
+                    animationType="slide"
+                    onRequestClose={closeModal}
+                >
+                    <Pressable style={styles.modalOverlay} onPress={closeModal}>
+                        <View style={styles.alertModal}>
+                            <View style={styles.alertContent}>
+                                <Text style={styles.alertTitle}>Risk Level: {selectedPolygonRisk}</Text>
+                                <Pressable style={styles.alertButton} onPress={closeModal}>
+                                    <Text style={styles.alertButtonText}>Close</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </Pressable>
+                </Modal>
+            )}
             {/* Connection Modal */}
             {selectedConnection && (
                 <Modal
@@ -617,20 +818,12 @@ export default function Index() {
                     <Icon name="report" size={40} color={theme.dark ? "maroon" : "maroon"} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleHistoricalToggle} style={styles.iconButton}>
-                    <Icon name="history" size={40} color={showHistoricalMarker ? "maroon" : "midnightblue"} />
+                    <Icon name="history" size={40} color={isHistoricalModeActive ? "maroon" : "midnightblue"} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={updateLocationAndFetchConnections} style={styles.iconButton}>
                     <Icon name="refresh" size={40} color={theme.dark ? "green" : "green"} />
                 </TouchableOpacity>
             </View>
-
-            {/* Instructions */}
-            {showHistoricalMarker && (
-                <View style={styles.instructionContainer}>
-                    <Text style={styles.instructionText}>Drag the pin or tap on the map to move the marker.</Text>
-                    <Text style={styles.instructionText}>Tap the historical icon again to exit historical mode.</Text>
-                </View>
-            )}
         </View>
     );
 }

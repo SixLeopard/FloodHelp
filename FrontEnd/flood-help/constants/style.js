@@ -82,6 +82,7 @@ const useStyles = () => {
             width: '100%',
             height: '100%',
             flex: 1,
+            ...StyleSheet.absoluteFillObject,
         },
         userPressable: {
             height: 70,
@@ -697,6 +698,22 @@ const useStyles = () => {
             alignItems: 'center',
             marginLeft: 10,
         },
+        safeButton: {
+            flex: 1,
+            backgroundColor: theme.colors.green,  
+            paddingVertical: 12,
+            borderRadius: 7,
+            alignItems: 'center',
+            marginRight: 10,  
+        },
+        unsafeButton: {
+            flex: 1,
+            backgroundColor: theme.colors.red,  
+            paddingVertical: 12,
+            borderRadius: 7,
+            alignItems: 'center',
+            marginLeft: 10,  
+        },
         alertButton: {
             width: '100%',
             paddingVertical: 12,
@@ -720,6 +737,14 @@ const useStyles = () => {
         cardWrapper: {
             width: '100%', 
             marginVertical: 10, 
+        },
+        circleMarker: {
+            width: 20,  // Set the width and height to control the size of the circle
+            height: 20,
+            borderRadius: 10,  // Half of the width and height to make it a circle
+            backgroundColor: 'green', 
+            borderWidth: 2,  // Optional border for the circle
+            borderColor: 'white',  // Color of the border
         },
         successText: colors.text
 
