@@ -202,9 +202,10 @@ const useStyles = () => {
             alignItems: 'center',
         },
         confirmButtonContainer: {
-            marginVertical: 0,  
-            marginHorizontal: 0, 
-            padding: 0, 
+            position: 'absolute',
+            bottom: 20, 
+            left: 20,  
+            right: 20,  
             backgroundColor: 'transparent',
         },
         confirmButton: {
@@ -216,6 +217,7 @@ const useStyles = () => {
             alignItems: 'center',
             borderStyle: "solid",
             borderWidth: 2,
+            borderRadius: 8,
             borderColor: colors.green,
             padding: 5, 
             paddingHorizontal: 20,
