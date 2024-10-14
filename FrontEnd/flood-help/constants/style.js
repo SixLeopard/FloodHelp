@@ -746,6 +746,48 @@ const useStyles = () => {
             width: '100%', 
             marginVertical: 10, 
         },
+        successText: colors.text,
+
+        updateStatusBox: {
+            flexDirection: "row",
+
+        },
+
+        SafeStatus_Button: {
+            backgroundColor: colors.green,
+            height: 40,
+            display: "flex",
+            flexBasis: 'auto',
+            flexDirection: "row",
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center',
+            borderStyle: "solid",
+            borderWidth: 2,
+            borderColor: colors.green,
+            borderRadius: 10,
+            margin: 4,
+            padding: 5,
+            paddingHorizontal: 10,
+        },
+
+        DefaultStatus_Button: {
+            backgroundColor: colors.red,
+            height: 40,
+            display: "flex",
+            flexBasis: 'auto',
+            flexDirection: "row",
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center',
+            borderStyle: "solid",
+            borderWidth: 2,
+            borderColor: colors.red,
+            borderRadius: 10,
+            margin: 4,
+            padding: 5,
+            paddingHorizontal: 10,
+        },
         circleMarker: {
             width: 20,  // Set the width and height to control the size of the circle
             height: 20,
@@ -754,8 +796,6 @@ const useStyles = () => {
             borderWidth: 2,  // Optional border for the circle
             borderColor: 'white',  // Color of the border
         },
-        successText: colors.text
-
 
     });
 };
