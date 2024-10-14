@@ -115,9 +115,9 @@ def check_point_test(point: tuple):
 
 #(153.016861, -27.499547)
 # Example point
-point = (153.016861, -27.499547)
+#point = (153.016861, -27.499547)
 
-print(check_point_test(point))
+#print(check_point_test(point))
 
 # Test for polygon
 #print(is_point_in_polygon_or_multipolygon('polygon', polygon_coords, point))
