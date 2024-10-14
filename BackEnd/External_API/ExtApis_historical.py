@@ -66,8 +66,8 @@ def check_point(point: tuple):
         # Attempt to parse
         try:
             coords = ast.literal_eval(coords)
-            print(coords)
-            print(type)
+            print(type(coords))
+            print(type(coords[0]))
             break
             if (is_point_in_polygon_or_multipolygon(type, coords, point)):
                 return row
@@ -96,6 +96,9 @@ def check_point_test(point: tuple):
         # Attempt to parse
         try:
             coords = ast.literal_eval(coords)
+            print(coords)
+            print(type)
+            break
             if (is_point_in_polygon_or_multipolygon(type, coords, point)):
                 return row
         except SyntaxError as e:
