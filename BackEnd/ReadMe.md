@@ -7,7 +7,7 @@ the code for accsessing and interfacing with the external apis under External_AP
 getting setup to run, test and develop the backend. This is intended to be run on linux, modifcations to some of the setup will need to be modified if you want to run it on windows.
 
 ## if you just want to run the app
-if you just want to try out the app the setup od the backend isnt nesscary as there is a instance of it already running at http://54.206.190.121:5000/ and the app will just atomatically connect to that without having to do any other setup onthe beackend or front end
+if you just want to try out the app the setup od the backend isnt nesscary as there is a instance of it already running at http://54.206.190.121:5000/ and the app will just atomatically connect to that without having to do any other setup on the beackend or front end
 
 ### Setting up Postgres Database
 setup a postgres database, either self hosting or using a service like amazon rds
