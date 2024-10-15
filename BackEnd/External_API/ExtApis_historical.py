@@ -15,6 +15,8 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from External_API.database import database_interface as db
+from Tools.CoordString_to_Tuple import convert
+
 # Sample method to check if a point is inside a polygon or multipolygon
 def is_point_in_polygon_or_multipolygon(geometry_type, geometry_coords, point):
     """
@@ -52,12 +54,12 @@ def is_point_in_polygon_or_multipolygon(geometry_type, geometry_coords, point):
         raise ValueError("Invalid geometry type: must be 'polygon' or 'multipolygon'")
 
 
-def check_point(point: tuple):
+def check_point(point):
     """
     Check if a given point is inside any polygon or multipolygon in the historical data.
 
     Parameters:
-    - point (tuple): A tuple representing the point to be checked, in the format (longitude, latitude).
+    - point (string): A tuple representing the point to be checked, in the format (longitude, latitude).
 
     Returns:
     - tuple or None: Returns the database row (tuple) where the point is contained within the polygon or multipolygon. 
@@ -65,7 +67,9 @@ def check_point(point: tuple):
 
     """
     historical = db.get_historical_data()
-
+    point = (float(point.split(',')[0].strip('(), ')), \
+                   float(point.split(',')[1].strip('(), ')))
+    
     for row in historical:
         coords = row[2]
         geo_type = row[3]
