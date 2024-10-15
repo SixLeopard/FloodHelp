@@ -67,7 +67,6 @@ def test_delete_expired_alerts():
 
 
 
-
 # test_create_user()
 # test_relationships()
 # test_select()
