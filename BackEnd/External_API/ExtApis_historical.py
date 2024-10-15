@@ -17,7 +17,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from External_API.database import database_interface as db
 from Tools.CoordString_to_Tuple import convert
 
-# Sample method to check if a point is inside a polygon or multipolygon
+
 def is_point_in_polygon_or_multipolygon(geometry_type, geometry_coords, point):
     """
     Check if a point is within a polygon or multipolygon, handling 3D nested list structures.
@@ -80,7 +80,15 @@ def check_point(point):
             coords = list(coords)
 
             if (is_point_in_polygon_or_multipolygon(geo_type, coords, point)):
-                return row
+                # Convert row tuple to dictionary before returning
+                row_dict = {
+                    "id": row[0],
+                    "risk": row[1],
+                    "coordinates": row[2],
+                    "geo_type": row[3],
+                    # Add additional row fields here if applicable
+                }
+                return json.dumps(row_dict)
         except SyntaxError as e:
             k = 0
     
