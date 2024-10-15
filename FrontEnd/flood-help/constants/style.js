@@ -796,7 +796,22 @@ const useStyles = () => {
             borderWidth: 2,  // Optional border for the circle
             borderColor: 'white',  // Color of the border
         },
-
+        riskContainer: {
+            position: 'absolute',
+            bottom: 100, 
+            left: 10,
+            right: 10,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            padding: 10,
+            borderRadius: 8,
+            zIndex: 1,
+        },
+        riskInfo: {
+            fontSize: 14, 
+            color: '#333',
+            textAlign: 'center',
+            marginBottom: 5, 
+        },
     });
 };
 

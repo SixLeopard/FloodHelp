@@ -75,6 +75,9 @@ export default function Index() {
     const [selectedOfficialAlert, setSelectedOfficialAlert] = useState<OfficialAlert | null>(null); // Selected alert
     const [showHistoricalMarker, setShowHistoricalMarker] = useState(false); // Toggle for historical marker
     const [historicalMarkerCoords, setHistoricalMarkerCoords] = useState<{ latitude: number; longitude: number; } | null>(null); // Coordinates for historical marker
+    const [polygonCoords, setPolygonCoords] = useState<{ latitude: number; longitude: number; }[]>([]);
+    const [riskLevel, setRiskLevel] = useState<string | null>(null);
+    const [geoType, setGeoType] = useState<string | null>(null);
 
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { user } = useAuth(); // Authentication context to get the current user
@@ -117,6 +120,93 @@ export default function Index() {
         } catch (error) {
             console.error('Error fetching official alerts:', error);
             setOfficialAlerts([]);
+        }
+    };
+
+    // Function to handle Polygon or MultiPolygon data
+    const processPolygonData = (data: any) => {
+        let { coordinates: coordinatesString, geo_type, risk } = data;
+    
+        // Check if coordinates and geo_type exist
+        if (!coordinatesString || !geo_type || !risk) {
+            console.log("No historical risk available for this area.");
+            setRiskLevel("No historical risk available for this area.");
+            return;
+        }
+    
+        // Remove extra quotes from geo_type
+        geo_type = geo_type.replace(/['"]+/g, '');
+        risk = risk.replace(/['"]+/g, '');
+    
+        // Parse the coordinates string into an array
+        let coordinates;
+        try {
+            coordinates = typeof coordinatesString === 'string' ? JSON.parse(coordinatesString) : coordinatesString;
+        } catch (error) {
+            console.error('Error parsing coordinates:', error);
+            console.log("No valid coordinates found.");
+            return;
+        }
+    
+        let polygonCoords: { latitude: number; longitude: number }[] = [];
+    
+        // Helper function to extract and flatten coordinates
+        const extractCoordinates = (coords: any[]) => {
+            coords.forEach((ring: any[]) => {
+                ring.forEach(([longitude, latitude]: [number, number]) => {
+                    polygonCoords.push({ latitude, longitude });
+                });
+            });
+        };
+    
+        // Handle MultiPolygon
+        if (geo_type === 'MultiPolygon') {
+            coordinates.forEach((polygon: any[]) => {
+                polygon.forEach((ring: any[]) => {
+                    extractCoordinates([ring]); // Flatten the coordinates
+                });
+            });
+        }
+        // Handle Polygon
+        else if (geo_type === 'Polygon') {
+            extractCoordinates(coordinates);
+        } else {
+            console.log("Geo type is not recognized. No historical risk data available.");
+            return;
+        }
+    
+        // Set the polygon coordinates or handle no data case
+        if (polygonCoords.length > 0) {
+            setPolygonCoords(polygonCoords);
+            console.log('Updated Polygon Coordinates:', polygonCoords); 
+            setRiskLevel(risk);  // Set the risk level
+        } else {
+            console.log("No valid coordinates found.");
+            setRiskLevel("No historical risk available for this area."); // Set risk level to default if no coordinates are found
+        }
+        };
+    
+    // Call this function after receiving polygon data from the API
+    const fetchPolygonData = async (latitude: number, longitude: number) => {
+        try {
+            const formData = new FormData();
+            formData.append('coordinate', `(${longitude},${latitude})`);
+
+            const response = await fetch('http://54.206.190.121:5000/externalData/get_polygon', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+            console.log('Polygon Data:', data);
+
+            if (data) {
+                processPolygonData(data);
+            } else {
+                console.error('Invalid polygon data structure:', data);
+            }
+        } catch (error) {
+            console.error('Error fetching polygon data:', error);
         }
     };
     
@@ -401,6 +491,9 @@ export default function Index() {
         const { latitude, longitude } = e.nativeEvent.coordinate;
         setHistoricalMarkerCoords({ latitude, longitude });
         displayCoordinatesAlert(latitude, longitude);
+    
+        // Fetch polygon data after marker is dragged
+        fetchPolygonData(latitude, longitude);
     };
 
     // Handle user tap on the map to move the marker
@@ -408,8 +501,10 @@ export default function Index() {
         const { latitude, longitude } = e.nativeEvent.coordinate;
         setHistoricalMarkerCoords({ latitude, longitude });
         displayCoordinatesAlert(latitude, longitude);
+    
+        // Fetch polygon data when user taps on the map
+        fetchPolygonData(latitude, longitude);
     };
-
     // Helper function to display alert with coordinates
     const displayCoordinatesAlert = (latitude: number, longitude: number) => {
         console.log("Marker moved/tapped to:", latitude, longitude);
@@ -431,8 +526,10 @@ export default function Index() {
                 longitude: region?.longitude || 0,
             });
         } else {
-            // Remove the marker
+            // Remove the marker and polygon coordinates
             setHistoricalMarkerCoords(null);
+            setPolygonCoords([]); // Reset polygon coordinates
+            setRiskLevel(null); // Reset risk level when historical mode is closed
         }
     };
 
@@ -528,7 +625,14 @@ export default function Index() {
                             </Marker>
                         );
                     })}
-
+                    {/* Render Polygon on the map if available */}
+                    {polygonCoords.length > 0 && (
+                        <Polygon
+                            coordinates={polygonCoords}
+                            strokeColor="maroon"  
+                            fillColor="rgba(128, 0, 0, 0.3)"  
+                        />
+                    )}
                     {/* Render Historical Marker (Draggable) */}
                     {showHistoricalMarker && historicalMarkerCoords && (
                         <Marker
@@ -702,6 +806,15 @@ export default function Index() {
                 </TouchableOpacity>
             </View>
 
+            {/* Display Risk Information on Top of Instructions */}
+            {showHistoricalMarker && (
+                <View style={styles.riskContainer}>
+                    <Text style={styles.riskInfo}>
+                        {riskLevel ? `Risk Level: ${riskLevel}` : "Historical risk will be displayed here."}
+                    </Text>
+                </View>
+            )}
+
             {/* Instructions */}
             {showHistoricalMarker && (
                 <View style={styles.instructionContainer}>
@@ -709,7 +822,6 @@ export default function Index() {
                     <Text style={styles.instructionText}>Tap the historical icon again to exit historical mode.</Text>
                 </View>
             )}
-
         </View>
     );
 }
