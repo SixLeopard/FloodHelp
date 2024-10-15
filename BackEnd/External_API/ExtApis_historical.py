@@ -92,7 +92,7 @@ def check_point(point):
         except SyntaxError as e:
             k = 0
     
-    return None
+    return "Nothing Found"
 
 
 
