@@ -15,7 +15,7 @@ externalData_routes = Blueprint("externalData_routes", __name__)
 
 
 
-@externalData_routes.route("/externalData/get_polygon", methods = ['GET'])
+@externalData_routes.route("/externalData/get_polygon", methods = ['POST'])
 def get_polygon():
     '''
         Gets the corresponding polygon that a coordinate is in.
@@ -29,7 +29,7 @@ def get_polygon():
             no login: {"invalid_account":1}
             not using GET: {"invalid_request":1}
     '''
-    if request.method == 'GET':    
+    if request.method == 'POST':    
         coordinate = request.form.get('coordinate')    
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
