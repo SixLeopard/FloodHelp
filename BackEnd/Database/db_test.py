@@ -67,7 +67,7 @@ def test_delete_expired_alerts():
 
 
 
-
+print(ExtApis_historical.check_point((153.016861, -27.499547)))
 # test_create_user()
 # test_relationships()
 # test_select()
