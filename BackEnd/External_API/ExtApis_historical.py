@@ -69,6 +69,11 @@ def check_point(point):
     historical = db.get_historical_data()
     coords = (float(point.split(',')[0].strip('(), ')), \
                    float(point.split(',')[1].strip('(), ')))
+    print(coords)
+    print(type(coords))
+    coords = tuple(coords)
+    print(coords)
+    print(type(coords))
     for row in historical:
         coords = row[2]
         geo_type = row[3]
