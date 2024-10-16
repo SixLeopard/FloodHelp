@@ -40,13 +40,18 @@ npm install -g expo-cli
 
 # Installation
 
-1. Navigate to the project directory:
+## 0. Updating API endpoint (optional)
+If you are running our api server yourself (see /Backend/ReadMe.md for details on how to setup) and want the app to use it (this will be required once we stop the aws instance that is running the public api server next year) you will need to change some configs in the code. 
+#### update endpoint in code
+open FrontEnd/flood-help/hooks/useAPI.js and change 'http://54.206.190.121:5000 on line 5 to the address of your running API serve
+
+## 1. Navigate to the project directory:
 
 ``` bash
 cd FrontEnd/flood-help
 ```
 
-2. Install dependencies: The project uses npm or yarn to manage dependencies. You can install all dependencies using:
+## 2. Install dependencies: The project uses npm or yarn to manage dependencies. You can install all dependencies using:
 
 ``` bash
 npm install
@@ -60,13 +65,13 @@ yarn install
 
 # Running the app
 
-1. Start the Expo Development Server:
+## 1. Start the Expo Development Server:
 
 ``` bash
 npx expo start
 ```
 
-2. Run on your mobile device:
+## 2. Run on your mobile device:
 
 Download Expo Go from the App Store or Google Play.
 
@@ -76,13 +81,10 @@ Scan the QR code provided by Expo after running the expo start command.
 
 This project consumes several backend API endpoints to fetch flood reports, real-time alerts, and historical flood data, etc. 
 
-Example API call:
+## Example API call:
 
 ``` javascript
 const response = await fetch(`http://54.206.190.121:5000/externalData/get_alerts`, {
     method: 'GET',
 });
 ```
-
-
-
