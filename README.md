@@ -20,7 +20,7 @@ information about the front aswell as a setup guide
 list of all the dependencies for the entire project
 
 # How to setup and run project
-## Running just the App using out publically hosted version of the API
+## Running just the App using our publically hosted version of the API
 follow the setup instructions in /FontEnd/flood-help/README.md ignoring step 0
 ## Running just the API server
 follow the setup instructions in /BackEnd/README.md
