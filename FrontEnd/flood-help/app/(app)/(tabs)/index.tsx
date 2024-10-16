@@ -75,9 +75,10 @@ export default function Index() {
     const [selectedOfficialAlert, setSelectedOfficialAlert] = useState<OfficialAlert | null>(null); // Selected alert
     const [showHistoricalMarker, setShowHistoricalMarker] = useState(false); // Toggle for historical marker
     const [historicalMarkerCoords, setHistoricalMarkerCoords] = useState<{ latitude: number; longitude: number; } | null>(null); // Coordinates for historical marker
-    const [polygonCoords, setPolygonCoords] = useState<{ latitude: number; longitude: number; }[]>([]);
-    const [riskLevel, setRiskLevel] = useState<string | null>(null);
-    const [geoType, setGeoType] = useState<string | null>(null);
+    const [polygonCoords, setPolygonCoords] = useState<{ latitude: number; longitude: number; }[]>([]); // To store polygon coordinates
+    const [riskLevel, setRiskLevel] = useState<string | null>(null); // To store risk level
+    const [validationScore, setValidationScore] = useState<number | null>(null); // To store the validation score
+
 
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { user } = useAuth(); // Authentication context to get the current user
@@ -89,11 +90,46 @@ export default function Index() {
                 method: 'GET',
             });
             const reportsData = await response.json();
-            setReports(reportsData); 
-            console.log('Fetched Flood Reports:', reportsData);
+
+            // Convert the array of reports into an object with report_id as keys
+            const mappedReports = Object.keys(reportsData).reduce((acc, reportId) => {
+                acc[reportId] = {
+                    report_id: reportId,  // Include the report_id
+                    ...reportsData[reportId],  // Spread the other data like datetime, title, type, etc.
+                };
+                return acc;
+            }, {} as { [key: string]: Report });
+
+            setReports(mappedReports); 
+            console.log('Fetched Flood Reports with Report IDs:', mappedReports);
         } catch (error) {
             console.error('Error fetching flood reports:', error);
             setReports({});
+        }
+    };
+
+    // Function to fetch validation score based on report_id
+    const fetchValidationScore = async (reportId: number) => {
+        try {
+            const formData = new FormData();
+            formData.append('report_id', String(reportId));
+
+            const response = await fetch('http://54.206.190.121:5000/reporting/user/get_report_validation_score', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const scoreData = await response.json();
+            if (scoreData[reportId]) {
+                const score = scoreData[reportId][0];
+                setValidationScore(score);
+            } else {
+                setValidationScore(null); // Reset score if not available
+            }
+
+            console.log('Validation Score:', scoreData);
+        } catch (error) {
+            console.error('Error fetching validation score:', error);
         }
     };
 
@@ -392,15 +428,20 @@ export default function Index() {
     };
 
     // Function to handle when a flood report marker is pressed
-    const handleMarkerPress = async (report: Report) => {
+    const handleMarkerPress = async (report: any) => {
         try {
             const location = await getAddressFromCoordinates(report.coordinates);
             setSelectedReport({ ...report, location }); // Include the fetched location
+        
+            const reportId = report.report_id;  // Use the report_id from the fetched report data
+            await fetchValidationScore(reportId);  // Fetch validation score using the report_id
+
             setShowAlertModal(true);
         } catch (error) {
-            console.error('Error fetching location for report:', error);
+            console.error('Error fetching location or validation score for report:', error);
         }
     };
+
 
     // Function to handle when an official alert marker is pressed
     const handleOfficialAlertPress = (alert: OfficialAlert) => {
@@ -706,6 +747,13 @@ export default function Index() {
                                 <Text style={styles.alertDescription}>
                                     {selectedReport.type} was reported at {selectedReport.location || 'Unknown Location'} on {selectedReport.datetime}.
                                 </Text>
+
+                                {/* Display Validation Score */}
+                                {validationScore !== null && (
+                                    <Text style={styles.alertDescription}>
+                                        Report Accuracy Score: {validationScore}
+                                    </Text>
+                                )}
     
                                 {/* Got it Button */}
                                 <Pressable style={styles.alertButton} onPress={closeModal}>

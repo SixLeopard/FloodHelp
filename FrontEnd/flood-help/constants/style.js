@@ -683,6 +683,7 @@ const useStyles = () => {
             textAlign: 'center',
             color: theme.colors.text,  
             marginLeft: 10,  
+            marginRight: 10,
         },
         alertDescription: {
             fontSize: 16,
