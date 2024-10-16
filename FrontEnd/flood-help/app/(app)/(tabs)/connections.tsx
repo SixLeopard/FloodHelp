@@ -83,10 +83,13 @@ const Connections = () => {
                     <Text style={styles.bodyText}>No Pending Connection Requests</Text>
                 )}
             </ScrollView>
+
+            <Text/>
             <FH_Button
                 route="/newConnections"
                 text="Add New Connections"
             />
+            <Text/>
         </View>
     );
 };

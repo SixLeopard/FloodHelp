@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, Alert, ActivityIndicator, ScrollView, RefreshControl, BackHandler } from 'react-native';
 import useStyles from "@/constants/style";
@@ -68,43 +67,80 @@ const Notifications = () => {
         setLoading(false);
     };
 
-    // Fetch notifications
-const fetchNotifications = async () => {
-    try {
-        const response = await fetch('http://54.206.190.121:5000/notifications/get', {
-            method: 'GET',
-        });
-
-        // Ensure the response is parsed directly as JSON
-        const data = await response.json();
-        console.log('Parsed Notification Data:', data);
-
-        // Sanitize the content by replacing single quotes with double quotes
-        const notificationsString = data['current pending notifications'];
-        const sanitizedNotifications = notificationsString.replace(/'/g, '"'); // Replace single quotes with double quotes
-
+    // Fetch notifications and replace UID with the corresponding username
+    const fetchNotifications = async () => {
         try {
-            // Now parse the sanitized string as JSON
-            const notificationsArray = JSON.parse(sanitizedNotifications);
+            const response = await fetch('http://54.206.190.121:5000/notifications/get', {
+                method: 'GET',
+            });
 
-            if (notificationsArray.length > 0) {
-                const formattedNotifications = notificationsArray.map((notificationContent: string) => ({
-                    type: 'user',
-                    content: notificationContent,
-                    timeOfNotification: new Date().toISOString(),
-                }));
-                setNotifications(formattedNotifications);
-            } else {
-                setNotifications([]);
+            const data = await response.json();
+            console.log('Parsed Notification Data:', data);
+
+            const notificationsString = data['current pending notifications'];
+            const sanitizedNotifications = notificationsString.replace(/'/g, '"');
+            console.log('Sanitized Notifications:', sanitizedNotifications);
+
+            try {
+                const notificationsArray = JSON.parse(sanitizedNotifications);
+                console.log('Notifications Array:', notificationsArray);
+
+                if (notificationsArray.length > 0) {
+                    const formattedNotifications = notificationsArray.map((notificationContent: string) => {
+                        const uidMatch = notificationContent.match(/(\d+)\s+has/);
+                        let userName = 'Unknown User';
+
+                        if (uidMatch) {
+                            const uid = uidMatch[1]; 
+                            const userStatus = checkInStatuses.find(status => status.uid === parseInt(uid));
+
+                            if (userStatus) {
+                                userName = userStatus.name;
+                            }
+                            notificationContent = notificationContent.replace(uid, userName);
+                        }
+
+                        return {
+                            type: 'user',
+                            content: notificationContent,
+                            timeOfNotification: new Date().toISOString(),
+                        };
+                    });
+
+                    setNotifications(formattedNotifications);
+                } else {
+                    setNotifications([]);
+                }
+            } catch (parseError) {
+                console.error('Error parsing notifications array:', parseError);
             }
-        } catch (parseError) {
-            console.error('Error parsing notifications array:', parseError);
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
         }
-    } catch (error) {
-        console.error('Error fetching notifications:', error);
-    }
-};
+    };
 
+    // Handle status update
+    const updateNotificationStatus = async (status: string) => {
+        try {
+            const formData = new FormData();
+            formData.append('status', status);
+
+            const response = await fetch('http://54.206.190.121:5000/check_in/send', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                Alert.alert(`Status updated to ${status}.`);
+            } else {
+                throw new Error('Failed to update status.');
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+            Alert.alert('Error', 'Failed to update status.');
+        }
+    };
 
     // Fetch official flood alerts
     const fetchFloodAlerts = async () => {
@@ -128,21 +164,6 @@ const fetchNotifications = async () => {
             setFloodAlerts(formattedFloodAlerts);
         } catch (error) {
             console.error('Error fetching flood alerts:', error);
-        }
-    };
-
-    // Fetch reported flood details
-    const fetchFloodReports = async () => {
-        try {
-            const response = await fetch('http://54.206.190.121:5000/reporting/user/get_all_report_details', {
-                method: 'GET',
-            });
-            const floodReportsData = await response.json();
-            const formattedReports = Object.values(floodReportsData) as FloodReport[];
-
-            setFloodReports(formattedReports);
-        } catch (error) {
-            console.error('Error fetching flood reports:', error);
         }
     };
 
@@ -174,19 +195,21 @@ const fetchNotifications = async () => {
         fetchData().then(() => setRefreshing(false));
     }, []);
 
-    // Handle check-in submission
+    // Handle check-in submission with user's name
     const handleCheckIn = (receiverUid: string) => {
+        // Look up the name based on the receiverUid
+        const userStatus = checkInStatuses.find(status => status.uid === parseInt(receiverUid));
+        const userName = userStatus?.name || "Unknown User";
+
         const formData = new FormData();
-        formData.append('notification', 'Are you safe?');
-        formData.append('receiver', receiverUid);
-    
-        fetch('http://54.206.190.121:5000/notifications/add', {
+        formData.append('reciever', receiverUid); 
+
+        fetch('http://54.206.190.121:5000/check_in/send_push', { 
             method: 'POST',
-            body: formData,  
+            body: formData,
         })
         .then(async (response) => {
             if (response.ok) {
-                // Check if the content is actually JSON
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.indexOf('application/json') !== -1) {
                     return response.json(); 
@@ -199,12 +222,14 @@ const fetchNotifications = async () => {
         })
         .then((data) => {
             console.log('Notification response:', data);
-            Alert.alert('Notification sent', 'Check-in request sent successfully.');
+            Alert.alert('Check-In Sent', `Check-in notification sent to ${userName}.`);
         })
         .catch((error) => {
             console.error('Error sending check-in notification:', error);
         });
     };
+
+
     
     // Handle back button press
     useFocusEffect(
@@ -251,35 +276,11 @@ const fetchNotifications = async () => {
                                 <View key={index} style={styles.cardWrapper}>
                                     <NotificationCard
                                         type="user"
-                                        title="Notification"
+                                        title="Notification | Received"
                                         body={notification.content}
                                         timeOfNotification={new Date(notification.timeOfNotification).toLocaleTimeString()}
-                                        onCheckIn={undefined}
-                                        onViewMap={undefined}
-                                    />
-                                </View>
-                            ))}
-
-                            {floodAlerts.map((alert, index) => (
-                                <View key={index} style={styles.cardWrapper}>
-                                    <NotificationCard
-                                        type="warning"
-                                        title={`Official Flood Alert | ${alert.area}`}
-                                        body={`Risk: ${alert.riskLevel}, Certainty: ${alert.certainty}`}
-                                        timeOfNotification={new Date(alert.effectiveFrom).toLocaleTimeString()}
-                                        onCheckIn={undefined}
-                                        onViewMap={undefined}
-                                    />
-                                </View>
-                            ))}
-
-                            {floodReports.map((report, index) => (
-                                <View key={index} style={styles.cardWrapper}>
-                                    <NotificationCard
-                                        type="warning"
-                                        title={`Reported Flood | ${report.title || "Unknown"}`}
-                                        body={`Description: ${report.description || "No description provided"}`}
-                                        timeOfNotification={report.datetime}
+                                        onSafe={() => updateNotificationStatus('Safe')}
+                                        onUnsafe={() => updateNotificationStatus('Unsafe')}
                                         onCheckIn={undefined}
                                         onViewMap={undefined}
                                     />
@@ -293,8 +294,41 @@ const fetchNotifications = async () => {
                                         title={`Check-In Status | ${status.name}`}
                                         body={`Status: ${status.status}`}
                                         timeOfNotification={new Date(status.updateTime).toLocaleTimeString()}
-                                        onCheckIn={() => {}}
+                                        onCheckIn={() => handleCheckIn(String(status.uid))} 
                                         onViewMap={() => navigation.navigate('index')}
+                                        onSafe={undefined}
+                                        onUnsafe={undefined}
+                                    />
+                                </View>
+                            ))}
+
+
+                            {floodAlerts.map((alert, index) => (
+                                <View key={index} style={styles.cardWrapper}>
+                                    <NotificationCard
+                                        type="warning"
+                                        title={`Official Flood Alert | ${alert.area}`}
+                                        body={`Risk: ${alert.riskLevel}, Certainty: ${alert.certainty}`}
+                                        timeOfNotification={new Date(alert.effectiveFrom).toLocaleTimeString()}
+                                        onCheckIn={undefined}
+                                        onViewMap={undefined}
+                                        onSafe={undefined}
+                                        onUnsafe={undefined}
+                                    />
+                                </View>
+                            ))}
+
+                            {floodReports.map((report, index) => (
+                                <View key={index} style={styles.cardWrapper}>
+                                    <NotificationCard
+                                        type="warning"
+                                        title={`Reported Flood | ${report.title || "Unknown"}`}
+                                        body={`Description: ${report.description || "No description provided"}`}
+                                        timeOfNotification={report.datetime}
+                                        onCheckIn={undefined}
+                                        onViewMap={undefined}
+                                        onSafe={undefined}
+                                        onUnsafe={undefined}
                                     />
                                 </View>
                             ))}
