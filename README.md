@@ -12,8 +12,10 @@ contains all general backend information aswell as a guide to
 setup the api server
 #### /BackEnd/API/README.md
 contains all the api routes, there inputs and there outputs
+#### /BackEnd/Docker/README.md
+contains a setup guide on how to use docker to run the backend api instead of having to manually setup
 #### /FontEnd/flood-help/README.md
-General README for front end
+information about the front aswell as a setup guide
 #### /Dependencies.md
 list of all the dependencies for the entire project
 
