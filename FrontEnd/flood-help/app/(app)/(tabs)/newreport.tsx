@@ -28,6 +28,12 @@ const NewReport = () => {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
 
+    // Function to handle refresh
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchCurrentLocation().then(() => setRefreshing(false));
+    }, []);
+    
     // Fetch current location when component loads
     useEffect(() => {
         fetchCurrentLocation();
@@ -59,12 +65,6 @@ const NewReport = () => {
             setLocation('Error fetching location');
         }
     };
-
-    // Function to handle refresh
-    const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        fetchCurrentLocation().then(() => setRefreshing(false));
-    }, []);
 
     // Function to handle location selection
     const handleLocationPress = () => {
