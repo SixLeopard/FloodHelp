@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Alert, TouchableOpacity, Text, ActivityIndicator, Image } from "react-native";
+import { View, Alert, TouchableOpacity, Text, ActivityIndicator, Image, BackHandler } from "react-native";
 import useStyles from "@/constants/style";
 import MapView, { Marker, Region, MapPressEvent } from "react-native-maps";
 import {mapLightTheme, mapDarkTheme} from "@/constants/Themes"
@@ -23,6 +23,7 @@ export default function MapScreen() {
     const [region, setRegion] = useState<Region | null>(null); // Stores the map region (latitude, longitude, etc.)
     const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null); // Stores the selected map coordinates
     const [loading, setLoading] = useState<boolean>(false); // Manages loading state
+    const [address, setAddress] = useState<string>(''); 
 
     useEffect(() => {
         // Function to request location permission and fetch user's current location
@@ -52,8 +53,24 @@ export default function MapScreen() {
             }
         };
 
+        // Handle Android back button press
+        const handleBackPress = () => {
+            // If location is selected, navigate to 'newreport' and pass the location parameter
+            if (selectedLocation && address) {
+                navigation.navigate('newreport', { location: address });
+            } else {
+                navigation.navigate('newreport', { location: 'Unknown Location' });
+            }
+            return true; // Prevent the default back action
+        };
+
         requestLocationPermission(); // Call the location permission function when the component mounts
-    }, []);
+
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+        // Cleanup function to remove back button listener on unmount
+        return () => backHandler.remove();
+    }, [selectedLocation, address]);
 
     // Function to handle map press events (when the user selects a location)
     const handleMapPress = (event: MapPressEvent) => {

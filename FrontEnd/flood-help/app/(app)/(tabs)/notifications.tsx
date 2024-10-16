@@ -61,6 +61,12 @@ const Notifications = () => {
         fetchData();
     }, []);
 
+    // Refresh function for pull-to-refresh
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchData().then(() => setRefreshing(false));
+    }, []);
+
     // Fetch data function
     const fetchData = async () => {
         await Promise.all([fetchNotifications(), fetchFloodAlerts(), fetchCheckInStatuses()]);
@@ -188,12 +194,6 @@ const Notifications = () => {
             console.error('Error fetching check-in statuses:', error);
         }
     };
-
-    // Refresh function for pull-to-refresh
-    const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        fetchData().then(() => setRefreshing(false));
-    }, []);
 
     // Handle check-in submission with user's name
     const handleCheckIn = (receiverUid: string) => {

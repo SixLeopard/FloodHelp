@@ -75,12 +75,32 @@ export default function Index() {
     const [selectedOfficialAlert, setSelectedOfficialAlert] = useState<OfficialAlert | null>(null); // Selected alert
     const [showHistoricalMarker, setShowHistoricalMarker] = useState(false); // Toggle for historical marker
     const [historicalMarkerCoords, setHistoricalMarkerCoords] = useState<{ latitude: number; longitude: number; } | null>(null); // Coordinates for historical marker
-    const [polygonCoords, setPolygonCoords] = useState<{ latitude: number; longitude: number; }[]>([]);
-    const [riskLevel, setRiskLevel] = useState<string | null>(null);
-    const [geoType, setGeoType] = useState<string | null>(null);
+    const [polygonCoords, setPolygonCoords] = useState<{ latitude: number; longitude: number; }[]>([]); // To store polygon coordinates
+    const [riskLevel, setRiskLevel] = useState<string | null>(null); // To store risk level
+    const [validationScore, setValidationScore] = useState<number | null>(null); // To store the validation score
+
 
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { user } = useAuth(); // Authentication context to get the current user
+
+    // useEffect hook to trigger location and data fetching when user logs in
+    useEffect(() => {
+        console.log("useEffect triggered with user:", user);
+        if (!user) return;
+    
+        // Fetch data when the user logs in
+        const fetchData = async () => {
+            try {
+                await updateLocationAndFetchConnections();
+                await fetchReports();
+                await fetchOfficialAlerts();
+            } catch (error) {
+                console.error('Error fetching data on user login:', error);
+            }
+        };
+    
+        fetchData();
+    }, [user]);
 
     // Function to fetch all reports from the server
     const fetchReports = async () => {
@@ -89,11 +109,46 @@ export default function Index() {
                 method: 'GET',
             });
             const reportsData = await response.json();
-            setReports(reportsData); 
-            console.log('Fetched Flood Reports:', reportsData);
+
+            // Convert the array of reports into an object with report_id as keys
+            const mappedReports = Object.keys(reportsData).reduce((acc, reportId) => {
+                acc[reportId] = {
+                    report_id: reportId,  // Include the report_id
+                    ...reportsData[reportId],  // Spread the other data like datetime, title, type, etc.
+                };
+                return acc;
+            }, {} as { [key: string]: Report });
+
+            setReports(mappedReports); 
+            console.log('Fetched Flood Reports with Report IDs:', mappedReports);
         } catch (error) {
             console.error('Error fetching flood reports:', error);
             setReports({});
+        }
+    };
+
+    // Function to fetch validation score based on report_id
+    const fetchValidationScore = async (reportId: number) => {
+        try {
+            const formData = new FormData();
+            formData.append('report_id', String(reportId));
+
+            const response = await fetch('http://54.206.190.121:5000/reporting/user/get_report_validation_score', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const scoreData = await response.json();
+            if (scoreData[reportId]) {
+                const score = scoreData[reportId][0];
+                setValidationScore(score);
+            } else {
+                setValidationScore(null); // Reset score if not available
+            }
+
+            console.log('Validation Score:', scoreData);
+        } catch (error) {
+            console.error('Error fetching validation score:', error);
         }
     };
 
@@ -232,8 +287,8 @@ export default function Index() {
                 longitudeDelta: 0.0421,
             });
 
-            // Check if user is in a flood area
-            const userIsInFloodArea = Object.values(reports).some((report) => {
+            // Check if user is in a flood area (based on reported floods)
+            const userIsNearReport = Object.values(reports).some((report) => {
                 if (!report.coordinates) return false;
                 const [reportLatStr, reportLonStr] = report.coordinates.replace(/[()]/g, '').split(',');
                 const reportLat = parseFloat(reportLatStr);
@@ -245,12 +300,29 @@ export default function Index() {
                 return distance <= 1; // Proximity threshold in km
             });
 
-            // Update the state based on the user's proximity to the flood area
-            setIsUserInFloodArea(userIsInFloodArea);
+            // Check if user is near an official alert
+            const userIsNearAlert = officialAlerts.some((alert) => {
+                const coordinates = alert.coordinates;
+                if (!coordinates) return false;
+                const [alertLatStr, alertLonStr] = coordinates.replace(/[()]/g, '').split(',');
+                const alertLat = parseFloat(alertLatStr);
+                const alertLon = parseFloat(alertLonStr);
+
+                if (isNaN(alertLat) || isNaN(alertLon)) return false;
+
+                const distance = calculateDistance(latitude, longitude, alertLat, alertLon);
+                return distance <= 1; // Proximity threshold in km
+            });
+
+            const isInFloodArea = userIsNearReport || userIsNearAlert;
+            setIsUserInFloodArea(isInFloodArea);
 
             // If user is in a flood area, change status to "Unsafe"
-            if (userIsInFloodArea) {
+            if (isInFloodArea) {
                 await sendUnsafeStatus();
+            } else {
+                // If not near any flood areas, send "Safe" status
+                await sendSafeStatus();
             }
 
             // Update the user's location on the server
@@ -294,14 +366,27 @@ export default function Index() {
         }
     };
 
-    // useEffect hook to trigger location and data fetching when user logs in
-    useEffect(() => {
-        console.log("useEffect triggered with user:", user);
-        if (!user) return;
+    // Function to send "Safe" status if user is not near a flood zone
+const sendSafeStatus = async () => {
+    try {
+        const formData = new FormData();
+        formData.append('status', 'Safe');
 
-        updateLocationAndFetchConnections();
-    }, [user]);
+        const response = await fetch('http://54.206.190.121:5000/check_in/send', {
+            method: 'POST',
+            body: formData,
+        });
 
+        if (!response.ok) {
+            console.error('Failed to send Safe status:', response.status);
+        } else {
+            console.log('Safe status sent successfully.');
+        }
+    } catch (error) {
+        console.error('Error sending Safe status:', error);
+    }
+};
+    
     // Function to send "Unsafe" status if user is near a flood zone
     const sendUnsafeStatus = async () => {
         try {
@@ -392,15 +477,20 @@ export default function Index() {
     };
 
     // Function to handle when a flood report marker is pressed
-    const handleMarkerPress = async (report: Report) => {
+    const handleMarkerPress = async (report: any) => {
         try {
             const location = await getAddressFromCoordinates(report.coordinates);
             setSelectedReport({ ...report, location }); // Include the fetched location
+        
+            const reportId = report.report_id;  // Use the report_id from the fetched report data
+            await fetchValidationScore(reportId);  // Fetch validation score using the report_id
+
             setShowAlertModal(true);
         } catch (error) {
-            console.error('Error fetching location for report:', error);
+            console.error('Error fetching location or validation score for report:', error);
         }
     };
+
 
     // Function to handle when an official alert marker is pressed
     const handleOfficialAlertPress = (alert: OfficialAlert) => {
@@ -706,6 +796,13 @@ export default function Index() {
                                 <Text style={styles.alertDescription}>
                                     {selectedReport.type} was reported at {selectedReport.location || 'Unknown Location'} on {selectedReport.datetime}.
                                 </Text>
+
+                                {/* Display Validation Score */}
+                                {validationScore !== null && (
+                                    <Text style={styles.alertDescription}>
+                                        Report Accuracy Score: {validationScore}
+                                    </Text>
+                                )}
     
                                 {/* Got it Button */}
                                 <Pressable style={styles.alertButton} onPress={closeModal}>
