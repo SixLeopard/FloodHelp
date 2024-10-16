@@ -5,7 +5,7 @@ import useStyles from "@/constants/style";
 import UserPressable from "@/components/UserPressable";
 import { useTheme } from "@/contexts/ThemeContext";
 
-const UserCard = ({ username, userID, relationshipID, userAction, status }) => {
+const UserCard = ({ username, userID, relationshipID, userAction }) => {
     const styles = useStyles();
     const { theme } = useTheme();
     const colors = theme.colors;
@@ -46,7 +46,7 @@ const UserCard = ({ username, userID, relationshipID, userAction, status }) => {
 
         switch (actionType) {
             case 'accept':
-                endpoint += "/relationships/approve";
+                endpoint += "/relationships/approve/";
                 break;
             case 'remove':
                 endpoint += "/relationships/delete/";
@@ -72,6 +72,7 @@ const UserCard = ({ username, userID, relationshipID, userAction, status }) => {
             setApiResult(result); // Store the result of the API call
         } catch (error) {
             console.error("Error with API call:", error);
+            console.log(error);
         } finally {
             setLoading(false);
         }

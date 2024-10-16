@@ -79,7 +79,7 @@ const Profile = () => {
         <View style={styles.page}>
             <Text style={styles.headerText}>Profile Page</Text>
             <UserAvatar size={100} imageLink={''} />
-            <Text style={styles.nameText}>{currentUser.name}</Text>
+            <Text style={styles.nameText}>{currentUser.name || "User Name"}</Text>
 
             <View style={styles.updateStatuBox}>
                 <TouchableOpacity
