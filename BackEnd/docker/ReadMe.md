@@ -38,7 +38,7 @@ docker build -f docker/API_Dockerfile.txt -t flood-help-api .
 docker run --network flood-net -p 5000:5000 --name flood-help-api -d flood-help-api
 ```
 
-## User the API
+## Use the API
 can now connect on `http://{ip}:5000` or if running locally should be able to accses from browser at `http://{localhost}:5000`
 
 ## Connecting it with app
