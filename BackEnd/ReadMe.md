@@ -3,7 +3,10 @@ contains a core server (api server) and then broken up into 3 parts all the API 
 then all code for accsessing and managing data in data the databse under /Database and lastly all
 the code for accsessing and interfacing with the external apis under External_API
 
-## Setup
+## Setup - Docker (easy)
+Docker files have been create to build and run and setup the API. refer to the /Backend/docker/ReadMe.md. if docker isnt an option refer to the manual setup.
+
+## Setup - Manual (hard)
 getting setup to run, test and develop the backend. This is intended to be run on linux, modifcations to some of the setup will need to be modified if you want to run it on windows.
 
 ## if you just want to run the app
@@ -257,3 +260,6 @@ navigate to http{s}://{public_ip}:5000 to see the intro API response
 
 ## Using API
 all routes and there methods can be found by navigating to http{s}://{public_ip}:5000/documentation. this information is also available under /BackeEnd/API/ReadMe.md
+
+## Connecting it with app
+refer to font end documention to see how to change api endpoint the app is using the adress rhe docker containers are running on
