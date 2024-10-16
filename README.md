@@ -19,6 +19,16 @@ information about the front aswell as a setup guide
 #### /Dependencies.md
 list of all the dependencies for the entire project
 
+# How to setup and run project
+## Running just the App using out publically hosted version of the API
+follow the setup instructions in /FontEnd/flood-help/README.md ignoring step 0
+## Running just the API server
+follow the setup instructions in /BackEnd/README.md
+## Running the API server and App together
+follow the setup instructions in /BackEnd/README.md
+then follow the setup instructions in /FontEnd/flood-help/README.md
+you need to do step 0 in the front end setup to make sure the API and app are linked
+
 # Project description
 “Flood Help” is a mobile application designed for use during flooding events in the greater Brisbane region. Flood Help provides users the ability to view a real-time picture of potential hazards during flooding events and the status of their loved ones.
 
