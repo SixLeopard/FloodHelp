@@ -78,10 +78,16 @@ const useStyles = () => {
             flexWrap: 'wrap',
             padding: 2,
         },
+        reportMap: {
+            width: '50%',
+            height: 40,
+            flex: 1,
+        },
         map: {
             width: '100%',
             height: '100%',
             flex: 1,
+            ...StyleSheet.absoluteFillObject,
         },
         userPressable: {
             height: 70,
@@ -90,7 +96,7 @@ const useStyles = () => {
         },
         userCard: {
             height: 70,
-            width: '85%',
+            width: '90%',
             backgroundColor: colors.card,
             flexDirection: "row",
             justifyContent: "space-between",
@@ -151,11 +157,13 @@ const useStyles = () => {
         },
         reportCardsContainer: {
             alignItems: "center",
+            padding: 5,
 
         },
         reportCardBody: {
-            width: '85%',
+            width: '80%',
         },
+
         formContainer: {
             width: '100%',
             backgroundColor: colors.white, // Light background for the form
@@ -201,9 +209,10 @@ const useStyles = () => {
             alignItems: 'center',
         },
         confirmButtonContainer: {
-            marginVertical: 0,  
-            marginHorizontal: 0, 
-            padding: 0, 
+            position: 'absolute',
+            bottom: 20, 
+            left: 20,  
+            right: 20,  
             backgroundColor: 'transparent',
         },
         confirmButton: {
@@ -215,6 +224,7 @@ const useStyles = () => {
             alignItems: 'center',
             borderStyle: "solid",
             borderWidth: 2,
+            borderRadius: 8,
             borderColor: colors.green,
             padding: 5, 
             paddingHorizontal: 20,
@@ -228,7 +238,6 @@ const useStyles = () => {
         },
 
         locationContainer: {
-            marginTop: 40,
             marginBottom: 20,
             padding: 10,
             borderWidth: 2,
@@ -697,6 +706,22 @@ const useStyles = () => {
             alignItems: 'center',
             marginLeft: 10,
         },
+        safeButton: {
+            flex: 1,
+            backgroundColor: theme.colors.green,  
+            paddingVertical: 12,
+            borderRadius: 7,
+            alignItems: 'center',
+            marginRight: 10,  
+        },
+        unsafeButton: {
+            flex: 1,
+            backgroundColor: theme.colors.red,  
+            paddingVertical: 12,
+            borderRadius: 7,
+            alignItems: 'center',
+            marginLeft: 10,  
+        },
         alertButton: {
             width: '100%',
             paddingVertical: 12,
@@ -721,9 +746,72 @@ const useStyles = () => {
             width: '100%', 
             marginVertical: 10, 
         },
-        successText: colors.text
+        successText: colors.text,
 
+        updateStatusBox: {
+            flexDirection: "row",
 
+        },
+
+        SafeStatus_Button: {
+            backgroundColor: colors.green,
+            height: 40,
+            display: "flex",
+            flexBasis: 'auto',
+            flexDirection: "row",
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center',
+            borderStyle: "solid",
+            borderWidth: 2,
+            borderColor: colors.green,
+            borderRadius: 10,
+            margin: 4,
+            padding: 5,
+            paddingHorizontal: 10,
+        },
+
+        DefaultStatus_Button: {
+            backgroundColor: colors.red,
+            height: 40,
+            display: "flex",
+            flexBasis: 'auto',
+            flexDirection: "row",
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center',
+            borderStyle: "solid",
+            borderWidth: 2,
+            borderColor: colors.red,
+            borderRadius: 10,
+            margin: 4,
+            padding: 5,
+            paddingHorizontal: 10,
+        },
+        circleMarker: {
+            width: 20,  // Set the width and height to control the size of the circle
+            height: 20,
+            borderRadius: 10,  // Half of the width and height to make it a circle
+            backgroundColor: 'green', 
+            borderWidth: 2,  // Optional border for the circle
+            borderColor: 'white',  // Color of the border
+        },
+        riskContainer: {
+            position: 'absolute',
+            bottom: 100, 
+            left: 10,
+            right: 10,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            padding: 10,
+            borderRadius: 8,
+            zIndex: 1,
+        },
+        riskInfo: {
+            fontSize: 14, 
+            color: '#333',
+            textAlign: 'center',
+            marginBottom: 5, 
+        },
     });
 };
 

@@ -16,7 +16,7 @@ const NewReport = () => {
     const styles = useStyles();
     const { theme } = useTheme();
     const navigation = useNavigation<NewReportScreenNavigationProp>();
-    const { user } = useAuth(); 
+    const { user } = useAuth();
 
     const [location, setLocation] = useState('Fetching current location...');
     const [coordinates, setCoordinates] = useState<{ latitude: number, longitude: number } | null>(null);
@@ -118,25 +118,25 @@ const NewReport = () => {
             Alert.alert('Error', 'Location is required.');
             return;
         }
-    
+
         if (!user?.token) {
             Alert.alert('Error', 'You must be logged in to submit a report.');
             return;
         }
-    
+
         try {
             const locationForBackend = `${coordinates.latitude},${coordinates.longitude}`;
             setLoading(true);
-    
+
             const body = new FormData();
             body.append('location', locationForBackend);
-            body.append('title', title);
             body.append('type', floodType);
+            body.append('title', title);
             body.append('description', description);
             if (photos.length > 0) {
                 body.append('image', photos[0]);
             }
-    
+
             // Submit the form data using a standard fetch call
             const response = await fetch('http://54.206.190.121:5000/reporting/user/add_report', {
                 method: 'POST',
@@ -171,7 +171,7 @@ const NewReport = () => {
         useCallback(() => {
             const onBackPress = () => {
                 navigation.navigate('index');
-                return true; 
+                return true;
             };
 
             BackHandler.addEventListener('hardwareBackPress', onBackPress);
@@ -203,7 +203,7 @@ const NewReport = () => {
                         onLocationPress={handleLocationPress}
                         floodType={floodType}
                         setFloodType={setFloodType}
-                        title={title}  
+                        title={title}
                         setTitle={setTitle}
                         description={description}
                         setDescription={setDescription}

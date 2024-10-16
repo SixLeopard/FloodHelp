@@ -5,26 +5,41 @@ import useStyles from '@/constants/style';
 import FH_Button from "@/components/navigation/FH_Button";
 
 const NewReportCard = ({
-    location,
-    onLocationPress,
-    floodType,
-    setFloodType,
-    title,               
-    setTitle,
-    description,
-    setDescription,
-    photos,
-    onTakePhoto,
-    onPickImage,
-    onRemoveImage,
-    onSubmit,
-    loading,
-    error,
-}) => {
-    const styles = useStyles();
+                           location,
+                           onLocationPress,
+                           floodType,
+                           setFloodType,
+                           title,
+                           setTitle,
+                           description,
+                           setDescription,
+                           photos,
+                           onTakePhoto,
+                           onPickImage,
+                           onRemoveImage,
+                           onSubmit,
+                           loading,
+                           error,
+                       }) => {
+    const styles = useStyles(); // Use the styles from styles.js
 
     return (
         <View style={styles.formContainer}>
+
+            {/* Title Input */}
+            <View style={styles.descriptionContainer}>
+                <Text style={styles.bodyTextBold}>Title</Text>
+                <View style={styles.titleInput}>
+                    <TextInput
+                        style={styles.bodyTextBold}
+                        placeholder="Enter a Title"
+                        multiline
+                        value={title}
+                        onChangeText={setTitle}
+                    />
+                </View>
+            </View>
+
             {/* Location Picker */}
             <TouchableOpacity onPress={onLocationPress} style={styles.locationContainer}>
                 <Text style={styles.bodyTextBold}>Location</Text>
@@ -45,17 +60,6 @@ const NewReportCard = ({
                     <Picker.Item label="Minor Flood" value="Minor Flood" />
                     <Picker.Item label="No Flood" value="No Flood" />
                 </Picker>
-            </View>
-
-            {/* Title Input */}
-            <View style={styles.titleContainer}>
-                <Text style={styles.bodyTextBold}>Report Title</Text>
-                <TextInput
-                    style={styles.inputBox}  
-                    placeholder="Enter a report title"
-                    value={title}
-                    onChangeText={setTitle}
-                />
             </View>
 
             {/* Description Input */}
