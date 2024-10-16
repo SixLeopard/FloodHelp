@@ -1,0 +1,4 @@
+FROM postgres
+ENV POSTGRES_PASSWORD docker
+ENV POSTGRES_DB floodhelp
+COPY docker/db_dump.sql /docker-entrypoint-initdb.d/
