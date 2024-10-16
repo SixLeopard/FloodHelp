@@ -87,8 +87,19 @@ export default function Index() {
     useEffect(() => {
         console.log("useEffect triggered with user:", user);
         if (!user) return;
-
-        updateLocationAndFetchConnections();
+    
+        // Fetch data when the user logs in
+        const fetchData = async () => {
+            try {
+                await updateLocationAndFetchConnections();
+                await fetchReports();
+                await fetchOfficialAlerts();
+            } catch (error) {
+                console.error('Error fetching data on user login:', error);
+            }
+        };
+    
+        fetchData();
     }, [user]);
 
     // Function to fetch all reports from the server
