@@ -83,6 +83,14 @@ export default function Index() {
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { user } = useAuth(); // Authentication context to get the current user
 
+    // useEffect hook to trigger location and data fetching when user logs in
+    useEffect(() => {
+        console.log("useEffect triggered with user:", user);
+        if (!user) return;
+
+        updateLocationAndFetchConnections();
+    }, [user]);
+
     // Function to fetch all reports from the server
     const fetchReports = async () => {
         try {
@@ -268,8 +276,8 @@ export default function Index() {
                 longitudeDelta: 0.0421,
             });
 
-            // Check if user is in a flood area
-            const userIsInFloodArea = Object.values(reports).some((report) => {
+            // Check if user is in a flood area (based on reported floods)
+            const userIsNearReport = Object.values(reports).some((report) => {
                 if (!report.coordinates) return false;
                 const [reportLatStr, reportLonStr] = report.coordinates.replace(/[()]/g, '').split(',');
                 const reportLat = parseFloat(reportLatStr);
@@ -281,12 +289,29 @@ export default function Index() {
                 return distance <= 1; // Proximity threshold in km
             });
 
-            // Update the state based on the user's proximity to the flood area
-            setIsUserInFloodArea(userIsInFloodArea);
+            // Check if user is near an official alert
+            const userIsNearAlert = officialAlerts.some((alert) => {
+                const coordinates = alert.coordinates;
+                if (!coordinates) return false;
+                const [alertLatStr, alertLonStr] = coordinates.replace(/[()]/g, '').split(',');
+                const alertLat = parseFloat(alertLatStr);
+                const alertLon = parseFloat(alertLonStr);
+
+                if (isNaN(alertLat) || isNaN(alertLon)) return false;
+
+                const distance = calculateDistance(latitude, longitude, alertLat, alertLon);
+                return distance <= 1; // Proximity threshold in km
+            });
+
+            const isInFloodArea = userIsNearReport || userIsNearAlert;
+            setIsUserInFloodArea(isInFloodArea);
 
             // If user is in a flood area, change status to "Unsafe"
-            if (userIsInFloodArea) {
+            if (isInFloodArea) {
                 await sendUnsafeStatus();
+            } else {
+                // If not near any flood areas, send "Safe" status
+                await sendSafeStatus();
             }
 
             // Update the user's location on the server
@@ -330,14 +355,27 @@ export default function Index() {
         }
     };
 
-    // useEffect hook to trigger location and data fetching when user logs in
-    useEffect(() => {
-        console.log("useEffect triggered with user:", user);
-        if (!user) return;
+    // Function to send "Safe" status if user is not near a flood zone
+const sendSafeStatus = async () => {
+    try {
+        const formData = new FormData();
+        formData.append('status', 'Safe');
 
-        updateLocationAndFetchConnections();
-    }, [user]);
+        const response = await fetch('http://54.206.190.121:5000/check_in/send', {
+            method: 'POST',
+            body: formData,
+        });
 
+        if (!response.ok) {
+            console.error('Failed to send Safe status:', response.status);
+        } else {
+            console.log('Safe status sent successfully.');
+        }
+    } catch (error) {
+        console.error('Error sending Safe status:', error);
+    }
+};
+    
     // Function to send "Unsafe" status if user is near a flood zone
     const sendUnsafeStatus = async () => {
         try {
