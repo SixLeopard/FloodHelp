@@ -9,6 +9,10 @@ import FH_Button from "@/components/navigation/FH_Button";
 
 const ScrollView = Animated.ScrollView;
 
+/**
+ * The Connections Page displays the users that the current user has an approved connection with.
+ * As well as any pending connection requests they have recieved from other users.
+ */
 const Connections = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
