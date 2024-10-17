@@ -4,6 +4,22 @@ import { MaterialIcons } from '@expo/vector-icons';
 import useStyles from "@/constants/style";
 import UserAvatar from "@/components/UserAvatar";
 
+/**
+ * NotificationCard is a component that displays a notification message along with optional buttons for
+ * user actions like marking themselves as safe, unsafe, or checking in.
+ *
+ * @component
+ * @param {Object} props - Component properties
+ * @param {'user'|'warning'} props.type - The type of notification (either 'user' or 'warning').
+ * @param {string} props.title - The title of the notification.
+ * @param {string} props.body - The main content of the notification.
+ * @param {string} props.timeOfNotification - The time when the notification was received.
+ * @param {Function} [props.onCheckIn] - Function to handle the "Check In" button press.
+ * @param {Function} [props.onViewMap] - Function to handle the "View Map" button press.
+ * @param {Function} [props.onSafe] - Function to handle the "I'm Safe" button press.
+ * @param {Function} [props.onUnsafe] - Function to handle the "I'm Unsafe" button press.
+ * @returns {JSX.Element} A styled notification card component.
+ */
 const NotificationCard = ({ type, title, body, timeOfNotification, onCheckIn, onViewMap, onSafe, onUnsafe }) => {
     const styles = useStyles();
 

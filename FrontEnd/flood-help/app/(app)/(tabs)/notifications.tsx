@@ -46,6 +46,14 @@ interface CheckInStatus {
     updateTime: string;
 }
 
+/**
+ * Notifications component displays a list of notifications, flood alerts, flood reports,
+ * and check-in statuses for the user. Users can interact with notifications, check-in statuses,
+ * and flood alerts, and perform actions like marking themselves safe or sending check-in notifications.
+ *
+ * @component
+ * @returns {JSX.Element} The Notifications screen component.
+ */
 const Notifications = () => {
     const styles = useStyles();
     const { theme } = useTheme();
@@ -57,17 +65,38 @@ const Notifications = () => {
     const [refreshing, setRefreshing] = useState(false);
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
+    /**
+     * Fetches initial data (notifications, flood alerts, and check-in statuses) when the component mounts.
+     */
     useEffect(() => {
         fetchData();
     }, []);
 
-    // Fetch data function
+    /**
+     * Function to refresh the data when the user pulls to refresh.
+     *
+     * @callback
+     */
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchData().then(() => setRefreshing(false));
+    }, []);
+
+    /**
+     * Fetches all necessary data, including notifications, flood alerts, and check-in statuses.
+     * 
+     * @async
+     */
     const fetchData = async () => {
         await Promise.all([fetchNotifications(), fetchFloodAlerts(), fetchCheckInStatuses()]);
         setLoading(false);
     };
 
-    // Fetch notifications and replace UID with the corresponding username
+    /**
+     * Fetches notifications from the server and replaces user IDs with corresponding usernames.
+     * 
+     * @async
+     */
     const fetchNotifications = async () => {
         try {
             const response = await fetch('http://54.206.190.121:5000/notifications/get', {
@@ -119,7 +148,12 @@ const Notifications = () => {
         }
     };
 
-    // Handle status update
+    /**
+     * Updates the user's check-in status (e.g., Safe or Unsafe).
+     *
+     * @async
+     * @param {string} status - The new status to update (Safe or Unsafe).
+     */
     const updateNotificationStatus = async (status: string) => {
         try {
             const formData = new FormData();
@@ -142,7 +176,11 @@ const Notifications = () => {
         }
     };
 
-    // Fetch official flood alerts
+    /**
+     * Fetches official flood alerts from the server.
+     * 
+     * @async
+     */
     const fetchFloodAlerts = async () => {
         try {
             const response = await fetch('http://54.206.190.121:5000/externalData/get_alerts', {
@@ -167,7 +205,11 @@ const Notifications = () => {
         }
     };
 
-    // Fetch check-in statuses
+    /**
+     * Fetches the check-in statuses of users.
+     * 
+     * @async
+     */
     const fetchCheckInStatuses = async () => {
         try {
             const response = await fetch('http://54.206.190.121:5000/check_in/get_checkins', {
@@ -189,13 +231,11 @@ const Notifications = () => {
         }
     };
 
-    // Refresh function for pull-to-refresh
-    const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        fetchData().then(() => setRefreshing(false));
-    }, []);
-
-    // Handle check-in submission with user's name
+    /**
+     * Sends a check-in notification to a user based on their UID.
+     * 
+     * @param {string} receiverUid - The UID of the user to send the check-in notification to.
+     */
     const handleCheckIn = (receiverUid: string) => {
         // Look up the name based on the receiverUid
         const userStatus = checkInStatuses.find(status => status.uid === parseInt(receiverUid));
@@ -228,10 +268,12 @@ const Notifications = () => {
             console.error('Error sending check-in notification:', error);
         });
     };
-
-
     
-    // Handle back button press
+    /**
+     * Handles Android back button press and navigates to the index screen.
+     * 
+     * @callback
+     */
     useFocusEffect(
         useCallback(() => {
             const onBackPress = () => {

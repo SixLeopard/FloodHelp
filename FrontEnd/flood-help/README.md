@@ -34,7 +34,6 @@ npm -v
 Expo CLI: You can install Expo CLI globally using npm
 
 ``` bash
-Copy code
 npm install -g expo-cli
 ```
 
@@ -75,7 +74,9 @@ npx expo start
 
 Download Expo Go from the App Store or Google Play.
 
-Scan the QR code provided by Expo after running the expo start command.
+Scan the QR code provided by Expo after running the expo start command. Note the current version of the app was built to be fully functional for andriod devices only at the moment.
+
+Please note that development has been done primarily for Android - while most features will work on IOS you may experience some bugs relating to formatting and styling of screens. 
 
 # API Integration
 
