@@ -396,9 +396,9 @@ class DBInterface():
     def create_hazard(self, type: str, img_b64: str, reporting_user: int, \
             coordinates: tuple[float], description:str = None, area_name: str = None, title: str = None) -> int:
 
-        query = 'INSERT INTO hazards (type, image, reporting_user, area, coordinates, description, title) VALUES (%s, %s, %s, %s, %s, %s, %s)'
+        query = 'INSERT INTO hazards (type, image, reporting_user, area, coordinates, description, title, datetime) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'
 
-        self.query(query, type, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]), description, title)
+        self.query(query, type, img_b64, reporting_user, area_name, Point(coordinates[0], coordinates[1]), description, title, datetime.datetime.now() + datetime.timedelta(hours=10))
 
         # Get id of newly created hazard. Auto incremented by database
         query = 'SELECT MAX(hazard_id) FROM Hazards'
