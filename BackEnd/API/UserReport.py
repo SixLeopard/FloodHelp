@@ -1,3 +1,11 @@
+###############################################
+# Description
+###############################################
+# Route for API that contains all the User Reporting
+# related routes and supporting functions
+###############################################
+# Setup
+###############################################
 #flask
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
@@ -17,6 +25,17 @@ from API.database import database_interface as db
 import json
 
 userreport_routes = Blueprint("userreport_routes", __name__)
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 
 # The number of hours after which a user report will be deleted by the hazard_maintenance()
 # function.
