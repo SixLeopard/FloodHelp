@@ -1,3 +1,11 @@
+###############################################
+# Description
+###############################################
+# Route for API that contains all the check in
+# related routes and supporting functions
+###############################################
+# Setup
+###############################################
 from flask import Flask, Blueprint, request, make_response, session
 import datetime as Time
 from API.database import database_interface
@@ -5,6 +13,17 @@ import API.Accounts as Accounts
 from API.Notifications import add_notification
 
 checkin_routes = Blueprint("checkin_routes", __name__)
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 
 statuses = {}
 
