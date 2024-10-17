@@ -12,6 +12,14 @@ import { useAuth } from '@/contexts/AuthContext';
 
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
 
+/**
+ * NewReport component allows users to submit flood reports by selecting a location, adding details,
+ * and attaching photos. The component includes features for image picking, location fetching,
+ * and submission form validation.
+ * 
+ * @component
+ * @returns {JSX.Element} The New Report screen component.
+ */
 const NewReport = () => {
     const styles = useStyles();
     const { theme } = useTheme();
@@ -28,17 +36,30 @@ const NewReport = () => {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
 
-    // Function to handle refresh
+    /**
+     * Function to handle refresh action, which re-fetches the current location.
+     * 
+     * @callback
+     */
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         fetchCurrentLocation().then(() => setRefreshing(false));
     }, []);
     
-    // Fetch current location when component loads
+    /**
+     * Fetches the current location of the user when the component mounts.
+     * 
+     * @async
+     */
     useEffect(() => {
         fetchCurrentLocation();
     }, []);
-
+    
+    /**
+     * Fetches the user's current location and reverse geocodes it to an address.
+     * 
+     * @async
+     */
     const fetchCurrentLocation = async () => {
         try {
             let { status } = await Location.requestForegroundPermissionsAsync();
@@ -66,7 +87,11 @@ const NewReport = () => {
         }
     };
 
-    // Function to handle location selection
+    /**
+     * Navigates to the map screen where users can select a new location for the report.
+     * 
+     * @callback
+     */
     const handleLocationPress = () => {
         navigation.navigate('mapscreen', {
             onLocationSelected: (address: string, selectedCoordinates: { latitude: number, longitude: number }) => {
@@ -76,7 +101,11 @@ const NewReport = () => {
         });
     };
 
-    // Function to pick image from gallery
+    /**
+     * Opens the image picker to allow users to select an image from their gallery.
+     * 
+     * @async
+     */
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -91,7 +120,11 @@ const NewReport = () => {
         }
     };
 
-    // Function to take photo
+    /**
+     * Opens the camera to allow users to take a photo and attach it to the report.
+     * 
+     * @async
+     */
     const takePhoto = async () => {
         let result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
@@ -105,14 +138,22 @@ const NewReport = () => {
         }
     };
 
-    // Function to remove selected image
+    /**
+     * Removes an image from the selected photos array based on its index.
+     * 
+     * @param {number} index - The index of the photo to remove from the list.
+     */
     const removeImage = (index: number) => {
         const newPhotos = [...photos];
         newPhotos.splice(index, 1);
         setPhotos(newPhotos);
     };
 
-    // Function to submit the report
+    /**
+     * Handles the submission of the new report by sending the collected data to the server.
+     * 
+     * @async
+     */
     const handleSubmit = async () => {
         if (!coordinates || !location || location === 'Fetching current location...') {
             Alert.alert('Error', 'Location is required.');
@@ -158,6 +199,9 @@ const NewReport = () => {
         }
     };
 
+    /**
+     * Resets the form fields to their initial values after submitting a report or cancelling.
+     */
     const resetForm = () => {
         setLocation('Fetching current location...');
         setCoordinates(null); // Reset coordinates
@@ -166,7 +210,13 @@ const NewReport = () => {
         setDescription('');
         setPhotos([]);
     };
-    // Handle back button press
+    
+    /**
+     * Adds a listener for Android's back button press event.
+     * Navigates back to the home screen when the back button is pressed.
+     * 
+     * @callback
+     */
     useFocusEffect(
         useCallback(() => {
             const onBackPress = () => {
