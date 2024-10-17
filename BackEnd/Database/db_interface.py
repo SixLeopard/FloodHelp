@@ -1,3 +1,11 @@
+###############################################
+# Description
+###############################################
+# cotains all the classes and function to link
+# the postgres database to the python api routes
+###############################################
+# Setup
+###############################################
 import psycopg2
 import re
 from psycopg2.extensions import adapt, register_adapter, AsIs
@@ -12,6 +20,17 @@ from External_API.ExtApi_RealTime import are_alerts_equal
 from External_API.ExtApi_RealTime import random_fake_alerts
 from External_API.ExtApi_RealTime import specific_fake_alert
 from External_API.ExtApi_RealTime import compare_to_current_time
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Postgres', 'psycopg2']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 
 class Point(object):
     def __init__(self, x, y):
