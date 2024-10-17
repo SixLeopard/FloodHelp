@@ -1,47 +1,45 @@
-# API Docs
+API Documentation
+=============
+## Table of Contents
 
-documention of all the routes and there data inputs and request type
+- [GET /](#get-)
+- [POST /accounts/create](#post-accountscreate)
+- [GET /accounts/get_current](#get-accountsget_current)
+- [POST /accounts/login](#post-accountslogin)
+- [GET /accounts/test](#get-accountstest)
+- [GET /check_in/get_checkins](#get-check_inget_checkins)
+- [GET /check_in/get_my_status](#get-check_inget_my_status)
+- [POST /check_in/send](#post-check_insend)
+- [POST /check_in/send_push](#post-check_insend_push)
+- [GET /documentation](#get-documentation)
+- [POST /externalData/clear_alerts](#post-externaldataclear_alerts)
+- [POST /externalData/clear_expired_alerts](#post-externaldataclear_expired_alerts)
+- [GET /externalData/get_alerts](#get-externaldataget_alerts)
+- [GET /externalData/get_historical_data](#get-externaldataget_historical_data)
+- [POST /externalData/get_polygon](#post-externaldataget_polygon)
+- [GET /externalData/get_river_conditions](#get-externaldataget_river_conditions)
+- [POST /externalData/update_fake_random_alerts](#post-externaldataupdate_fake_random_alerts)
+- [POST /externalData/update_fake_specific_alerts](#post-externaldataupdate_fake_specific_alerts)
+- [POST /externalData/update_real_alerts](#post-externaldataupdate_real_alerts)
+- [POST /locations/update](#post-locationsupdate)
+- [POST /notifications/add](#post-notificationsadd)
+- [GET /notifications/get](#get-notificationsget)
+- [POST /relationships/approve/](#post-relationshipsapprove)
+- [POST /relationships/create](#post-relationshipscreate)
+- [POST /relationships/delete/](#post-relationshipsdelete)
+- [GET /relationships/get_relationships](#get-relationshipsget_relationships)
+- [POST /reporting/user/add_report](#post-reportinguseradd_report)
+- [GET /reporting/user/get_all_report_basic](#get-reportinguserget_all_report_basic)
+- [GET /reporting/user/get_all_report_details](#get-reportinguserget_all_report_details)
+- [GET /reporting/user/get_all_reports_by_user](#get-reportinguserget_all_reports_by_user)
+- [POST /reporting/user/get_report](#post-reportinguserget_report)
+- [POST /reporting/user/get_report_validation_score](#post-reportinguserget_report_validation_score)
+- [GET /session/get](#get-sessionget)
+- [POST /session/set](#post-sessionset)
+- [GET /sync](#get-sync)
+- [GET /test](#get-test)
 
-<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
-
-- [API Docs](#api-docs)
-   * [/](#)
-   * [/accounts/create](#accountscreate)
-   * [/accounts/login](#accountslogin)
-   * [/accounts/test](#accountstest)
-   * [/documentation](#documentation)
-   * [/externalData/get\_polygon](#externaldataget_polygon)
-   * [/externalData/get\_historical\_data](#externaldataget_historical_data)
-   * [/externalData/get\_river\_conditions](#externaldataget_river_conditions)
-   * [/externalData/get\_alerts](#externaldataget_alerts)
-   * [/externalData/clear\_alerts](#externaldataclear_alerts)
-   * [/externalData/clear\_expired\_alerts](#externaldataclear_expired_alerts)
-   * [/externalData/update\_fake\_specific\_alerts](#externaldataupdate_fake_specific_alerts)
-   * [/externalData/update\_fake\_random\_alerts](#externaldataupdate_fake_random_alerts)
-   * [/externalData/update\_real\_alerts](#externaldataupdate_real_alerts)
-   * [/notifications/add](#notificationsadd)
-   * [/notifications/get](#notificationsget)
-   * [/relationships/approve/](#relationshipsapprove)
-   * [/relationships/create](#relationshipscreate)
-   * [/relationships/get\_approved](#relationshipsget_approved)
-   * [/relationships/get\_not\_approved](#relationshipsget_not_approved)
-   * [/reporting/user/add\_report](#reportinguseradd_report)
-   * [/reporting/user/get\_all\_report\_basic](#reportinguserget_all_report_basic)
-   * [/reporting/user/get\_all\_report\_details](#reportinguserget_all_report_details)
-   * [/reporting/user/get\_all\_reports\_by\_user](#reportinguserget_all_reports_by_user)
-   * [/reporting/user/get\_report](#reportinguserget_report)
-   * [/reporting/user/get\_report\_validation\_score](#reportinguserget_report_validation_score)
-   * [/session/get](#sessionget)
-   * [/session/set](#sessionset)
-   * [/sync](#sync)
-   * [/test](#test)
-
-<!-- TOC end -->
-
-<!-- TOC --><a name="api-docs"></a>
-
-<!-- TOC --><a name=""></a>
-## /
+/
 -
 
 [*   GET](/)
@@ -50,8 +48,7 @@ documention of all the routes and there data inputs and request type
       Returning welcome page through api  
     
 
-<!-- TOC --><a name="accountscreate"></a>
-## /accounts/create
+/accounts/create
 ----------------
 
 *   POST
@@ -71,8 +68,21 @@ documention of all the routes and there data inputs and request type
             the username and encrypted password  
     
 
-<!-- TOC --><a name="accountslogin"></a>
-## /accounts/login
+/accounts/get\_current
+----------------------
+
+[*   GET](/accounts/get_current)
+
+  
+        Form Data:  
+            None  
+          
+        Return:  
+            Json containing the information  
+            of the current user logged in  
+    
+
+/accounts/login
 ---------------
 
 *   POST
@@ -91,8 +101,7 @@ documention of all the routes and there data inputs and request type
             the sessionid  
     
 
-<!-- TOC --><a name="accountstest"></a>
-## /accounts/test
+/accounts/test
 --------------
 
 [*   GET](/accounts/test)
@@ -108,8 +117,69 @@ documention of all the routes and there data inputs and request type
           
     
 
-<!-- TOC --><a name="documentation"></a>
-## /documentation
+/check\_in/get\_checkins
+------------------------
+
+[*   GET](/check_in/get_checkins)
+
+  
+        get all status for users that the requester has a relationship with  
+  
+        Form Data:  
+            Nothing  
+          
+        Return:  
+            all checkins for the user and there status  
+            either "Completed" , "Pending", "Unknown" or "Unsafe"  
+    
+
+/check\_in/get\_my\_status
+--------------------------
+
+[*   GET](/check_in/get_my_status)
+
+  
+        get your current status  
+  
+        Form Data:  
+            Nothing  
+          
+        Return:  
+            yourcurrent checkin status  
+            either "Completed" , "Pending", "Unknown" or "Unsafe"  
+    
+
+/check\_in/send
+---------------
+
+*   POST
+
+  
+        updates the current users status  
+  
+        Form Data:  
+            status -> what you want your status to be  
+          
+        Return:  
+            {"added checkin to":receiver, "from":session\["username"\]}  
+    
+
+/check\_in/send\_push
+---------------------
+
+*   POST
+
+  
+        respond to all pending checkins against you  
+  
+        Form Data:  
+            reciever -> the uid of the user you want to send the checkin push to   
+          
+        Return:  
+            {"added piush notfication to":{reciever uid}, "from":{current user uid}}  
+    
+
+/documentation
 --------------
 
 [*   GET](/documentation)
@@ -124,26 +194,193 @@ documention of all the routes and there data inputs and request type
         strings on the route to generate the documenation automaticaly   
     
 
-<!-- TOC --><a name="externaldataget_river_conditions"></a>
-## /externalData/get\_river_conditions
------------------------------
+/externalData/clear\_alerts
+---------------------------
 
-[*   GET](/externalData/get_river_conditions)
+*   POST
 
   
-        Gives flood conditions for over 40 river height stations around Brisbane. 
+        Clears all alerts in the database  
           
         Form Data:  
-            None 
+            None  
   
         Return:  
-            if succsessful: json of flood risks for river height stations. Keys are: 'location_name', 'Coordinates', 'Last Updated', and 'Flood Category'.  
+            if succsessful: None  
             no login: {"invalid\_account":1}  
             not using GET: {"invalid\_request":1}  
     
 
-<!-- TOC --><a name="notificationsadd"></a>
-## /notifications/add
+/externalData/clear\_expired\_alerts
+------------------------------------
+
+*   POST
+
+  
+        Clears all expired alerts in the database  
+          
+        Form Data:  
+            None  
+  
+        Return:  
+            if succsessful: None  
+            no login: {"invalid\_account":1}  
+            not using GET: {"invalid\_request":1}  
+    
+
+/externalData/get\_alerts
+-------------------------
+
+[*   GET](/externalData/get_alerts)
+
+  
+        Retrieves all flood alerts in the database  
+          
+        Form Data:  
+            None  
+  
+        Return:  
+            if succsessful: list of tuples, which are the alert. Looks like: \[('headline', 'location', 'risk', 'certainty', 'start', 'end', 'coordinates'), ...\]   
+            no login: {"invalid\_account":1}  
+            not using GET: {"invalid\_request":1}  
+    
+
+/externalData/get\_historical\_data
+-----------------------------------
+
+[*   GET](/externalData/get_historical_data)
+
+  
+        Gives historical data  
+          
+        Form Data:  
+            None  
+  
+        Return:  
+            if succsessful: list of tuples: \[(risk, coordinates, type),\]  
+            no login: {"invalid\_account":1}  
+            not using GET: {"invalid\_request":1}  
+    
+
+/externalData/get\_polygon
+--------------------------
+
+*   POST
+
+  
+        Gets the corresponding polygon that a coordinate is in.  
+          
+        Form Data:  
+            Coordinate (example: (153.016861, -27.499547))  
+  
+        Return:  
+            if succsessful: Returns the database row (tuple) where the point is contained within the polygon or multipolygon.   
+            Returns \`None\` if the point is not found within any polygon or multipolygon.  
+            no login: {"invalid\_account":1}  
+            not using GET: {"invalid\_request":1}  
+    
+
+/externalData/get\_river\_conditions
+------------------------------------
+
+[*   GET](/externalData/get_river_conditions)
+
+  
+        Gives flood conditions for over 40 river height stations around Brisbane.  
+          
+        Form Data:  
+            None  
+  
+        Return:  
+            if succsessful: json of flood risks for river height stations. Keys are: 'location\_name', 'Coordinates', 'Last Updated', and 'Flood Category'.  
+            no login: {"invalid\_account":1}  
+            not using GET: {"invalid\_request":1}  
+    
+
+/externalData/update\_fake\_random\_alerts
+------------------------------------------
+
+*   POST
+
+  
+        Updates the database with 1-3 random fake alerts  
+        Don't call too many times in a short period of time (3-5 min)  
+  
+        Form Data:  
+            None  
+  
+        Return:  
+            if succsessful: None  
+            no login: {"invalid\_account":1}  
+            not using GET: {"invalid\_request":1}  
+    
+
+/externalData/update\_fake\_specific\_alerts
+--------------------------------------------
+
+*   POST
+
+  
+        Add one custom fake alert to database  
+        Don't call too many times in a short period of time (3-5 min)  
+  
+        If you want to specify exact coordinates of alert, put in the coordinates that you want in "coordinates" argument. If you want to just provide a location  
+        without specifying exact coordinates, input (0,0) into the "coordinates" argument.  
+          
+        Form Data:  
+            'headline': general headline  
+            'location': area in which alert is in  
+            'risk': risk level of alert  
+            'certainty': certainty of alert  
+            'start': issue date of alert  
+            'end': expiry date of alert  
+            'coordinates': exact coordinates of alert, in the form of a tuple  
+  
+        Return:  
+            if succsessful: None  
+            no login: {"invalid\_account":1}  
+            not using GET: {"invalid\_request":1}  
+    
+
+/externalData/update\_real\_alerts
+----------------------------------
+
+*   POST
+
+  
+        Updates the database with real alerts  
+        Don't call too many times in a short period of time (3-5 min)  
+  
+        Form Data:  
+            None  
+  
+        Return:  
+            if succsessful: None  
+            no login: {"invalid\_account":1}  
+            not using GET: {"invalid\_request":1}  
+    
+
+/locations/update
+-----------------
+
+*   POST
+
+  
+        Update user's current location in the in memory dictionaries of each  
+        of the users who are allowed to track them. Additionally, get locations  
+        of each of the users who the user is allowed to track. If no location is   
+        currently known for a user, the mapping is set to None.  
+  
+        Form Data:  
+            location -> users current location  
+  
+        Return:  
+            A JSON string of the locations of each of the users who the user  
+            who made the request can track. If no location known, the value of  
+            the location is None.  
+    
+
+/notifications/add
 ------------------
 
 *   POST
@@ -153,7 +390,7 @@ documention of all the routes and there data inputs and request type
   
         Form Data:  
             notification -> the notification string to send  
-            receiver -> who you want to send notification too  
+            receiver -> the uid of who you want to send notification too  
   
         Return:  
             if succsessful: {notifcation added: " + str(notification) + "}  
@@ -161,8 +398,7 @@ documention of all the routes and there data inputs and request type
             not using POST: {"invalid\_request":1}  
     
 
-<!-- TOC --><a name="notificationsget"></a>
-## /notifications/get
+/notifications/get
 ------------------
 
 [*   GET](/notifications/get)
@@ -180,8 +416,7 @@ documention of all the routes and there data inputs and request type
             not using POST: {"invalid\_request":1}  
     
 
-<!-- TOC --><a name="relationshipsapprove"></a>
-## /relationships/approve/
+/relationships/approve/
 -----------------------
 
 *   POST
@@ -192,18 +427,18 @@ documention of all the routes and there data inputs and request type
         If no relationship exists, return error.  
   
         Form Data:  
-            other\_user -> the uid of the user who's relationship request you want to approve  
+            relationship\_id -> the id of the relationship to approve  
   
         Return:  
             if succsessful: {"relationship\_approved": 1}  
             error1: {"no\_relationship": 1}  
-            error2: {"missing\_uid": 1}  
+            error2: {"missing\_relationship\_id": 1}  
+            error3: {"internal\_error": data}  
             no login: {"invalid\_account":1}  
             not using POST: {"invalid\_request":1}  
     
 
-<!-- TOC --><a name="relationshipscreate"></a>
-## /relationships/create
+/relationships/create
 ---------------------
 
 *   POST
@@ -219,51 +454,56 @@ documention of all the routes and there data inputs and request type
   
         Return:  
             if succsessful: "success": 1}  
-            error1: {"Error": "Requested user does not exist"}  
-            error2: {"Error": "Relationship exists"}  
-            error3: {"Database error": e.pgerror}  
+            error1: {"user\_does\_not\_exist": 1}  
+            error2: {"relationship\_exists": 1}  
+            error3: {"self\_relationship": 1}  
+            error4: {"database error": e.pgerror}  
             no login: {"invalid\_account":1}  
             not using POST: {"invalid\_request":1}  
     
 
-<!-- TOC --><a name="relationshipsget_approved"></a>
-## /relationships/get\_approved
-----------------------------
+/relationships/delete/
+----------------------
 
-[*   GET](/relationships/get_approved)
+*   POST
 
   
-        Get all approved relationships of the user who is currently logged in  
-          
-        Form Data:  
-            None  
+    Delete a relationship specified by the relationship id  
   
-        Return:  
-            if succsessful: json of all approved relationships  
-            no login: {"invalid\_account":1}  
-            not using POST: {"invalid\_request":1}  
+    Form Data:  
+        relationship\_id -> the id of the relationship to delete  
+      
+    Returns:  
+        if succsessful: {"relationship\_deleted": 1}  
+        error1: {"no\_relationship": 1}  
+        error2: {"missing\_relationship\_id": 1}  
+        error3: {"internal\_error": data}  
+        error4: {"failed": 1}  
+        no login: {"invalid\_account":1}  
+        not using POST: {"invalid\_request":1}  
     
 
-<!-- TOC --><a name="relationshipsget_not_approved"></a>
-## /relationships/get\_not\_approved
+/relationships/get\_relationships
 ---------------------------------
 
-[*   GET](/relationships/get_not_approved)
+[*   GET](/relationships/get_relationships)
 
   
-        Get all NOT approved relationships of the user who is currently logged in  
+        Get all relationships of the user who is currently logged in  
   
         Form Data:  
             None  
   
         Return:  
-            if succsessful: Json of all non-approved relationships  
+            if succsessful: Json of all relationships (see format beloew)  
             no login: {"invalid\_account":1}  
             not using POST: {"invalid\_request":1}  
+          
+        Relationships format:  
+            {relationship\_id: {requester\_name, requester\_uid, requestee\_name, requestee\_uid, approved}, ...}  
     
 
-<!-- TOC --><a name="reportinguseradd_report"></a>
-## /reporting/user/add\_report
+/reporting/user/add\_report
 ---------------------------
 
 *   POST
@@ -276,16 +516,16 @@ documention of all the routes and there data inputs and request type
             hazard\_type -> The type or name of the hazard  
             description -> textual description of the hazard  
             image -> An image assosciated with the hazard  
+            title -> title of the hazard  
   
         Returns:  
-            if successful: {hazard\_id, hazard\_type, datetime, reporting\_uid, area\_name, coordinates, img}  
+            if successful: {hazard\_id, hazard\_type, datetime, reporting\_uid, area\_name, coordinates, img, title}  
             error 1: {'internal\_error': error\_description}  
             no login: {"invalid\_account":1}  
             not using POST: {"invalid\_request":1}  
     
 
-<!-- TOC --><a name="reportinguserget_all_report_basic"></a>
-## /reporting/user/get\_all\_report\_basic
+/reporting/user/get\_all\_report\_basic
 ---------------------------------------
 
 [*   GET](/reporting/user/get_all_report_basic)
@@ -295,21 +535,21 @@ documention of all the routes and there data inputs and request type
     Details included are:  
         - hazard\_id  
         - datetime  
-        - title  
+        - type  
         - coordinates  
+        - title  
   
     Form data:  
         None  
   
     Returns:  
-        if successful: {hazard\_id, hazard\_type, datetime, coordinates}  
+        if successful: {hazard\_id, hazard\_type, datetime, coordinates, title}  
         error 1: {'internal\_error': error\_description}  
         no login: {"invalid\_account":1}  
         not using POST: {"invalid\_request":1}  
     
 
-<!-- TOC --><a name="reportinguserget_all_report_details"></a>
-## /reporting/user/get\_all\_report\_details
+/reporting/user/get\_all\_report\_details
 -----------------------------------------
 
 [*   GET](/reporting/user/get_all_report_details)
@@ -321,14 +561,13 @@ documention of all the routes and there data inputs and request type
         None  
   
     Returns:  
-        if successful: {hazard\_id, hazard\_type, datetime, reporting\_uid, area\_name, coordinates, img}  
+        if successful: {hazard\_id: {hazard\_type, datetime, reporting\_uid, area\_name, coordinates, img, title}, ...}  
         error 1: {'internal\_error': error\_description}  
         no login: {"invalid\_account":1}  
         not using POST: {"invalid\_request":1}  
     
 
-<!-- TOC --><a name="reportinguserget_all_reports_by_user"></a>
-## /reporting/user/get\_all\_reports\_by\_user
+/reporting/user/get\_all\_reports\_by\_user
 -------------------------------------------
 
 [*   GET](/reporting/user/get_all_reports_by_user)
@@ -342,14 +581,13 @@ documention of all the routes and there data inputs and request type
         None  
   
     Returns:  
-        if successful: {hazard\_id: {hazard\_type, datetime, reporting\_uid, area\_name, coordinates, img}, ...}  
+        if successful: {hazard\_id: {hazard\_type, datetime, reporting\_uid, area\_name, coordinates, img, title}, ...}  
         error 1: {'internal\_error': error\_description}  
         no login: {"invalid\_account":1}  
         not using POST: {"invalid\_request":1}  
     
 
-<!-- TOC --><a name="reportinguserget_report"></a>
-## /reporting/user/get\_report
+/reporting/user/get\_report
 ---------------------------
 
 *   POST
@@ -361,14 +599,13 @@ documention of all the routes and there data inputs and request type
         report\_id: The numerical ID of the report to retrieve  
   
     Returns:  
-        if successful: {hazard\_id, hazard\_type, datetime, reporting\_uid, area\_name, coordinates, img}  
+        if successful: {hazard\_id: {hazard\_type, datetime, reporting\_uid, area\_name, coordinates, img, title}, ...}  
         error 1: {'internal\_error': error\_description}  
         no login: {"invalid\_account":1}  
         not using POST: {"invalid\_request":1}  
     
 
-<!-- TOC --><a name="reportinguserget_report_validation_score"></a>
-## /reporting/user/get\_report\_validation\_score
+/reporting/user/get\_report\_validation\_score
 ----------------------------------------------
 
 *   POST
@@ -381,11 +618,10 @@ documention of all the routes and there data inputs and request type
   
         Returns:  
             {report\_id:score} where score gives the score number then a list of  
-            of all the hazrd ids that contributeed to that score, , and also a list of all nearby official alerts  
+            of all the hazrd ids that contributeed to that score, and also a list of all nearby official alerts  
     
 
-<!-- TOC --><a name="sessionget"></a>
-## /session/get
+/session/get
 ------------
 
 [*   GET](/session/get)
@@ -400,8 +636,7 @@ documention of all the routes and there data inputs and request type
             {"response":f"the id is {session.get('id')}  
     
 
-<!-- TOC --><a name="sessionset"></a>
-## /session/set
+/session/set
 ------------
 
 *   POST
@@ -418,8 +653,8 @@ documention of all the routes and there data inputs and request type
             {"response":"id session key is set"}  
     
 
-<!-- TOC --><a name="sync"></a>
-## /sync
+/sync
+-----
 
 [*   GET](/sync)
 
@@ -435,170 +670,9 @@ documention of all the routes and there data inputs and request type
             Combiend Json of all the information needed for an update  
     
 
-
-<!-- TOC --><a name="externalDataget_polygon"></a>
-## /externalData/get\_polygon
----------------------------------
-
-[*   GET](/externalData/get\_polygon)
-
-  
-        Gets the corresponding polygon that a coordinate is in (from the historical data).
-        
-        Form Data:
-            Coordinate (example: (153.016861, -27.499547))
-
-        Return:
-            if succsessful: Returns the database row (tuple) where the point is contained within the polygon or multipolygon. 
-            Returns `None` if the point is not found within any polygon or multipolygon.
-            no login: {"invalid_account":1}
-            not using GET: {"invalid_request":1}
-
-
-
-<!-- TOC --><a name="externalDataget_alerts"></a>
-## /externalData/get\_alerts
----------------------------------
-
-[*   GET](/externalData/get\_alerts)
-
-  
-        Retrieves all flood alerts in the database
-        
-        Form Data:
-            None
-
-        Return:
-            if succsessful: list of tuples, which are the alert. Looks like: [('headline', 'location', 'risk', 'certainty', 'start', 'end', 'coordinates'), ...] 
-            no login: {"invalid_account":1}
-            not using GET: {"invalid_request":1}
-
-
-<!-- TOC --><a name="externalDataupdate_real_alerts"></a>
-## /externalData/update\_real\_alerts
----------------------------
-
-*   POST
-
-  
-        Updates the database with real alerts
-        Don't call too many times in a short period of time (3-5 min)
-
-        Form Data:
-            None
-
-        Return:
-            if succsessful: None
-            no login: {"invalid_account":1}
-            not using GET: {"invalid_request":1} 
-
-
-<!-- TOC --><a name="externalDataupdate_fake_random_alerts"></a>
-## /externalData/update\_fake\_random\_alerts
----------------------------
-
-*   POST
-
-  
-        Updates the database with 1-3 random fake alerts
-        Don't call too many times in a short period of time (3-5 min)
-
-        Form Data:
-            None
-
-        Return:
-            if succsessful: None
-            no login: {"invalid_account":1}
-            not using GET: {"invalid_request":1} 
-
-<!-- TOC --><a name="externalDataupdate_fake_specific_alerts"></a>
-## /externalData/update\_fake\_specific\_alerts
----------------------------
-
-*   POST
-
-  
-        Add one custom fake alert to database
-        Don't call too many times in a short period of time (3-5 min)
-
-        If you want to specify exact coordinates of alert, put in the coordinates that you want in "coordinates" argument. If you want to just provide a location
-        without specifying exact coordinates, input (0,0) into the "coordinates" argument.
-        
-        Form Data:
-            'headline': general headline
-            'location': area in which alert is in
-            'risk': risk level of alert
-            'certainty': certainty of alert
-            'start': issue date of alert
-            'end': expiry date of alert
-            'coordinates': exact coordinates of alert, in the form of a tuple
-
-        Return:
-            if succsessful: None
-            no login: {"invalid_account":1}
-            not using GET: {"invalid_request":1}
-
-
-<!-- TOC --><a name="externalDataclear_alerts"></a>
-## /externalData/clear\_alerts
----------------------------
-
-*   POST
-
-  
-        Clears all alerts in the database
-        
-        Form Data:
-            None
-
-        Return:
-            if succsessful: None
-            no login: {"invalid_account":1}
-            not using GET: {"invalid_request":1}
-
-
-<!-- TOC --><a name="externalDataclear_expired_alerts"></a>
-## /externalData/clear\_expired\_alerts
----------------------------
-
-*   POST
-
-  
-        Clears all expired alerts in the database
-        
-        Form Data:
-            None
-
-        Return:
-            if succsessful: None
-            no login: {"invalid_account":1}
-            not using GET: {"invalid_request":1}
-
-<!-- TOC --><a name="externalDataget_historical_data"></a>
-## /externalData/get\_historical\_data
----------------------------------
-
-[*   GET](/externalData/get\_historical\_data)
-
-  
-        Gives historical data
-        
-        Form Data:
-            None
-
-        Return:
-            if succsessful: list of tuples: [(risk, coordinates, type), ...]
-            no login: {"invalid_account":1}
-            not using GET: {"invalid_request":1}
-
-
-
-
-<!-- TOC --><a name="test"></a>
-## /test
+/test
 -----
 
 [*   GET](/test)
 
 None
-
