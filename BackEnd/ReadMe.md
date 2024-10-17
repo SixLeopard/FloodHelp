@@ -3,14 +3,14 @@ contains a core server (api server) and then broken up into 3 parts all the API 
 then all code for accsessing and managing data in data the databse under /Database and lastly all
 the code for accsessing and interfacing with the external apis under External_API
 
+## Just want to run the app
+if you just want to try out the app the setup of the backend isnt nesscary as there is a instance of it already running at http://54.206.190.121:5000/ and the app will just atomatically connect to that without having to do any other setup on the beackend or front end. However this will only be kept running for a while so after 2024 its unlikely that http://54.206.190.121:5000/ will still be live.
+
 ## Setup - Docker (easy)
 Docker files have been create to build and run and setup the API. refer to the /Backend/docker/ReadMe.md. if docker isnt an option refer to the manual setup.
 
 ## Setup - Manual (hard)
 getting setup to run, test and develop the backend. This is intended to be run on linux, modifcations to some of the setup will need to be modified if you want to run it on windows.
-
-## if you just want to run the app
-if you just want to try out the app the setup od the backend isnt nesscary as there is a instance of it already running at http://54.206.190.121:5000/ and the app will just atomatically connect to that without having to do any other setup on the beackend or front end
 
 ### Setting up Postgres Database
 setup a postgres database, either self hosting or using a service like amazon rds
