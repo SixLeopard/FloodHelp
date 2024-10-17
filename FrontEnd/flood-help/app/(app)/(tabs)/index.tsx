@@ -527,8 +527,13 @@ export default function Index() {
      */
     const formatTime = (datetime: string) => {
         const date = new Date(datetime);
-        let hours = date.getUTCHours(); 
-        let minutes: string | number = date.getUTCMinutes(); 
+    
+        const brisbaneOffset = 10 * 60; // 10 hours in minutes
+        const localOffset = date.getTimezoneOffset(); // Get the local timezone offset in minutes
+        const adjustedTime = new Date(date.getTime() + (brisbaneOffset + localOffset) * 60000); // Adjust time to Brisbane time
+    
+        let hours = adjustedTime.getHours(); 
+        let minutes: string | number = adjustedTime.getMinutes(); 
         const ampm = hours >= 12 ? 'pm' : 'am';
     
         hours = hours % 12;
@@ -536,6 +541,22 @@ export default function Index() {
         minutes = minutes < 10 ? '0' + minutes : minutes;
     
         return `${hours}:${minutes} ${ampm}`;
+    };
+
+    /**
+     * Format the date from a datetime string.
+     * 
+     * @param {string} datetime - The datetime string to format.
+     * @returns {string} The formatted date in the format 'DD/MM/YYYY'.
+     */
+    const formatDate = (datetime: string) => {
+        const date = new Date(datetime);
+        const day = date.getDate();
+        const month = date.getMonth() + 1; // Months are 0-indexed
+        const year = date.getFullYear();
+
+        // Return the date in 'DD/MM/YYYY' format
+        return `${day < 10 ? '0' + day : day}/${month < 10 ? '0' + month : month}/${year}`;
     };
 
     /**
@@ -901,7 +922,7 @@ export default function Index() {
     
                                 {/* Report Details */}
                                 <Text style={styles.alertDescription}>
-                                    {selectedReport.type} was reported at {selectedReport.location || 'Unknown Location'} on {selectedReport.datetime}.
+                                    {selectedReport.type} was reported at {selectedReport.location || 'Unknown Location'} on on {formatDate(selectedReport.datetime)} at {formatTime(selectedReport.datetime)}.
                                 </Text>
 
                                 {/* Display Validation Score */}
