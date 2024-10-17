@@ -9,6 +9,12 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Import M
 
 const ScrollView = Animated.ScrollView;
 
+/**
+ * Profile displays information about the current user, including their profile picture, name and current status.
+ * Users can update their current status by simply clicking on the status information.
+ * It also contains their reporting history - card summaries of all the reports they have submitted which are tappable.
+ * Clicking on them opens the report in more detail ([report_id].tsx)
+ */
 const Profile = () => {
     const styles = useStyles(); // Fetching styles using the useStyles hook
     // Local state management
