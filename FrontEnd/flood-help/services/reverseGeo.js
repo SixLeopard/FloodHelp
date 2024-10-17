@@ -1,5 +1,11 @@
 import * as Location from "expo-location";
 
+/**
+ * This function is used to reverse geocoding, it takes in coordinates and translates them into a
+ * street address. Using the expo-location package. 
+ * @param coordinateString
+ * @returns {Promise<string>}
+ */
 export const handleReverseGeo = async (coordinateString) => {
     const [latStr, longStr] = coordinateString.replace(/[()]/g, '').split(',').map(Number);
 

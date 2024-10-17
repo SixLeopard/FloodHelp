@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import useStyles from '@/constants/style';
-import { useTheme } from '@/contexts/ThemeContext';
+
 import { router } from 'expo-router';
 import { handleReverseGeo } from '@/services/reverseGeo';
 import {formatDateTime} from "@/services/DateTimeFormatter";
 import {FontAwesome, MaterialCommunityIcons} from "@expo/vector-icons";
 
 /**
- * 
- * @param reportID
- * @param report
+ * ReportCard is the template for each card that shows details of the reports retrieved from the database.
+ * It is called for every report in the database to be displayed on the profile page.
+ * @param reportID - the ID of the relevant report
+ * @param report - the details of the report (JSON format)
  * @returns {Element}
- * @constructor
  */
 const ReportCard = ({ reportID, report }) => {
     const styles = useStyles();
@@ -60,8 +60,7 @@ const ReportCard = ({ reportID, report }) => {
                     <Text style={styles.bodyTextDark}>{address}</Text>
                 </View>
 
-                    <FontAwesome name="exclamation-circle" size={50} color={iconColour} />
-
+                <FontAwesome name="exclamation-circle" size={50} color={iconColour} />
             </Pressable>
         </View>
     );
