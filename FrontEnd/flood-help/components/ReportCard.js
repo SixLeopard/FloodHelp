@@ -7,6 +7,13 @@ import { handleReverseGeo } from '@/services/reverseGeo';
 import {formatDateTime} from "@/services/DateTimeFormatter";
 import {FontAwesome, MaterialCommunityIcons} from "@expo/vector-icons";
 
+/**
+ * 
+ * @param reportID
+ * @param report
+ * @returns {Element}
+ * @constructor
+ */
 const ReportCard = ({ reportID, report }) => {
     const styles = useStyles();
     let { hazard_id, title, coordinates, datetime, type } = report;
