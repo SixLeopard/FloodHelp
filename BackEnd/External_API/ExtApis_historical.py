@@ -1,3 +1,12 @@
+###############################################
+# Description
+###############################################
+# api to process hsitorical flooding data
+# including what areas were flooded in previous
+# floods
+###############################################
+# Setup
+###############################################
 import json
 import pandas as pd
 import geopandas as gpd
@@ -16,6 +25,17 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from External_API.database import database_interface as db
 from Tools.CoordString_to_Tuple import convert
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 
 
 def is_point_in_polygon_or_multipolygon(geometry_type, geometry_coords, point):
