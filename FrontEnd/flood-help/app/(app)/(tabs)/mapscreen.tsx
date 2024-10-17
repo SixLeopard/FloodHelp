@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Alert, TouchableOpacity, Text, ActivityIndicator, Image } from "react-native";
+import { View, Alert, TouchableOpacity, Text, ActivityIndicator, Image, BackHandler } from "react-native";
 import useStyles from "@/constants/style";
 import MapView, { Marker, Region, MapPressEvent } from "react-native-maps";
 import {mapLightTheme, mapDarkTheme} from "@/constants/Themes"
@@ -15,6 +15,12 @@ type RootStackParamList = {
     newreport: { location: string };
 };
 
+/**
+ * Component that renders a map screen allowing users to select a location, fetch the corresponding address, and confirm the location.
+ * 
+ * @component
+ * @returns {JSX.Element} The map screen component where users can select and confirm a location.
+ */
 export default function MapScreen() {
     const styles = useStyles(); // Custom styles from the project
     const { theme } = useTheme(); // Access the current theme (light/dark mode)
@@ -23,9 +29,14 @@ export default function MapScreen() {
     const [region, setRegion] = useState<Region | null>(null); // Stores the map region (latitude, longitude, etc.)
     const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null); // Stores the selected map coordinates
     const [loading, setLoading] = useState<boolean>(false); // Manages loading state
+    const [address, setAddress] = useState<string>(''); 
 
     useEffect(() => {
-        // Function to request location permission and fetch user's current location
+        /**
+         * Request location permission and fetch the user's current location.
+         * 
+         * @async
+         */
         const requestLocationPermission = async () => {
             try {
                 // Request foreground location permission
@@ -52,16 +63,47 @@ export default function MapScreen() {
             }
         };
 
-        requestLocationPermission(); // Call the location permission function when the component mounts
-    }, []);
+        /**
+         * Handle Android back button press.
+         * Navigates to the 'newreport' screen, passing the selected location or a default location if none is selected.
+         * 
+         * @returns {boolean} True to prevent the default back action.
+         */
+        const handleBackPress = () => {
+            // If location is selected, navigate to 'newreport' and pass the location parameter
+            if (selectedLocation && address) {
+                navigation.navigate('newreport', { location: address });
+            } else {
+                navigation.navigate('newreport', { location: 'Unknown Location' });
+            }
+            return true; // Prevent the default back action
+        };
 
-    // Function to handle map press events (when the user selects a location)
+        requestLocationPermission(); // Call the location permission function when the component mounts
+
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+        // Cleanup function to remove back button listener on unmount
+        return () => backHandler.remove();
+    }, [selectedLocation, address]);
+
+    /**
+     * Handles when a user taps on the map to select a location.
+     * Updates the selected location with the latitude and longitude of the tapped point.
+     * 
+     * @param {MapPressEvent} event - The map press event that contains the coordinates of the selected location.
+     */
     const handleMapPress = (event: MapPressEvent) => {
         const { latitude, longitude } = event.nativeEvent.coordinate;
         setSelectedLocation({ latitude, longitude }); // Set the selected location's coordinates
     };
 
-    // Function to handle location confirmation (e.g., when the user presses the confirm button)
+    /**
+     * Handles the confirmation of the selected location.
+     * Fetches the address of the selected location and navigates to the 'newreport' screen with the selected address.
+     * 
+     * @async
+     */
     const handleConfirmLocation = async () => {
         if (selectedLocation) {
             setLoading(true);
@@ -82,7 +124,14 @@ export default function MapScreen() {
         }
     };
 
-    // Function to fetch the address for the selected coordinates using reverse geocoding
+    /**
+     * Fetches the address for the given latitude and longitude using reverse geocoding.
+     * 
+     * @param {number} latitude - The latitude of the selected location.
+     * @param {number} longitude - The longitude of the selected location.
+     * @returns {Promise<string>} The fetched address or an error message if the address could not be determined.
+     * @async
+     */
     const fetchAddress = async (latitude: number, longitude: number) => {
         try {
             // Use expo-location's reverse geocode API to fetch the address
@@ -115,7 +164,7 @@ export default function MapScreen() {
                     initialRegion={region}
                     onPress={handleMapPress} // Handle user taps on the map
                     showsUserLocation={true} // Show the user's current location on the map
-                    showsMyLocationButton={false} // Hide the default "my location" button
+                    showsMyLocationButton={true} 
                 >
                     {selectedLocation && (
                         // Marker for the selected location
