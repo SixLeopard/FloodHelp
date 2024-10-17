@@ -1,7 +1,26 @@
+###############################################
+# Description
+###############################################
+# tool that validates reports from similiar 
+# reports
+###############################################
+# Setup
+###############################################
 import Tools.Proximity as proximity
 import Tools.CoordString_to_Tuple as cordconv
 
 acceptable_proximity = 0.02
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 
 def validate_user_reports(sample_reports : dict, base_report : dict, alerts : list) -> tuple[int, list]:
     '''
