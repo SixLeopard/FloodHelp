@@ -1,3 +1,11 @@
+###############################################
+# Description
+###############################################
+# Route for API that contains all the account
+# related routes and supporting functions
+###############################################
+# Setup
+###############################################
 #flask + general
 from flask import Flask, session, make_response,request, Blueprint
 from flask_session import Session
@@ -12,10 +20,17 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from API.database import database_interface
 
 login_routes = Blueprint("login_routes", __name__)
-
-#switch this to actually user database
-accounts =	{}
-
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 encoding = 'utf-8'
 
 session_username_mappings = {}

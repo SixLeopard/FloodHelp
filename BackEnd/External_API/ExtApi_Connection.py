@@ -1,8 +1,28 @@
+###############################################
+# Description
+###############################################
+# Compares official flood hazard warnings with 
+# user-submitted hazard reports and identifies 
+# matches based on proximity.
+###############################################
+# Setup
+###############################################
 from geopy.distance import geodesic
 from ExtApi_RealTime import get_alerts
 from Database.db_interface import DBInterface
 
 from External_API.database import database_interface as db
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 
 def hazard_matches():
 

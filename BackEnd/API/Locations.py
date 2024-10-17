@@ -1,3 +1,11 @@
+###############################################
+# Description
+###############################################
+# Route for API that contains all the loation
+# related routes and supporting functions
+###############################################
+# Setup
+###############################################
 #flask
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
@@ -6,7 +14,17 @@ import API.UserReport as UserReport
 from API.database import database_interface as db
 
 location_routes = Blueprint("location_routes", __name__)
-
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 '''
 A dictionary containing a mapping of uid to the last known location of the
 user with that uid. If no location is known, then the value of None.

@@ -1,3 +1,12 @@
+###############################################
+# Description
+###############################################
+# recieves all the real time data from external
+# sources to use in routes including warnings
+# and conditions
+###############################################
+# Setup
+###############################################
 import requests
 import pandas as pd
 import numpy as np
@@ -11,7 +20,22 @@ import hashlib
 from dateutil import parser
 import pytz
 from zoneinfo import ZoneInfo
+import sys
+import os
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from Tools.CoordString_to_Tuple import convert
 def generate_unique_id(alert: dict) -> str:
         """Generates a unique ID using the components of the alert."""
         alert_str = f"{alert['location']}_{alert['coordinates']}_{alert['risk']}_{alert['certainty']}_{alert['start']}_{alert['end']}"
@@ -315,6 +339,7 @@ def random_fake_alerts() -> list:
 
 def specific_fake_alert(headline, location, risk, certainty, issue_date, expiry_date, coordinates) -> str:
     lat, lon = get_coordinates(f"Brisbane, {location}")
+    coordinates = convert(coordinates)
     if coordinates == (0, 0):
         alert = {
             "headline": headline,
