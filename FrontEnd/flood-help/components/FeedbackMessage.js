@@ -1,6 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
+
+/**
+ * Simple Formatter for error messages when they're displayed on the front end.
+ * @param message
+ * @returns {React.JSX.Element|null}
+ * @constructor
+ */
 const FeedbackMessage = ({ message }) => {
     if (!message) return null;
 

@@ -5,6 +5,22 @@ import useStyles from "@/constants/style";
 import UserPressable from "@/components/UserPressable";
 import { useTheme } from "@/contexts/ThemeContext";
 
+/**
+ * UserCard displays a card containing details of the user, including their name, and status.
+ * Depending on what is passed into userAction, the card will display different buttons for the
+ * valid actions. For example this could be an "accept" button if it is rendered under "Pending Connections"
+ * on the connections page.
+ * UserCard is a clickable element that when pressed will render a profile page containing
+ * more details about the user on the condition that the relationship between the user on the card
+ * and the logged in user is an approved connection request.
+ *
+ * @param username the name of the user
+ * @param userID the user's id number (uid)
+ * @param relationshipID the relationship of the user to the logged in user
+ * @param userAction
+ * @returns {Element}
+ * @constructor
+ */
 const UserCard = ({ username, userID, relationshipID, userAction }) => {
     const styles = useStyles();
     const { theme } = useTheme();

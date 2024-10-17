@@ -3,6 +3,15 @@ import { getAuthToken, login, logout } from '@/services/AuthService';
 
 const AuthContext = createContext();
 
+/**
+ * AuthContext is called at the top most level of the app, in order to ensure that only the login and sign up pages
+ * are available to users who are unauthorised. Once authorisation has been validated, AuthContext is updated and
+ * this is passed into all its children.
+ *
+ * @param children
+ * @returns {Element}
+ * @constructor
+ */
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
