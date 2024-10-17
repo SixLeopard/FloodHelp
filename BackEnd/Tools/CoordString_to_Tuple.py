@@ -1,8 +1,8 @@
 ###############################################
 # Description
 ###############################################
-# Route for API that contains all the account
-# related routes and supporting functions
+# simple tool to convert coordiant strings
+# into python tuples
 ###############################################
 # File Info
 ###############################################
