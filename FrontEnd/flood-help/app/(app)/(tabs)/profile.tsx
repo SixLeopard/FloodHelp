@@ -10,17 +10,19 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Import M
 const ScrollView = Animated.ScrollView;
 
 const Profile = () => {
-    const styles = useStyles();
-    const [refreshing, setRefreshing] = useState(false);
-    const [refreshKey, setRefreshKey] = useState(0);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [status, setStatus] = useState("Unknown");
-    const [time, setTime] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const styles = useStyles(); // Fetching styles using the useStyles hook
+    // Local state management
+    const [refreshing, setRefreshing] = useState(false); // State to track refresh status
+    const [refreshKey, setRefreshKey] = useState(0); // Key to trigger data refresh
+    const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
+    const [status, setStatus] = useState("Unknown"); // User status (e.g., Safe, Unsafe)
+    const [time, setTime] = useState(null); // Time related to status check
+    const [loading, setLoading] = useState(true); // Loading state for fetching data
+    const [error, setError] = useState(null); // Error state for handling API errors
 
     const allReports = useAPI(`/reporting/user/get_all_reports_by_user?refreshKey=${refreshKey}`);
     const currentUser = useAPI('/accounts/get_current');
+    const userStatus = useAPI('check_in/get_my_status');
 
     const fetchStatus = async () => {
         try {
