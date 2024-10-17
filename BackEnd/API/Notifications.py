@@ -1,10 +1,28 @@
+###############################################
+# Description
+###############################################
+# Route for API that contains all the notification
+# related routes and supporting functions
+###############################################
+# Setup
+###############################################
 #flask
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
 
 notifications_routes = Blueprint("notifications_routes", __name__)
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 
-#switch to using database.      Why?
 pending_notifications = {}
 
 def add_notification(receiver : str, notification : str) -> None:
