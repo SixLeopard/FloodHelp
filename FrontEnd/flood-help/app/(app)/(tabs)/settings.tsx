@@ -4,7 +4,11 @@ import { useTheme } from '@/contexts/ThemeContext';
 import useStyles from "@/constants/style";
 import {useAuth} from "@/contexts/AuthContext";
 
-
+/**
+ * The Settings screen contains the toggles for triggering certain setting changes including,
+ * Light/Dark Mode (fully implemented), and the Notification Center (not fully implemented).
+ * @constructor
+ */
 export default function SettingsScreen() {
     const { theme, toggleTheme } = useTheme();
     const styles = useStyles();
