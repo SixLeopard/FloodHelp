@@ -77,6 +77,8 @@ Download Expo Go from the App Store or Google Play.
 
 Scan the QR code provided by Expo after running the expo start command.
 
+Please note that development has been done primarily for Android - while most features will work on IOS you may experience some bugs relating to formatting and styling of screens. 
+
 # API Integration
 
 This project consumes several backend API endpoints to fetch flood reports, real-time alerts, and historical flood data, etc. 
