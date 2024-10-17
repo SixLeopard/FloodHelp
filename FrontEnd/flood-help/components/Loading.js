@@ -2,6 +2,12 @@ import React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import useStyles from '@/constants/style';
 
+/**
+ * Simple Loading Screen Boilerplate code.
+ * @param text
+ * @returns {Element}
+ * @constructor
+ */
 const Loading = ({ text = "Loading..." }) => {
     const styles = useStyles();
     return (

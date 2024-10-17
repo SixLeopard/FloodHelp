@@ -3,6 +3,9 @@ import React from 'react';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {useTheme} from "@/contexts/ThemeContext";
 
+/**
+ * TabLayout handles the display of icons in the tab bar shown on all screens throughout the app.
+ */
 export default function TabLayout() {
     const { theme } = useTheme();
     const { colors } = theme;
