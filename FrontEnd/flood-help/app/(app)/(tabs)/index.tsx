@@ -212,7 +212,7 @@ export default function Index() {
         // Check if coordinates and geo_type exist
         if (!coordinatesString || !geo_type || !risk) {
             console.log("No historical risk available for this area.");
-            setRiskLevel("No historical risk available for this area.");
+            setRiskLevel("Very low");
             return;
         }
     
@@ -264,7 +264,7 @@ export default function Index() {
             setRiskLevel(risk);  // Set the risk level
         } else {
             console.log("No valid coordinates found.");
-            setRiskLevel("No historical risk available for this area."); // Set risk level to default if no coordinates are found
+            setRiskLevel("Very low"); // Set risk level to default if no coordinates are found
         }
         };
     
