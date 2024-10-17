@@ -1,8 +1,5 @@
 APScheduler==3.10.4
 attrs==20.3.0
-aws-cfn-bootstrap==2.0
-awscli==2.15.30
-awscrt==0.19.19
 Babel==2.9.1
 blinker==1.8.2
 cachelib==0.13.0
@@ -11,7 +8,6 @@ cffi==1.14.5
 chardet==4.0.0
 chevron==0.13.1
 click==8.1.7
-cloud-init==22.2.2
 colorama==0.4.4
 configobj==5.0.6
 contourpy==1.3.0
@@ -21,7 +17,6 @@ dbus-python==1.2.18
 distlib==0.3.8
 distro==1.5.0
 docutils==0.16
-ec2-hibinit-agent==1.0.8
 filelock==3.15.4
 Flask==3.0.3
 Flask-Autodoc==0.1.2
@@ -30,7 +25,6 @@ fonttools==4.53.1
 geographiclib==2.0
 geopandas==1.0.1
 geopy==2.4.1
-gpg==1.15.1
 gunicorn==22.0.0
 idna==2.10
 importlib_metadata==8.2.0
@@ -42,7 +36,6 @@ jsonpatch==1.21
 jsonpointer==2.0
 jsonschema==3.2.0
 kiwisolver==1.4.7
-libcomps==0.1.20
 lockfile==0.12.2
 MarkupSafe==2.1.5
 matplotlib==3.9.2
@@ -69,17 +62,11 @@ python-daemon==2.3.0
 python-dateutil==2.9.0.post0
 pytz==2022.7.1
 PyYAML==5.4.1
-release-notification==1.2
 requests==2.25.1
-rpm==4.16.1.3
 ruamel.yaml==0.16.6
 ruamel.yaml.clib==0.1.2
-selinux==3.4
-sepolicy==3.4
-setools==4.4.1
 shapely==2.0.6
 six==1.15.0
-support-info==1.0
 systemd-python==235
 tzdata==2024.1
 tzlocal==5.2

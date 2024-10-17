@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import useStyles from '@/constants/style'; // Importing the styles
 import { useAuth } from '@/contexts/AuthContext';
 import { router } from 'expo-router'; // Import router from expo-router
@@ -22,65 +22,71 @@ const LoginScreen = () => {
     };
 
     return (
-        <View style={styles.page}>
-            {/* Logo Section */}
-            <View style={styles.logoContainer}>
-                <Image
-                    source={require('@/assets/images/Logo2.png')}  
-                    style={styles.logoImage} 
-                />
-            </View>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}  // Adjust this based on your layout (e.g., 30 or 50)
+        >
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View style={styles.page}>
+                    {/* Logo Section */}
+                    <View style={styles.logoContainer}>
+                        <Image
+                            source={require('@/assets/images/Logo2.png')}
+                            style={styles.logoImage}
+                        />
+                    </View>
 
-            {/* Input Fields */}
-            <View style={styles.formContainerSignInPage}>
-                {/* Email Input */}
-                <Text style={styles.label}>Email</Text>
-                <TextInput
-                    style={styles.inputBoxSignInPage}
-                    value={email}
-                    onChangeText={setEmail}
-                    placeholder="floodhelp@example.com"
-                    placeholderTextColor="#ccc"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                />
+                    {/* Input Fields */}
+                    <View style={styles.formContainerSignInPage}>
+                        {/* Email Input */}
+                        <Text style={styles.label}>Email</Text>
+                        <TextInput
+                            style={styles.inputBoxSignInPage}
+                            value={email}
+                            onChangeText={setEmail}
+                            placeholder="floodhelp@example.com"
+                            placeholderTextColor="#ccc"
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                        />
 
+                        {/* Password Input */}
+                        <Text style={styles.label}>Password</Text>
+                        <TextInput
+                            style={styles.inputBoxSignInPage}
+                            value={password}
+                            onChangeText={setPassword}
+                            placeholder="Password"
+                            placeholderTextColor="#ccc"
+                            secureTextEntry={true}
+                        />
 
-                {/* Password Input */}
-                <Text style={styles.label}>Password</Text>
-                <TextInput
-                    style={styles.inputBoxSignInPage}
-                    value={password}
-                    onChangeText={setPassword}
-                    placeholder="Password"
-                    placeholderTextColor="#ccc"
-                    secureTextEntry={true}
-                />
+                        {/* Error Display */}
+                        {error && <Text style={styles.errorText}>{error}</Text>}
 
-                {/* Error Display */}
-                {error && <Text style={styles.errorText}>{error}</Text>} 
+                        {/* Login Button */}
+                        <TouchableOpacity
+                            style={styles.signInButton}
+                            onPress={handleLogin}
+                        >
+                            <Text style={styles.signInButtonText}>Login</Text>
+                        </TouchableOpacity>
 
-                {/* Login Button */}
-                <TouchableOpacity
-                    style={styles.signInButton}
-                    onPress={handleLogin}
-                >
-                    <Text style={styles.signInButtonText}>Login</Text>
-                </TouchableOpacity>
-
-                {/* Register and Forgot Password Links */}
-                <View style={styles.linkContainer}>
-                    <TouchableOpacity onPress={() => router.push('/(auth)/CreateAccountScreen')}>
-                        <Text style={styles.linkText}>Register New Account</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => router.push('(auth)/ForgotPasswordScreen')}>
-                        <Text style={styles.linkText}>Forgot Password?</Text>
-                    </TouchableOpacity>
+                        {/* Register and Forgot Password Links */}
+                        <View style={styles.linkContainer}>
+                            <TouchableOpacity onPress={() => router.push('/(auth)/CreateAccountScreen')}>
+                                <Text style={styles.linkText}>Register New Account</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => router.push('(auth)/ForgotPasswordScreen')}>
+                                <Text style={styles.linkText}>Forgot Password?</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                 </View>
-            </View>
-        </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 
 export default LoginScreen;
-

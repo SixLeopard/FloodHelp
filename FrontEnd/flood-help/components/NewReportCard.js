@@ -4,25 +4,63 @@ import { Picker } from '@react-native-picker/picker';
 import useStyles from '@/constants/style';
 import FH_Button from "@/components/navigation/FH_Button";
 
+/**
+ * NewReportCard is a form component for submitting a new flood report. It allows users to input a title,
+ * select a location, choose the type of flood, provide a description, and attach photos.
+ *
+ * @component
+ * @param {string} location - The location of the report as a string.
+ * @param {Function} onLocationPress - Function called when the location field is pressed.
+ * @param {string} floodType - The selected type of flood (e.g., Major, Moderate, Minor).
+ * @param {Function} setFloodType - Function to set the selected flood type.
+ * @param {string} title - The title of the report.
+ * @param {Function} setTitle - Function to set the title of the report.
+ * @param {string} description - The description of the report.
+ * @param {Function} setDescription - Function to set the description of the report.
+ * @param {Array<string>} photos - Array of image paths for the photos attached to the report.
+ * @param {Function} onTakePhoto - Function called to take a new photo using the camera.
+ * @param {Function} onPickImage - Function called to pick an image from the gallery.
+ * @param {Function} onRemoveImage - Function to remove a selected image from the report.
+ * @param {Function} onSubmit - Function to handle submitting the report.
+ * @param {boolean} loading - Boolean indicating whether the report is currently being submitted.
+ * @param {string|null} error - Error message, if any, during report submission.
+ * @returns {JSX.Element} The form for creating and submitting a new report.
+ */
 const NewReportCard = ({
-    location,
-    onLocationPress,
-    floodType,
-    setFloodType,
-    description,
-    setDescription,
-    photos,
-    onTakePhoto,
-    onPickImage,
-    onRemoveImage,
-    onSubmit,
-    loading,
-    error,
-}) => {
+                           location,
+                           onLocationPress,
+                           floodType,
+                           setFloodType,
+                           title,
+                           setTitle,
+                           description,
+                           setDescription,
+                           photos,
+                           onTakePhoto,
+                           onPickImage,
+                           onRemoveImage,
+                           onSubmit,
+                           loading,
+                           error,
+                       }) => {
     const styles = useStyles();
-
     return (
         <View style={styles.formContainer}>
+
+            {/* Title Input */}
+            <View style={styles.descriptionContainer}>
+                <Text style={styles.bodyTextBold}>Title</Text>
+                <View style={styles.titleInput}>
+                    <TextInput
+                        style={styles.bodyTextBold}
+                        placeholder="Enter a Title"
+                        multiline
+                        value={title}
+                        onChangeText={setTitle}
+                    />
+                </View>
+            </View>
+
             {/* Location Picker */}
             <TouchableOpacity onPress={onLocationPress} style={styles.locationContainer}>
                 <Text style={styles.bodyTextBold}>Location</Text>

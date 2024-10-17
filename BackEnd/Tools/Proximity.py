@@ -1,4 +1,23 @@
+###############################################
+# Description
+###############################################
+# tool to check if coordiants are close
+# where close is defined by bound
+###############################################
+# Setup
+###############################################
 import numpy as np
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 
 LAT = 0 #index of latitude
 LONG = 1 # index of longatude

@@ -1,3 +1,11 @@
+###############################################
+# Description
+###############################################
+# Route for API that contains all the User Reporting
+# related routes and supporting functions
+###############################################
+# Setup
+###############################################
 #flask
 from flask import Flask, session, make_response,request, Blueprint
 import API.Accounts as Accounts
@@ -17,6 +25,17 @@ from API.database import database_interface as db
 import json
 
 userreport_routes = Blueprint("userreport_routes", __name__)
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 
 # The number of hours after which a user report will be deleted by the hazard_maintenance()
 # function.
@@ -188,7 +207,7 @@ def add_user_report_route():
         return make_response({"invalid_account":1})
     return make_response({"invalid_request":1})
 
-@userreport_routes.route("/reporting/user/get_report", methods = ['GET'])
+@userreport_routes.route("/reporting/user/get_report", methods = ['POST'])
 def get_user_report_route():
     '''
     Retrieve the report with the ID specified in the report_id field of the request body
@@ -202,7 +221,7 @@ def get_user_report_route():
         no login: {"invalid_account":1}
         not using POST: {"invalid_request":1}
     '''
-    if request.method == 'GET':
+    if request.method == 'POST':
         report_id = request.form.get('report_id')
         if Accounts.verify_user_account(session["username"], session["id"]):
             try:
@@ -302,12 +321,12 @@ def get_report_validation_score_route():
 
         Returns:
             {report_id:score} where score gives the score number then a list of
-            of all the hazrd ids that contributeed to that score
+            of all the hazrd ids that contributeed to that score, and also a list of all nearby official alerts
     '''
     if request.method == 'POST':
         report_id = request.form.get('report_id')
         if Accounts.verify_user_account(session["username"], session["id"]):
-            score = UserReportVerfication.validate_user_reports(db.get_all_hazard_ranking_dict(), get_user_report(report_id))
+            score = UserReportVerfication.validate_user_reports(db.get_all_hazard_ranking_dict(), get_user_report(report_id), db.get_alerts())
             return make_response({report_id:score})
         
         return make_response({"invalid_account":1})

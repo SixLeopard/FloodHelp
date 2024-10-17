@@ -1,3 +1,11 @@
+###############################################
+# Description
+###############################################
+# Route for API that contains all the check in
+# related routes and supporting functions
+###############################################
+# Setup
+###############################################
 from flask import Flask, Blueprint, request, make_response, session
 import datetime as Time
 from API.database import database_interface
@@ -5,6 +13,17 @@ import API.Accounts as Accounts
 from API.Notifications import add_notification
 
 checkin_routes = Blueprint("checkin_routes", __name__)
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
 
 statuses = {}
 
@@ -54,6 +73,35 @@ def get_checkin_route():
                     if statuses[str(i)][1] < Time.datetime.now() - Time.timedelta(hours=status_timeout_hours):
                         statuses[i] = ("Unknown", Time.datetime.now())
                     output[str(i)] = (statuses[str(i)], database_interface.get_user_by_uid(int(i))[1])
+            results = make_response(output)
+            return results
+        return make_response({"invalid_account":1})
+    return make_response({"invalid_request":1})
+
+@checkin_routes.route("/check_in/get_my_status", methods = ['GET'])
+def get_my_checkin_route():
+    '''
+        get your current status
+
+        Form Data:
+            Nothing
+        
+        Return:
+            yourcurrent checkin status
+            either "Completed" , "Pending", "Unknown" or "Unsafe"
+    '''
+    if request.method == 'GET':
+        if Accounts.verify_user_account(session["username"], session["id"]):
+            relationships = database_interface.get_approved_relationships_ids(session["uid"])
+            output = {}
+            i = session["uid"]
+            if (str(i) in statuses):
+                if statuses[str(i)][1] < Time.datetime.now() - Time.timedelta(hours=status_timeout_hours):
+                    statuses[i] = ("Unknown", Time.datetime.now())
+                output["status"] = statuses[str(i)][0]
+                output["time"] = statuses[str(i)][1]
+            else:
+                return make_response({"you have not given a status yet":1})
             results = make_response(output)
             return results
         return make_response({"invalid_account":1})
