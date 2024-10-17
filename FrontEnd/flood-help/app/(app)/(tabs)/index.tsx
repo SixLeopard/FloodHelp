@@ -56,6 +56,12 @@ interface OfficialAlert {
 }
 
 
+/**
+ * Main component for displaying the map with various markers and modals for flood reports, connections, and alerts.
+ *
+ * @component
+ * @returns {JSX.Element} The main map screen component.
+ */
 export default function Index() {
     // Accessing theme styles and context
     const styles = useStyles();
@@ -88,21 +94,29 @@ export default function Index() {
         console.log("useEffect triggered with user:", user);
         if (!user) return;
     
-        // Fetch data when the user logs in
-        const fetchData = async () => {
-            try {
-                await updateLocationAndFetchConnections();
-                await fetchReports();
-                await fetchOfficialAlerts();
-            } catch (error) {
-                console.error('Error fetching data on user login:', error);
-            }
-        };
-    
         fetchData();
     }, [user]);
 
-    // Function to fetch all reports from the server
+    /**
+     * Fetch data when the user logs in. This includes location updates, reports, and alerts.
+     *
+     * @async
+     */
+    const fetchData = async () => {
+        try {
+            await updateLocationAndFetchConnections();
+            await fetchReports();
+            await fetchOfficialAlerts();
+        } catch (error) {
+            console.error('Error fetching data on user login:', error);
+        }
+    };
+
+    /**
+     * Fetch all flood reports from the server and map them by their report IDs.
+     *
+     * @async
+     */
     const fetchReports = async () => {
         try {
             const response = await fetch('http://54.206.190.121:5000/reporting/user/get_all_report_basic', {
@@ -127,7 +141,12 @@ export default function Index() {
         }
     };
 
-    // Function to fetch validation score based on report_id
+    /**
+     * Fetch validation score for a specific report based on its report ID.
+     *
+     * @param {number} reportId - The ID of the report to fetch validation score for.
+     * @async
+     */
     const fetchValidationScore = async (reportId: number) => {
         try {
             const formData = new FormData();
@@ -152,7 +171,11 @@ export default function Index() {
         }
     };
 
-    // Function to fetch official alerts from the server
+    /**
+     * Fetch official flood alerts from the server and map them into `OfficialAlert` objects.
+     *
+     * @async
+     */
     const fetchOfficialAlerts = async () => {
         try {
             const response = await fetch('http://54.206.190.121:5000/externalData/get_alerts', {
@@ -178,7 +201,11 @@ export default function Index() {
         }
     };
 
-    // Function to handle Polygon or MultiPolygon data
+    /**
+     * Process the polygon data received from the server and extract coordinates for flood zones.
+     * 
+     * @param {Object} data - The polygon data received from the server.
+     */
     const processPolygonData = (data: any) => {
         let { coordinates: coordinatesString, geo_type, risk } = data;
     
@@ -241,7 +268,13 @@ export default function Index() {
         }
         };
     
-    // Call this function after receiving polygon data from the API
+    /**
+     * Fetch polygon data from the server based on the given latitude and longitude.
+     * 
+     * @param {number} latitude - The latitude of the selected location.
+     * @param {number} longitude - The longitude of the selected location.
+     * @async
+     */
     const fetchPolygonData = async (latitude: number, longitude: number) => {
         try {
             const formData = new FormData();
@@ -265,7 +298,11 @@ export default function Index() {
         }
     };
     
-    // Function to update the user's location and fetch connection data
+    /**
+     * Update the user's location and fetch their connection data from the server.
+     *
+     * @async
+     */
     const updateLocationAndFetchConnections = async () => {
         try {
             // Request location permission
@@ -366,28 +403,37 @@ export default function Index() {
         }
     };
 
-    // Function to send "Safe" status if user is not near a flood zone
-const sendSafeStatus = async () => {
-    try {
-        const formData = new FormData();
-        formData.append('status', 'Safe');
 
-        const response = await fetch('http://54.206.190.121:5000/check_in/send', {
-            method: 'POST',
-            body: formData,
-        });
+    /**
+     * Send the user's status as "Safe" to the server.
+     * 
+     * @async
+     */
+    const sendSafeStatus = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('status', 'Safe');
 
-        if (!response.ok) {
-            console.error('Failed to send Safe status:', response.status);
-        } else {
-            console.log('Safe status sent successfully.');
+            const response = await fetch('http://54.206.190.121:5000/check_in/send', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                console.error('Failed to send Safe status:', response.status);
+            } else {
+                console.log('Safe status sent successfully.');
+            }
+        } catch (error) {
+            console.error('Error sending Safe status:', error);
         }
-    } catch (error) {
-        console.error('Error sending Safe status:', error);
-    }
-};
+    };
     
-    // Function to send "Unsafe" status if user is near a flood zone
+    /**
+     * Send the user's status as "Unsafe" to the server.
+     * 
+     * @async
+     */
     const sendUnsafeStatus = async () => {
         try {
             const formData = new FormData();
@@ -408,7 +454,12 @@ const sendSafeStatus = async () => {
         }
     };
 
-    // Function to handle a check-in notification for a connection
+    /**
+     * Send a check-in notification to a connection based on their UID.
+     * 
+     * @param {number} uid - The UID of the connection to send the notification to.
+     * @async
+     */
     const handleCheckIn = async (uid: number) => {
         try {
             // Look up the user's name based on the uid
@@ -441,7 +492,13 @@ const sendSafeStatus = async () => {
         }
     };
     
-    // Function to fetch the address from coordinates
+    /**
+     * Fetch the address corresponding to the given coordinates.
+     *
+     * @param {string} coordinates - Coordinates as a string in "(latitude,longitude)" format.
+     * @returns {Promise<string>} The address of the coordinates.
+     * @async
+     */
     const getAddressFromCoordinates = async (coordinates: string): Promise<string> => {
         try {
             const [latitude, longitude] = coordinates.replace(/[()]/g, '').split(',');
@@ -462,11 +519,21 @@ const sendSafeStatus = async () => {
         }
     };
 
-    // Helper function to format time from a datetime string
+    /**
+     * Format the time from a datetime string.
+     * 
+     * @param {string} datetime - The datetime string to format.
+     * @returns {string} The formatted time in 12-hour format.
+     */
     const formatTime = (datetime: string) => {
         const date = new Date(datetime);
-        let hours = date.getUTCHours(); 
-        let minutes: string | number = date.getUTCMinutes(); 
+    
+        const brisbaneOffset = 10 * 60; // 10 hours in minutes
+        const localOffset = date.getTimezoneOffset(); // Get the local timezone offset in minutes
+        const adjustedTime = new Date(date.getTime() + (brisbaneOffset + localOffset) * 60000); // Adjust time to Brisbane time
+    
+        let hours = adjustedTime.getHours(); 
+        let minutes: string | number = adjustedTime.getMinutes(); 
         const ampm = hours >= 12 ? 'pm' : 'am';
     
         hours = hours % 12;
@@ -476,7 +543,28 @@ const sendSafeStatus = async () => {
         return `${hours}:${minutes} ${ampm}`;
     };
 
-    // Function to handle when a flood report marker is pressed
+    /**
+     * Format the date from a datetime string.
+     * 
+     * @param {string} datetime - The datetime string to format.
+     * @returns {string} The formatted date in the format 'DD/MM/YYYY'.
+     */
+    const formatDate = (datetime: string) => {
+        const date = new Date(datetime);
+        const day = date.getDate();
+        const month = date.getMonth() + 1; // Months are 0-indexed
+        const year = date.getFullYear();
+
+        // Return the date in 'DD/MM/YYYY' format
+        return `${day < 10 ? '0' + day : day}/${month < 10 ? '0' + month : month}/${year}`;
+    };
+
+    /**
+     * Handle when a flood report marker is pressed. Fetch additional data like location and validation score.
+     *
+     * @param {Report} report - The report object associated with the marker.
+     * @async
+     */
     const handleMarkerPress = async (report: any) => {
         try {
             const location = await getAddressFromCoordinates(report.coordinates);
@@ -492,7 +580,11 @@ const sendSafeStatus = async () => {
     };
 
 
-    // Function to handle when an official alert marker is pressed
+    /**
+     * Handle when an official alert marker is pressed and show a modal with alert details.
+     *
+     * @param {OfficialAlert} alert - The official alert object associated with the marker.
+     */
     const handleOfficialAlertPress = (alert: OfficialAlert) => {
         setSelectedOfficialAlert(alert);  
         setShowAlertModal(true);
@@ -544,7 +636,15 @@ const sendSafeStatus = async () => {
         setSelectedOfficialAlert(null);
     };
 
-    // Helper function to calculate proximity between two points
+    /**
+     * Calculate the distance between two geographic coordinates.
+     * 
+     * @param {number} lat1 - Latitude of the first point.
+     * @param {number} lon1 - Longitude of the first point.
+     * @param {number} lat2 - Latitude of the second point.
+     * @param {number} lon2 - Longitude of the second point.
+     * @returns {number} The distance between the two points in kilometers.
+     */
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
         const R = 6371; // Radius of the Earth in km
         const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -557,7 +657,12 @@ const sendSafeStatus = async () => {
         return distance;
     };
 
-    // Check if a connection is within a certain distance of a flood area
+    /**
+     * Check if a connection is located within a flood zone.
+     * 
+     * @param {ConnectionLocation} connection - The connection's location.
+     * @returns {boolean} True if the connection is in a flood area, false otherwise.
+     */
     const isConnectionInFloodArea = (connection: ConnectionLocation): boolean => {
         if (!reports || Object.keys(reports).length === 0) return false;
 
@@ -576,7 +681,11 @@ const sendSafeStatus = async () => {
         });
     };
 
-    // Function to handle marker drag event
+    /**
+     * Handle the event when a marker is dragged and dropped on the map.
+     * 
+     * @param {Object} e - The event object containing the new marker coordinates.
+     */
     const onMarkerDragEnd = (e: any) => {
         const { latitude, longitude } = e.nativeEvent.coordinate;
         setHistoricalMarkerCoords({ latitude, longitude });
@@ -586,7 +695,11 @@ const sendSafeStatus = async () => {
         fetchPolygonData(latitude, longitude);
     };
 
-    // Handle user tap on the map to move the marker
+    /**
+     * Handle the event when a user taps on the map to move the historical marker.
+     * 
+     * @param {Object} e - The event object containing the new marker coordinates.
+     */
     const onMapPress = (e: any) => {
         const { latitude, longitude } = e.nativeEvent.coordinate;
         setHistoricalMarkerCoords({ latitude, longitude });
@@ -595,18 +708,28 @@ const sendSafeStatus = async () => {
         // Fetch polygon data when user taps on the map
         fetchPolygonData(latitude, longitude);
     };
-    // Helper function to display alert with coordinates
+
+    /**
+     * Display an alert with the selected coordinates after marker movement.
+     * 
+     * @param {number} latitude - The latitude of the selected coordinates.
+     * @param {number} longitude - The longitude of the selected coordinates.
+     */
     const displayCoordinatesAlert = (latitude: number, longitude: number) => {
         console.log("Marker moved/tapped to:", latitude, longitude);
         Alert.alert("Coordinates Selected", `Lat: ${latitude}, Long: ${longitude}`);
     };
 
-    // Function to navigate to the 'newreport' screen
+    /**
+     * Navigate to the 'newreport' screen to add a new report.
+     */
     const handleAddReport = () => {
         navigation.navigate('newreport');
     };
 
-    // Toggle historical data marker
+    /**
+     * Toggle the visibility of the historical marker on the map.
+     */
     const handleHistoricalToggle = () => {
         setShowHistoricalMarker(!showHistoricalMarker);
         if (!showHistoricalMarker) {
@@ -623,7 +746,12 @@ const sendSafeStatus = async () => {
         }
     };
 
-    // Helper function to determine flood severity color based on type
+    /**
+     * Get the appropriate color based on the flood severity type.
+     * 
+     * @param {string} type - The flood severity type.
+     * @returns {string} The color corresponding to the flood type.
+     */
     const getFloodColor = (type: string): string => {
         if (type == null) {
             return 'midnightblue';
@@ -794,7 +922,7 @@ const sendSafeStatus = async () => {
     
                                 {/* Report Details */}
                                 <Text style={styles.alertDescription}>
-                                    {selectedReport.type} was reported at {selectedReport.location || 'Unknown Location'} on {selectedReport.datetime}.
+                                    {selectedReport.type} was reported at {selectedReport.location || 'Unknown Location'} on on {formatDate(selectedReport.datetime)} at {formatTime(selectedReport.datetime)}.
                                 </Text>
 
                                 {/* Display Validation Score */}
