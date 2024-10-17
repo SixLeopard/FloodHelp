@@ -1,8 +1,27 @@
+###############################################
+# Description
+###############################################
+# test file for testing databse dunctions
+###############################################
+# Setup
+##############################################
 from db_interface import DBInterface
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from External_API import ExtApis_historical
+###############################################
+# File Info
+###############################################
+__author__ = 'FloodHelp BeckEnd Team'
+__copyright__ = 'Copyright 2024, FloodHelp API'
+__credits__ = ['Flask', 'Autodoc']
+__license__ = 'All Rights Reserved'
+__version__ = '0.8.9'
+__maintainer__ = 'FloodHelp BeckEnd Team'
+__status__ = 'Prototype'
+###############################################
+
 db = DBInterface()
 
 
