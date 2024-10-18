@@ -4,8 +4,10 @@ import { Checkbox } from 'expo-checkbox';
 import useStyles from '@/constants/style';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { baseURL } from '@/constants/baseurl';
 
-const baseUrl = 'http://54.206.190.121:5000'; // API endpoint
+
+const baseUrl = baseURL
 
 const RegisterScreen = () => {
     const styles = useStyles();

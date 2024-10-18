@@ -5,6 +5,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import NotificationCard from "@/components/NotificationCard";
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { baseURL } from '@/constants/baseurl';
 
 type RootStackParamList = {
     index: undefined;
@@ -64,6 +65,7 @@ const Notifications = () => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+    const baseUrL = baseURL;
 
     /**
      * Fetches initial data (notifications, flood alerts, and check-in statuses) when the component mounts.
@@ -99,7 +101,7 @@ const Notifications = () => {
      */
     const fetchNotifications = async () => {
         try {
-            const response = await fetch('http://54.206.190.121:5000/notifications/get', {
+            const response = await fetch(baseUrL + '/notifications/get', {
                 method: 'GET',
             });
 
@@ -159,7 +161,7 @@ const Notifications = () => {
             const formData = new FormData();
             formData.append('status', status);
 
-            const response = await fetch('http://54.206.190.121:5000/check_in/send', {
+            const response = await fetch(baseUrL + '/check_in/send', {
                 method: 'POST',
                 body: formData,
             });
@@ -183,7 +185,7 @@ const Notifications = () => {
      */
     const fetchFloodAlerts = async () => {
         try {
-            const response = await fetch('http://54.206.190.121:5000/externalData/get_alerts', {
+            const response = await fetch(baseUrL + '/externalData/get_alerts', {
                 method: 'GET',
             });
             const floodAlertsData = await response.json();
@@ -212,7 +214,7 @@ const Notifications = () => {
      */
     const fetchCheckInStatuses = async () => {
         try {
-            const response = await fetch('http://54.206.190.121:5000/check_in/get_checkins', {
+            const response = await fetch(baseUrL + '/check_in/get_checkins', {
                 method: 'GET',
             });
 
@@ -244,7 +246,7 @@ const Notifications = () => {
         const formData = new FormData();
         formData.append('reciever', receiverUid); 
 
-        fetch('http://54.206.190.121:5000/check_in/send_push', { 
+        fetch(baseUrL + '/check_in/send_push', { 
             method: 'POST',
             body: formData,
         })

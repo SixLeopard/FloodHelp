@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
+import {baseURL} from '@/constants/baseurl';
 
 type RootStackParamList = {
     newreport: undefined;
@@ -88,6 +89,7 @@ export default function Index() {
 
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { user } = useAuth(); // Authentication context to get the current user
+    const baseurl = baseURL;
 
     // useEffect hook to trigger location and data fetching when user logs in
     useEffect(() => {
@@ -119,7 +121,7 @@ export default function Index() {
      */
     const fetchReports = async () => {
         try {
-            const response = await fetch('http://54.206.190.121:5000/reporting/user/get_all_report_basic', {
+            const response = await fetch(baseurl + '/reporting/user/get_all_report_basic', {
                 method: 'GET',
             });
             const reportsData = await response.json();
@@ -152,7 +154,7 @@ export default function Index() {
             const formData = new FormData();
             formData.append('report_id', String(reportId));
 
-            const response = await fetch('http://54.206.190.121:5000/reporting/user/get_report_validation_score', {
+            const response = await fetch(baseurl + '/reporting/user/get_report_validation_score', {
                 method: 'POST',
                 body: formData,
             });
@@ -178,7 +180,7 @@ export default function Index() {
      */
     const fetchOfficialAlerts = async () => {
         try {
-            const response = await fetch('http://54.206.190.121:5000/externalData/get_alerts', {
+            const response = await fetch(baseurl + '/externalData/get_alerts', {
                 method: 'GET',
             });
             const alertsData = await response.json();
@@ -280,7 +282,7 @@ export default function Index() {
             const formData = new FormData();
             formData.append('coordinate', `(${longitude},${latitude})`);
 
-            const response = await fetch('http://54.206.190.121:5000/externalData/get_polygon', {
+            const response = await fetch(baseurl + '/externalData/get_polygon', {
                 method: 'POST',
                 body: formData,
             });
@@ -365,7 +367,7 @@ export default function Index() {
             // Update the user's location on the server
             const formData = new FormData();
             formData.append('location', `(${latitude},${longitude})`);
-            const locationUpdateResponse = await fetch('http://54.206.190.121:5000/locations/update', {
+            const locationUpdateResponse = await fetch(baseurl + '/locations/update', {
                 method: 'POST',
                 body: formData,
             });
@@ -386,7 +388,7 @@ export default function Index() {
             }
 
             // Fetch relationships data
-            const relationshipsResponse = await fetch('http://54.206.190.121:5000/relationships/get_relationships', {
+            const relationshipsResponse = await fetch(baseurl + '/relationships/get_relationships', {
                 method: 'GET',
             });
             const relationshipsData = await relationshipsResponse.json();
@@ -414,7 +416,7 @@ export default function Index() {
             const formData = new FormData();
             formData.append('status', 'Safe');
 
-            const response = await fetch('http://54.206.190.121:5000/check_in/send', {
+            const response = await fetch(baseurl + '/check_in/send', {
                 method: 'POST',
                 body: formData,
             });
@@ -439,7 +441,7 @@ export default function Index() {
             const formData = new FormData();
             formData.append('status', 'Unsafe');
 
-            const response = await fetch('http://54.206.190.121:5000/check_in/send', {
+            const response = await fetch(baseurl + '/check_in/send', {
                 method: 'POST',
                 body: formData,
             });
@@ -475,7 +477,7 @@ export default function Index() {
             formData.append('reciever', String(uid));
     
             // Send the check-in notification
-            const response = await fetch('http://54.206.190.121:5000/check_in/send_push', {
+            const response = await fetch(baseurl + '/check_in/send_push', {
                 method: 'POST',
                 body: formData,
             });
@@ -593,7 +595,7 @@ export default function Index() {
     // Modal for connection markers
     const handleConnectionPress = async (connection: ConnectionLocation) => {
         try {
-            const response = await fetch('http://54.206.190.121:5000/check_in/get_checkins', {
+            const response = await fetch(baseurl + '/check_in/get_checkins', {
                 method: 'GET',
             });
 

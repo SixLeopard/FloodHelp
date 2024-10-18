@@ -5,6 +5,7 @@ import { useLocalSearchParams } from 'expo-router';
 import MapView from "react-native-maps";
 import { formatDateTime } from "@/services/DateTimeFormatter";
 import { useTheme } from "@/contexts/ThemeContext";
+import { baseURL } from '@/constants/baseurl';
 
 /**
  * Report page displays a retrieved report using the /reporting/user/get_report API call.
@@ -19,6 +20,7 @@ const ReportPage = () => {
     const [reportData, setReportData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const baseUrl = baseURL;
 
     const fetchReportData = async () => {
         setRefreshing(true);
@@ -29,7 +31,7 @@ const ReportPage = () => {
         console.log(report_id);
 
         try {
-            const response = await fetch(`http://54.206.190.121:5000/reporting/user/get_report`, {
+            const response = await fetch(baseUrl + `/reporting/user/get_report`, {
                 method: 'POST',
                 body: formData,
             });
