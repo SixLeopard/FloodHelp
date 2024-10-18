@@ -42,7 +42,7 @@ npm install -g expo-cli
 ## 0. Updating API endpoint (optional)
 If you are running our api server yourself (see /Backend/ReadMe.md for details on how to setup) and want the app to use it (this will be required once we stop the aws instance that is running the public api server next year) you will need to change some configs in the code. 
 #### update endpoint in code
-open FrontEnd/flood-help/hooks/useAPI.js and change 'http://54.206.190.121:5000 on line 5 to the address of your running API serve
+open FrontEnd/flood-help/constants/baseurl.js and change 'http://54.206.190.121:5000 to the address of your running API server.
 
 ## 1. Navigate to the project directory:
 
