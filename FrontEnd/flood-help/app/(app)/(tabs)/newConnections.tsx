@@ -11,6 +11,7 @@ import {
 import useStyles from "@/constants/style";
 import UserCard from "@/components/UserCard";
 import useAPI from "@/hooks/useAPI";
+import { baseURL } from '@/constants/baseurl';
 
 const ScrollView = Animated.ScrollView;
 
@@ -22,7 +23,7 @@ const NewConnections = ({ navigation }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [relationships, setRelationships] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
-    const apiUrl = "http://54.206.190.121:5000";
+    const apiUrl = baseURL;
 
     // Fetch relationships and current user data
     const fetchData = async () => {

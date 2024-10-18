@@ -9,6 +9,7 @@ import NewReportCard from '@/components/NewReportCard';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/components/navigation/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { baseURL } from '@/constants/baseurl';
 
 type NewReportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'newreport'>;
 
@@ -35,6 +36,7 @@ const NewReport = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
+    const baseUrL = baseURL;
 
     /**
      * Function to handle refresh action, which re-fetches the current location.
@@ -179,7 +181,7 @@ const NewReport = () => {
             }
 
             // Submit the form data using a standard fetch call
-            const response = await fetch('http://54.206.190.121:5000/reporting/user/add_report', {
+            const response = await fetch(baseUrL + '/reporting/user/add_report', {
                 method: 'POST',
                 body: body
             });

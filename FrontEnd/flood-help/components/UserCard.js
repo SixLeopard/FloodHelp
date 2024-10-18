@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import useStyles from "@/constants/style";
 import UserPressable from "@/components/UserPressable";
 import { useTheme } from "@/contexts/ThemeContext";
+import { baseURL } from '@/constants/baseurl';
 
 /**
  * UserCard displays a card containing details of the user, including their name, and status.
@@ -29,13 +30,14 @@ const UserCard = ({ username, userID, relationshipID, userAction }) => {
     const [loading, setLoading] = useState(false);
     const [apiResult, setApiResult] = useState(null);
     const [checkInData, setCheckInData] = useState("unknown");
+    const baseUrL = baseURL;
 
     useEffect(() => {
         if (userAction === "approvedRequest") {
             const fetchCheckInData = async () => {
                 setLoading(true);
                 try {
-                    const response = await fetch("http://54.206.190.121:5000/check_in/get_checkins", {
+                    const response = await fetch(baseUrL + "/check_in/get_checkins", {
                         method: 'GET',
                     });
                     const result = await response.json();
@@ -52,7 +54,7 @@ const UserCard = ({ username, userID, relationshipID, userAction }) => {
     }, [userAction]); // Fetch data only when userAction changes
 
     const handlePress = async (actionType) => {
-        let endpoint = "http://54.206.190.121:5000";
+        let endpoint = baseUrL;
         const formData = new FormData();
         if (actionType === 'check-status') {
             formData.append('uid', userID);
@@ -99,7 +101,7 @@ const UserCard = ({ username, userID, relationshipID, userAction }) => {
         setLoading(true);
 
         try {
-            const response = await fetch("http://54.206.190.121:5000/check_in/get_checkins");
+            const response = await fetch(baseUrL + "/check_in/get_checkins");
             result = await response.json();
             setCheckInData(result[userID][0][0]);
         } catch (error) {

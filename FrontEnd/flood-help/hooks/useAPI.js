@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchData } from '@/services/apiService';
+import { baseURL } from '@/constants/baseurl';
 
 /**
  * UseAPI is returns a response from the database, dependant on the provided endpoint.
@@ -12,7 +13,9 @@ import { fetchData } from '@/services/apiService';
  * @returns {unknown}
  */
 const useAPI = (endpoint, requestBody = null, method = 'GET') => {
-    const baseURL = 'http://54.206.190.121:5000';
+    const test = baseURL;
+    console.log(test);
+    const baseUrL = baseURL;
     const [result, setResult] = useState(null);
 
     useEffect(() => {
