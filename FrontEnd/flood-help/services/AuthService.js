@@ -1,8 +1,9 @@
 import * as SecureStore from 'expo-secure-store';
 import {router} from "expo-router";
 import getAPI from "@/hooks/useAPI";
+import { baseURL } from '@/constants/baseurl';
 
-const baseUrl = 'http://54.206.190.121:5000';
+const baseUrl = baseURL;
 
 // Function to login by making a POST request to the backend
 export const login = async ({ email, password }) => {

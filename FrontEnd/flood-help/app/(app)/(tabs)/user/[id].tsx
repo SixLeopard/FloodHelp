@@ -3,6 +3,9 @@ import {Animated, Text, TouchableOpacity, View} from "react-native";
 import useStyles from "@/constants/style";
 import {router, useLocalSearchParams} from "expo-router";
 import UserAvatar from "@/components/UserAvatar";
+import { baseURL } from '@/constants/baseurl';
+
+const baseUrL = baseURL;
 
 /**
  * User page displays information about the specified user with details from the database,
@@ -14,7 +17,7 @@ const UserPage = () => {
     const styles = useStyles();
 
     const handlePress = async (relationshipID) => {
-        let call = "http://54.206.190.121:5000/relationships/delete/";
+        let call = baseUrL + "/relationships/delete/";
         const formData = new FormData();
         formData.append('relationship_id', relationshipID);
 

@@ -6,6 +6,7 @@ import ReportCard from '@/components/ReportCard';
 import FH_Button from '@/components/navigation/FH_Button';
 import useAPI from '@/hooks/useAPI';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Import MaterialCommunityIcons
+import { baseURL } from '@/constants/baseurl';
 
 const ScrollView = Animated.ScrollView;
 
@@ -32,7 +33,7 @@ const Profile = () => {
 
     const fetchStatus = async () => {
         try {
-            const response = await fetch('http://54.206.190.121:5000/check_in/get_my_status');
+            const response = await fetch(baseURL + '/check_in/get_my_status');
             const data = await response.json();
             setStatus(data.status);
             setTime(data.time);
@@ -61,7 +62,7 @@ const Profile = () => {
         formData.append('status', newStatus);
 
         try {
-            const response = await fetch('http://54.206.190.121:5000/check_in/send', {
+            const response = await fetch(baseURL + '/check_in/send', {
                 method: 'POST',
                 body: formData
             });
