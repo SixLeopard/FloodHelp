@@ -35,6 +35,8 @@ encoding = 'utf-8'
 
 session_username_mappings = {}
 
+#Security -> used on most routes to ensure the user is logged
+# in before being able to use the route
 def verify_user_account(username, session):
     try:
         if session_username_mappings[username].decode() == session.decode():
@@ -44,8 +46,8 @@ def verify_user_account(username, session):
     except:
         return False
 
+#Security + Data Provacy -> Passwords are encrypted
 def create_account(name: str, email: str, password: str):
-    #try:
     #set up encryption allocation and generate salt for user
     salt = os.urandom(16)
     kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=480000)
@@ -79,9 +81,6 @@ def login(email: str, password):
     else:
         print("user submitted invalid password")
         return (None,None,None)
-    #except:
-    #    print("datebase error")
-    #    return(None,None,None)
         
 
 @login_routes.route("/accounts/login", methods = ['POST'])
