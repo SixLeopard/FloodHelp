@@ -36,8 +36,10 @@ locations = {
     ...
 }
 '''
+#privacy -> locations arent stored in database on in ram
 locations = {}
 
+#privacy -> after getting locations they are delated
 @location_routes.route("/locations/update", methods = ['POST'])
 def update_locations():
     '''
