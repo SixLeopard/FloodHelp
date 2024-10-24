@@ -90,7 +90,8 @@ const Notifications = () => {
      * @async
      */
     const fetchData = async () => {
-        await Promise.all([fetchNotifications(), fetchFloodAlerts(), fetchCheckInStatuses()]);
+        await fetchCheckInStatuses();
+        await Promise.all([fetchNotifications(), fetchFloodAlerts()]);
         setLoading(false);
     };
 
