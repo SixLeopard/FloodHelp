@@ -91,6 +91,7 @@ const Notifications = () => {
      */
     const fetchData = async () => {
         await fetchCheckInStatuses();
+        console.log('Check-in statuses:', checkInStatuses);
         await Promise.all([fetchNotifications(), fetchFloodAlerts()]);
         setLoading(false);
     };
